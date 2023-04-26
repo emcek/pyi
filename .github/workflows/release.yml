@@ -2,7 +2,7 @@ name: Release Pipeline
 
 on:
   push:
-    tags: ["*"]
+    tags: ["v*"]
 
 jobs:
 #  lint:
