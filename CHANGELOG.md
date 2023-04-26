@@ -1,12 +1,4 @@
-## 1.8.1
-* Add support for **Ka-50 Black Shark III**
-* Update footer when checking DCS-BIOS version
-* Align with DCS 2.8.1.34667.2 and DCS-BIOS 0.7.47
-* Internal:
-  * add more unit tests
-  * mark some test as DCS-BIOS tests
-
-## 2.0.0
+## 1.8.2
 * Allow use/update DCS-BIOS directly from GitHub (master branch)
 * Allow run DCSpy without console
 * Auto screenshot of LCD during operation
