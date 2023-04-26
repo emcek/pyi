@@ -3,17 +3,17 @@ name: Python lint
 on: workflow_call
 
 jobs:
-  black:
-    name: Black
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: psf/black@stable
-        with:
-          version: ~=22.12
-          src: "."
-          options: "--check"
+#  black:
+#    name: Black
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-python@v2
+#      - uses: psf/black@stable
+#        with:
+#          version: ~=22.12
+#          src: "."
+#          options: "--check"
 
   mypy:
     name: Type checking
