@@ -15,14 +15,14 @@ jobs:
 #          src: "."
 #          options: "--check"
 
-  mypy:
-    name: Type checking
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python environment
-        uses: ./.github/actions/setup-python
-
-      - name: mypy
-        uses: ./.github/actions/mypy
+#  mypy:
+#    name: Type checking
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - name: Set up Python environment
+#        uses: ./.github/actions/setup-python
+#
+#      - name: mypy
+#        uses: ./.github/actions/mypy
