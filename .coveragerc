@@ -1,0 +1,9 @@
+[run]
+source = dcspy
+
+[report]
+omit = tests/*
+       dcspy/tk_gui.py
+
+[html]
+directory = covhtml

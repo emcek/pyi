@@ -1,20 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
+from pathlib import Path
+from sys import prefix
 
-
+packages = ['customtkinter', 'CTkMessagebox']
+resources = ['dcspy.ico', 'dcspy_white.ico', 'config.yaml', 'falconded.ttf', 'dcspy.png', 'G13.png', 'G19.png', 'G510.png', 'G15v1.png', 'G15v2.png', 'license.txt']
+files = [(f'dcspy/{r}', 'dcspy') for r in resources]
+gui_packages = [(Path(prefix) / 'Lib' / 'site-packages' / f'{p}', p) for p in packages]
 block_cipher = None
 
 
 a = Analysis(
-    ['dcspy\\run.py'],
+    ['dcs_py.py'],
     pathex=[],
     binaries=[],
-    datas=[('venv/Lib/site-packages/customtkinter', 'customtkinter'),
-           ('dcspy/dcspy.ico', '.'),
-           ('dcspy/config.yaml', 'dcspy'),
-           ('dcspy/falconded.ttf', 'dcspy'),
-           ('dcspy/dcspy.png', 'dcspy'),
-           ('dcspy/G13.png', 'dcspy'),
-           ('dcspy/G19.png', 'dcspy')],
+    datas=files + gui_packages,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -26,13 +25,23 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+splash = Splash(
+    'dcspy/dcspy.png',
+    binaries=a.binaries,
+    datas=a.datas,
+    text_pos=None,
+    text_size=12,
+    minify_script=True,
+    always_on_top=True,
+)
 
 exe = EXE(
     pyz,
     a.scripts,
+    splash,
     [],
     exclude_binaries=True,
-    name='DCSpy',
+    name='dcs_py',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -43,14 +52,16 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['dcspy/dcspy.ico'],
 )
 coll = COLLECT(
     exe,
     a.binaries,
     a.zipfiles,
     a.datas,
+    splash.binaries,
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='dcspy',
+    name='dcs_py',
 )

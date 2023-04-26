@@ -1,0 +1,15 @@
+name: Build dcspy package
+description: Assembles the full dcspy application.
+runs:
+  using: composite
+  steps:
+    - name: Build binaries
+      shell: powershell
+      run: |
+        ./venv/scripts/activate
+        pyinstaller dcspy.spec
+
+    - name: Install changelog
+      shell: powershell
+      run: |
+        Copy-Item .\CHANGELOG.md .\dist

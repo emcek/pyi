@@ -1,0 +1,212 @@
+@startuml
+hide empty members
+
+package dcsbios {
+    class ProtocolParser {
+        + state : str
+        + sync_byte_count : int
+        + address : int
+        + count : int
+        + data : int
+        + write_callbacks : Set[Callable]
+        + frame_sync_callbacks : Set[Callable]
+        + process_byte(byte: int)
+    }
+
+    class StringBuffer {
+        + buffer : bytearray
+        + callbacks: Set[Callable]
+        + __init__(parser, address, max_length, callback)
+        + set_char(index, char)
+        + on_dcsbios_write(address, data)
+    }
+
+    class IntegerBuffer {
+        + callbacks: Set[Callable]
+        + __init__(parser, address, mask, shift_by, callback)
+        + on_dcsbios_write(address, data)
+    }
+    class ParserState <<(E,yellow)>> {
+        ADDRESS_LOW = 1
+        ADDRESS_HIGH = 2
+        COUNT_LOW = 3
+        COUNT_HIGH = 4
+        DATA_LOW = 5
+        DATA_HIGH = 6
+        WAIT_FOR_SYNC = 7
+    }
+}
+
+package logitech {
+    LogitechKeyboard <|-- KeyboardMono
+    LogitechKeyboard <|-- KeyboardColor
+
+    class LogitechKeyboard {
+        + parser : ProtocolParser
+        + plane : Aircraft
+        + plane_name = '' : str
+        + plane_detected = False : bool
+        + already_pressed = False : bool
+        + lcd : LcdInfo
+        + vert_space = 0 : int
+        + dislay(message : List[str]) -> List[str]
+        # {abstract} _prepare_image() -> Image
+        + detecting_plane()
+        + load_new_plane(value : str)
+        + check_buttons() -> int
+        + button_handle(sock : socket)
+        + clear()
+        + text(List[str])
+    }
+
+    class KeyboardMono {
+        + vert_space = 10 : int
+    }
+
+    class KeyboardColor {
+        + vert_space = 40 : int
+    }
+}
+
+package aircraft {
+    Aircraft <|-- FA18Chornet
+    Aircraft <|-- F16C50
+    Aircraft <|-- Ka50
+    Ka50 <|-- Ka503
+    Aircraft <|-- Mi8MT
+    Aircraft <|-- Mi24P
+    Aircraft <|-- AH64D
+    Aircraft <|-- A10C
+    A10C <|-- A10C2
+    Aircraft <|-- F14B
+    F14B <|-- F14A135GR
+    Aircraft <|-- AV8BNA
+    AH64D *-- ApacheEufdMode
+    class Aircraft {
+        + bios_data : Dict[str, BiosValue]
+        + cycle_buttons : Dict[str, Iterator[int]]
+        + lcd : LcdInfo
+        # _debug_img : Iterator[int]
+        + __init__(lcd_type: LcdInfo)
+        + button_request(button: int, request: str) -> str
+        + prepare_image() -> Image
+        + set_bios(selector: str, value: Union[str, int])
+        + get_bios(selector: str) -> Union[str, int]
+        + get_next_value_for_button(btn_name: str) -> int
+        + {abstract} draw_for_lcd_mono(img: Image)
+        + {abstract} draw_for_lcd_color(img: Image)
+    }
+
+    class ApacheEufdMode <<(E,yellow)>> {
+        + UNK = 0
+        + IDM = 1
+        + WCA = 2
+        + PRE = 4
+    }
+}
+
+class LcdInfo <<(D,orchid)>> {
+    + height : int
+    + width : int
+    + type : LcdType
+    + buttons: Sequence[LcdButton]
+    + foreground : Union[int, Sequence[int]]
+    + background : Union[int, Sequence[int]]
+    + mode: str
+    + font_xs: ImageFont.FreeTypeFont
+    + font_s: ImageFont.FreeTypeFont
+    + font_l: ImageFont.FreeTypeFont
+}
+
+class LcdType <<(E,yellow)>> {
+    + mono = 0
+    + color = 1
+}
+
+class LcdButton <<(E,yellow)>> {
+    + none = 0x0
+    + one = 0x1
+    + two = 0x2
+    + three = 0x4
+    + four = 0x8
+    + left = 0x0100
+    + right = 0x0200
+    + ok = 0x0400
+    + cancel = 0x0800
+    + up = 0x1000
+    + down = 0x2000
+    + menu = 0x4000
+}
+
+package sdk{
+    class lcd_sdk <<(L,lightblue)>> {
+        + logi_lcd_init()
+        + logi_lcd_is_connected()
+        + logi_lcd_is_button_pressed()
+        + logi_lcd_update()
+        + logi_lcd_shutdown()
+        + logi_lcd_mono_set_background()
+        + logi_lcd_mono_set_text()
+        + logi_lcd_color_set_background()
+        + logi_lcd_color_set_title()
+        + logi_lcd_color_set_text()
+        + update_text()
+        + update_display()
+        + clear_display()
+        # _clear_mono()
+        # _clear_color()
+    }
+    class led_sdk <<(L,lightblue)>> {
+        + logi_led_init()
+        + logi_led_init_with_name()
+        + logi_led_set_target_device()
+        + logi_led_save_current_lighting()
+        + logi_led_restore_lighting()
+        + logi_led_set_lighting()
+        + logi_led_flash_lighting()
+        + logi_led_pulse_lighting()
+        + logi_led_stop_effects()
+        + logi_led_shutdown()
+        + start_led_pulse()
+    }
+}
+
+class IntBuffArgs <<(T,orange)>> {
+    + address: int
+    + mask: int
+    + shift_by: int
+}
+
+class StrBuffArgs <<(T,orange)>> {
+    + address: int
+    + max_length: int
+}
+
+class BiosValue <<(T,orange)>> {
+    + klass : str
+    + args: Union[IntBuffArgs, StrBuffArgs]
+    + value: Union[int, str]
+    + max_value: int
+}
+
+TypedDict <- IntBuffArgs
+TypedDict <- StrBuffArgs
+TypedDict <-- BiosValue
+
+BiosValue *-- IntBuffArgs
+BiosValue *-- StrBuffArgs
+
+LcdType --* LcdInfo
+LcdButton --* LcdInfo
+LcdButton -* Aircraft
+
+LogitechKeyboard *- Aircraft
+LcdInfo -* LogitechKeyboard
+LogitechKeyboard *--- ProtocolParser
+LogitechKeyboard *-- lcd_sdk
+
+LcdInfo --* Aircraft
+Aircraft *-- StringBuffer
+Aircraft *--- IntegerBuffer
+Aircraft *-- lcd_sdk
+@enduml

@@ -1,0 +1,16 @@
+name: Tests
+on: workflow_call
+jobs:
+  python-tests:
+    name: Python tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: run tests
+        run: |
+          ./venv/scripts/activate
+          pytest tests

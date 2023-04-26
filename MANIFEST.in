@@ -1,3 +1,5 @@
+include *.md
+include *.txt
 include *.yaml
 include *.ico
 include *.png

@@ -1,4 +1,9 @@
-customtkinter
-Pillow
+CTkMessagebox
+customtkinter>=5.1.0
+GitPython
+packaging<=21.3
+Pillow>=9.3.0
+psutil
 PyYAML
-pyinstaller
+requests
+typing-extensions; python_version < '3.11'
