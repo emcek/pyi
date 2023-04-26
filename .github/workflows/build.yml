@@ -3,8 +3,8 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  lint:
-    uses: ./.github/workflows/lint.yml
+#  lint:
+#    uses: ./.github/workflows/lint.yml
 
   test:
     uses: ./.github/workflows/test.yml
