@@ -5,7 +5,7 @@ jobs:
     name: Python tests
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python environment
         uses: ./.github/actions/setup-python

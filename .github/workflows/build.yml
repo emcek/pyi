@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
@@ -29,7 +29,8 @@ jobs:
         run:
           Compress-Archive -Path .\dist\dcs_py\ -DestinationPath dist\dcs_py.zip
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: dcs_py
           path: dist/dcs_py.zip
+          retention-days: 21
