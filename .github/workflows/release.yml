@@ -61,7 +61,7 @@ jobs:
       - uses: actions/create-release@v1
         id: create_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/upload-release-asset@v1
         env:
-          PYI_REL_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dcs_py.${{ steps.version.outputs.number }}.zip
