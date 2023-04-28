@@ -19,9 +19,9 @@ jobs:
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
 
-      - name: Finalize build
-        run: |
-          New-Item -ItemType file final
+#      - name: Finalize build
+#        run: |
+#          New-Item -ItemType file final
 
       - name: Build app
         uses: ./.github/actions/build-app
@@ -30,8 +30,13 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: dcs_py
-          path: dist/
+          name: dcs_py.exe
+          path: dist/dcs_py.exe
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dcs_py_cli.exe
+          path: dist/dcs_py_cli.exe
 
   release:
     needs: [build]
@@ -39,7 +44,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: dcs_py
+          name: dcspy_binaries
 
       - name: "Get Version"
         id: version
@@ -74,6 +79,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dcs_py.${{ steps.version.outputs.number }}.zip
-          asset_name: dcs_py.${{ steps.version.outputs.number }}.zip
-          asset_content_type: application/zip
+          asset_path: ./dcs_py.exe.${{ steps.version.outputs.number }}
+          asset_name: dcs_py.exe.${{ steps.version.outputs.number }}
+          asset_content_type: application/vnd.microsoft.portable-executable
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dcs_py_cli.exe.${{ steps.version.outputs.number }}
+          asset_name: dcs_py_cli.exe.${{ steps.version.outputs.number }}
+          asset_content_type: application/vnd.microsoft.portable-executable

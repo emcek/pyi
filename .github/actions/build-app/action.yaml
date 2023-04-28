@@ -1,13 +1,25 @@
-name: Build dcspy package
+name: Build dcspy binary packages
 description: Assembles the full dcspy application.
 runs:
   using: composite
   steps:
-    - name: Build binaries
+    - name: Make version file
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pyinstaller dcspy.spec
+        python gnerate_ver_file.py v1.8.5 40 6bbd8808 file_version_info.txt
+
+    - name: Build regular binary
+      shell: powershell
+      run: |
+        ./venv/scripts/activate
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
+
+    - name: Build CLI binary
+      shell: powershell
+      run: |
+        ./venv/scripts/activate
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec
 
     - name: Install changelog
       shell: powershell
