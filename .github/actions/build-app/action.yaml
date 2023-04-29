@@ -8,20 +8,19 @@ runs:
       run: |
         ./venv/scripts/activate
         Get-ChildItem Env:
-        $env:GITHUB_REF
-        python gnerate_ver_file.py ${{github.ref_name}} $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
+        python gnerate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
     - name: Build regular binary
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
 
     - name: Build CLI binary
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
 
     - name: Install changelog
       shell: powershell

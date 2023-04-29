@@ -52,6 +52,8 @@ jobs:
           TAG_NAME: ${{ github.ref }}
         run: |
           Get-ChildItem -Recurse -Depth 1
+          Rename-Item -Path dcs_py.exe -NewName dcs_py_$env:GITHUB_REF_NAME.exe
+          Rename-Item -Path dcs_py_cli.exe -NewName dcs_py_cli_$env:GITHUB_REF_NAME.exe
           $version = ($env:TAG_NAME -split "/") | Select-Object -Last 1
           $prerelease = ("2.1.1-alpha3" -match '[^\.\d]').ToString().ToLower()
           Write-Host $version

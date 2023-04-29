@@ -19,6 +19,7 @@ jobs:
 
       - name: Set build number
         run: |
+          Get-ChildItem Env:
           [IO.File]::WriteAllLines($pwd.path + "\buildnumber", $env:GITHUB_RUN_NUMBER)
           [IO.File]::WriteAllLines($pwd.path + "\gitsha", $env:GITHUB_SHA)
           Get-ChildItem -Recurse -Depth 1
