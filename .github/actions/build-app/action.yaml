@@ -7,7 +7,9 @@ runs:
       shell: powershell
       run: |
         ./venv/scripts/activate
-        python gnerate_ver_file.py v1.8.5 40 6bbd8808 file_version_info.txt
+        Get-ChildItem Env:
+        $env:GITHUB_REF
+        python gnerate_ver_file.py ${{github.ref_name}} $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
     - name: Build regular binary
       shell: powershell

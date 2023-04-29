@@ -79,8 +79,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/dcs_py.exe.${{ steps.version.outputs.number }}
-          asset_name: dist/dcs_py.exe.${{ steps.version.outputs.number }}
+          asset_path: ./dist/dcs_py.exe
+          asset_name: dist/dcs_py_${{ steps.version.outputs.number }}.exe
           asset_content_type: application/vnd.microsoft.portable-executable
 
       - uses: actions/upload-release-asset@v1
@@ -88,6 +88,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/dcs_py_cli.exe.${{ steps.version.outputs.number }}
-          asset_name: dist/dcs_py_cli.exe.${{ steps.version.outputs.number }}
+          asset_path: ./dist/dcs_py_cli.exe
+          asset_name: dist/dcs_py_cli_${{ steps.version.outputs.number }}.exe
           asset_content_type: application/vnd.microsoft.portable-executable
