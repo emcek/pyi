@@ -13,5 +13,4 @@ jobs:
       - name: run tests
         run: |
           ./venv/scripts/activate
-          Get-ChildItem Env:
           pytest tests
