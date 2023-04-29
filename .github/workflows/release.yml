@@ -58,8 +58,10 @@ jobs:
           $prerelease = ("2.1.1-alpha3" -match '[^\.\d]').ToString().ToLower()
           Write-Host $version
           Write-Host $prerelease
-          Write-Output "::set-output name=number::$version"
-          Write-Output "::set-output name=prerelease::$prerelease"
+#          Write-Output "::set-output name=number::$version"
+#          Write-Output "::set-output name=prerelease::$prerelease"
+          Write-Output "{number}={$version}" >> $VERSION
+          Write-Output "{prerelease}={$prerelease}" >> $PRERELEASE
           $changelog = Get-Content .\CHANGELOG.md
           $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 2
           ($changelog | Select-Object -First $last_change) -join "`n" | Out-File .\releasenotes.md
@@ -74,22 +76,22 @@ jobs:
           release_name: ${{ github.ref }}
           body_path: releasenotes.md
           draft: false
-          prerelease: ${{ steps.version.outputs.prerelease }}
+          prerelease: ${{ $PRERELEASE }}
 
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dcs_py_${{ steps.version.outputs.number }}.exe
-          asset_name: dcs_py_${{ steps.version.outputs.number }}.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          asset_path: dcs_py_${{ $VERSION }}.exe
+          asset_name: dcs_py_${{ $VERSION }}.exe
+          asset_content_type: application/zip
 
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dcs_py_cli_${{ steps.version.outputs.number }}.exe
-          asset_name: dcs_py_cli_${{ steps.version.outputs.number }}.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          asset_path: dcs_py_cli_${{ $VERSION }}.exe
+          asset_name: dcs_py_cli_${{ $VERSION }}.exe
+          asset_content_type: application/zip
