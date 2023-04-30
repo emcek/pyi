@@ -8,10 +8,8 @@ runs:
       run: |
         ./venv/scripts/activate
         Get-ChildItem Env:
-        Write-Output "Make Version File"
-        python gnerate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
         Write-Output "Install VS"
-        choco install -y visualstudio2019-workload-vctools
+        choco install -y visualstudio2022-workload-vctools
         Write-Output "Clone PyInstaller"
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller\bootloader
@@ -24,7 +22,9 @@ runs:
         Write-Output "Pip List"
         pip list
         Write-Output "Install PyInstaller"
-        pip -v install  dist\pyinstaller-5.10.1-py3-none-any.whl
+        pip install  dist\pyinstaller-5.10.1-py3-none-any.whl
+        Write-Output "Make Version File"
+        python gnerate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
     - name: Build regular binary
       shell: powershell
