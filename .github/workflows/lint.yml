@@ -12,6 +12,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check PyCodeStyle
+        shell: powershell
         run: |
           pycodestyle --statistics --count dcspy
 
@@ -24,6 +25,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check PyDocStyle
+        shell: powershell
         run: |
           pydocstyle --count dcspy
 
@@ -36,6 +38,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check interrogate
+        shell: powershell
         run: |
           interrogate -c pyproject.toml -vv
 
@@ -48,10 +51,11 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check PyLint
+        shell: powershell
         run: |
           pylint dcspy || echo $(($? % 4))
 
-  Flake8:
+  Flake:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -60,6 +64,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check flake8
+        shell: powershell
         run: |
           flake8 . --select=E9,F63,F7,F82 --show-source
           flake8 . --exit-zero --ignore=E501
@@ -73,6 +78,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check mypy
+        shell: powershell
         run: |
           mypy dcspy
 
@@ -94,5 +100,6 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Check MANIFEST
+        shell: powershell
         run: |
           check-manifest -q || echo $(($? -1))
