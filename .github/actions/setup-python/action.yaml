@@ -9,16 +9,14 @@ runs:
         python-version: "3.11"
         cache: pip
 
-    - name: Install environment
+    - name: Install virtual environment
       shell: powershell
       run: |
         python -m venv ./venv
 
-    - name: Install dependencies
+    - name: Install requirements
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pip list
         python -m pip install -U pip setuptools wheel
         python -m pip install -U -r requirements_test.txt
-        pip list

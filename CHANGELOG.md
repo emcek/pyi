@@ -1,4 +1,4 @@
-## 1.8.24
+## 1.8.25
 * Allow use/update DCS-BIOS directly from GitHub (master branch)
 * Allow run DCSpy without console
 * Auto screenshot of LCD during operation
