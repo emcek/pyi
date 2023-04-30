@@ -19,11 +19,12 @@ runs:
         Write-Output "Bulid WAF"
         python.exe ./waf all
         cd ..
+        Write-Output "Pip List"
+        pip list
+        Get-ChildItem .
         Write-Output "Build package wheel"
         python.exe setup.py bdist_wheel
         Get-ChildItem dist
-        Write-Output "Pip List"
-        pip list
         Write-Output "Install PyInstaller"
         pip install  dist\pyinstaller-5.10.1-py3-none-any.whl
 
