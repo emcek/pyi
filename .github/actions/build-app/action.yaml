@@ -7,7 +7,6 @@ runs:
       uses: crazy-max/ghaction-chocolatey@v2
       with:
         args: install -y visualstudio2022-workload-vctools
-        cache: vs2022
 
     - name: Compile and install PyInstaller
       shell: powershell
@@ -23,32 +22,20 @@ runs:
         cd ..
         Write-Output "Build package wheel"
         python.exe setup.py bdist_wheel
-        Get-ChildItem dist
-        Write-Output "Pip List"
-        pip list
         Write-Output "Install PyInstaller"
-        pip install  dist\pyinstaller-5.10.1-py3-none-any.whl
+        pip install  dist\pyinstaller-*.whl
 
     - name: Make version file
       shell: powershell
       run: |
-        pip list
-        Get-ChildItem .
         ./venv/scripts/activate
-        pip list
         python gnerate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
-    - name: Build regular binary
+    - name: Build dcspy binaries
       shell: powershell
       run: |
-        Get-ChildItem .
         ./venv/scripts/activate
         pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
-
-    - name: Build CLI binary
-      shell: powershell
-      run: |
-        ./venv/scripts/activate
         pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
 
     - name: Install changelog
