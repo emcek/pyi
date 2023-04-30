@@ -3,15 +3,15 @@ description: Assembles the full dcspy application.
 runs:
   using: composite
   steps:
-#    - name: Install VisualStudio 2022
-#      uses: crazy-max/ghaction-chocolatey@v2
-#      with:
-#        args: install -y visualstudio2022-workload-vctools
+    - name: Install VisualStudio 2022
+      uses: crazy-max/ghaction-chocolatey@v2
+      with:
+        args: install -y visualstudio2022-workload-vctools
+
     - name: Compile and install PyInstaller
       shell: powershell
       run: |
         ./venv/scripts/activate
-        choco install -y visualstudio2022-workload-vctools
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller
         git checkout v5.10.1
