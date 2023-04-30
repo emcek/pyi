@@ -85,7 +85,7 @@ jobs:
             mypyhtml/*
           retention-days: 4
 
-  Check MANIFEST:
+  Manifest:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
