@@ -1,5 +1,7 @@
 name: Tests
+
 on: workflow_call
+
 jobs:
   python-tests:
     name: Python tests
