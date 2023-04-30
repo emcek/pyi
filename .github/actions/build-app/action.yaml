@@ -24,7 +24,7 @@ runs:
         Write-Output "Pip List"
         pip list
         Write-Output "Install PyInstaller"
-        python.exe setup.py install dist\pyinstaller-5.10.1-py3-none-win_amd64.whl
+        python.exe setup.py install dist\pyinstaller-5.10.1-py3-none-any.whl
 
     - name: Build regular binary
       shell: powershell
