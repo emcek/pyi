@@ -14,6 +14,7 @@ jobs:
       - name: Check PyCodeStyle
         shell: powershell
         run: |
+          ./venv/scripts/activate
           pycodestyle --statistics --count dcspy
 
   PyDocStyle:
@@ -27,6 +28,7 @@ jobs:
       - name: Check PyDocStyle
         shell: powershell
         run: |
+          ./venv/scripts/activate
           pydocstyle --count dcspy
 
   interrogate:
@@ -40,6 +42,7 @@ jobs:
       - name: Check interrogate
         shell: powershell
         run: |
+          ./venv/scripts/activate
           interrogate -c pyproject.toml -vv
 
   PyLint:
@@ -53,6 +56,7 @@ jobs:
       - name: Check PyLint
         shell: powershell
         run: |
+          ./venv/scripts/activate
           pylint dcspy || echo $(($? % 4))
 
   Flake:
@@ -66,8 +70,9 @@ jobs:
       - name: Check flake8
         shell: powershell
         run: |
+          ./venv/scripts/activate
           flake8 . --select=E9,F63,F7,F82 --show-source
-          flake8 . --exit-zero --ignore=E501
+#          flake8 . --exit-zero --ignore=E501
 
   MyPy:
     runs-on: windows-latest
@@ -80,6 +85,7 @@ jobs:
       - name: Check mypy
         shell: powershell
         run: |
+          ./venv/scripts/activate
           mypy dcspy
 
       - name: Upload mypy results
@@ -102,4 +108,5 @@ jobs:
       - name: Check MANIFEST
         shell: powershell
         run: |
+          ./venv/scripts/activate
           check-manifest -q || echo $(($? -1))
