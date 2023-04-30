@@ -5,13 +5,15 @@ on:
     tags: ["v*"]
 
 jobs:
-#  lint:
-#    uses: ./.github/workflows/lint.yml
+  lint:
+    uses: ./.github/workflows/lint.yml
 
   test:
+    needs: [lint]
     uses: ./.github/workflows/test.yml
 
   build:
+    needs: [test]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -82,3 +84,25 @@ jobs:
           asset_path: dcs_py_cli_${{ steps.version.outputs.number }}.exe
           asset_name: dcs_py_cli_${{ steps.version.outputs.number }}.exe
           asset_content_type: application/zip
+
+  pypi:
+    needs: [test]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python environment
+      uses: ./.github/actions/setup-python
+
+    - name: Install dependencies
+      shell: powershell
+      run: |
+        ./venv/scripts/activate
+        python setup.py sdist bdist_wheel
+#    - name: Publish a Python distribution to PyPI
+#      uses: pypa/gh-action-pypi-publish@release/v1
+#      with:
+#        user: __token__
+#        password: ${{ secrets.PYPI_TOKEN }}
+#        skip_existing: true
+#        verbose: true

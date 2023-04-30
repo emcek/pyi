@@ -3,20 +3,7 @@ name: Python lint
 on: workflow_call
 
 jobs:
-  black:
-    name: Black
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - uses: psf/black@stable
-        with:
-          version: ~=22.12
-          src: "."
-          options: "--check"
-
-  mypy:
-    name: Type checking
+  PyCodeStyle:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,5 +11,88 @@ jobs:
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
 
-      - name: mypy
-        uses: ./.github/actions/mypy
+      - name: Check PyCodeStyle
+        run: |
+          pycodestyle --statistics --count dcspy
+
+  PyDocStyle:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check PyDocStyle
+        run: |
+          pydocstyle --count dcspy
+
+  interrogate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check interrogate
+        run: |
+          interrogate -c pyproject.toml -vv
+
+  PyLint:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check PyLint
+        run: |
+          pylint dcspy || echo $(($? % 4))
+
+  Flake8:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check flake8
+        run: |
+          flake8 . --select=E9,F63,F7,F82 --show-source
+          flake8 . --exit-zero --ignore=E501
+
+  MyPy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check mypy
+        run: |
+          mypy dcspy
+
+      - name: Upload mypy results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: mypy-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            mypyhtml/*
+          retention-days: 4
+
+  Check MANIFEST:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
+      - name: Check MANIFEST
+        run: |
+          check-manifest -q || echo $(($? -1))

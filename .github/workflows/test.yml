@@ -11,6 +11,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: run tests
+        shell: powershell
         run: |
           ./venv/scripts/activate
-          pytest tests
+          python -m pytest --random -q --disable-warnings -m "not dcsbios"
