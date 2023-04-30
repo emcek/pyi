@@ -11,7 +11,7 @@ runs:
         Write-Output "Make Version File"
         python gnerate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
         Write-Output "Install VS"
-        choco install -y python3 visualstudio2019-workload-vctools
+        choco install -y visualstudio2019-workload-vctools
         Write-Output "Clone PyInstaller"
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller\bootloader
@@ -24,7 +24,7 @@ runs:
         Write-Output "Pip List"
         pip list
         Write-Output "Install PyInstaller"
-        python.exe setup.py install dist\pyinstaller-5.10.1-py3-none-any.whl
+        pip -v install  dist\pyinstaller-5.10.1-py3-none-any.whl
 
     - name: Build regular binary
       shell: powershell
