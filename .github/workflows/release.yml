@@ -19,24 +19,13 @@ jobs:
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
 
-#      - name: Finalize build
-#        run: |
-#          New-Item -ItemType file final
-
       - name: Build app
         uses: ./.github/actions/build-app
-        with:
-          release: true
 
       - uses: actions/upload-artifact@v3
         with:
           name: dcspy_binaries
           path: dist/
-
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: dcs_py_cli.exe
-#          path: dist/dcs_py_cli.exe
 
   release:
     needs: [build]
