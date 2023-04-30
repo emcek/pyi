@@ -18,24 +18,19 @@ runs:
         Write-Output "Bulid WAF"
         python.exe ./waf all
         cd ..
-        Write-Output "Build package sdist"
-        python.exe setup.py sdist bdist_wheel
         Write-Output "Build package wheel"
         python.exe setup.py bdist_wheel
-        Write-Output "Build wheels"
-        python.exe setup.py bdist_wheels
         Get-ChildItem dist
         Write-Output "Pip List"
         pip list
         Write-Output "Install PyInstaller"
-        python.exe install dist/pyinstaller-5.10.1-py3-none-win_amd64.whl
-
+        python.exe setup.py install dist\pyinstaller-5.10.1-py3-none-win_amd64.whl
 
     - name: Build regular binary
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pip list
+        pyinstaller -v
         pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
 
     - name: Build CLI binary

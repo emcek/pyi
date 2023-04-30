@@ -18,5 +18,7 @@ runs:
       shell: powershell
       run: |
         ./venv/scripts/activate
+        pip list
         python -m pip install -U pip setuptools wheel
         python -m pip install -U -r requirements_test.txt
+        pip list
