@@ -5,15 +5,15 @@ from packaging import version
 import git
 
 
-def latest_tag(repo_path: str, as_tag=1) -> str:
+def latest_version(repo_path: str, as_tag=1) -> str:
     repo = git.Repo(repo_path)
     tags_list = [str(tag) for tag in repo.tags]
     ver_tags = [version.parse(m.group(1)) for tag in tags_list if (m := match(r'v(\d+\.\d+\.\d+)$', tag))]
-    tag = str(max(ver_tags))
-    if int(as_tag):
-        tag = f'v{tag}'
-    return tag
+    ver = str(max(ver_tags))
+    if bool(int(as_tag)):
+        ver = f'v{ver}'
+    return ver
 
 
 if __name__ == '__main__':
-    print(latest_tag(*argv[1:]))
+    print(latest_version(*argv[1:]))
