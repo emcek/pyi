@@ -33,6 +33,7 @@ runs:
         ./venv/scripts/activate
         pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
         pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
+        Get-ChildItem -Recurse -Depth 1
 
     - name: Build dcspy package
       shell: powershell
@@ -40,6 +41,7 @@ runs:
         ./venv/scripts/activate
         pip install -U twine
         python setup.py sdist bdist_wheel
+        Get-ChildItem -Recurse -Depth 1
 
     - name: Install changelog
       shell: powershell

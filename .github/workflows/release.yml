@@ -22,7 +22,10 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: Build dcspy
+        shell: powershell
         uses: ./.github/actions/build-app
+        run: |
+          Get-ChildItem -Recurse -Depth 1
 
       - uses: actions/upload-artifact@v3
         with:
