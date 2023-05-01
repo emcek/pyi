@@ -21,14 +21,8 @@ jobs:
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
 
-      - name: Build app
+      - name: Build dcspy
         uses: ./.github/actions/build-app
-
-      - name: Build package
-        run: |
-          ./venv/scripts/activate
-          pip install -U twine
-          python setup.py sdist bdist_wheel
 
       - uses: actions/upload-artifact@v3
         with:
@@ -80,7 +74,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dcs_py_${{ steps.version.outputs.number }}.exe
           asset_name: dcs_py_${{ steps.version.outputs.number }}.exe
-          asset_content_type: application/zip
+          asset_content_type: application/vnd.microsoft.portable-executable
 
       - uses: actions/upload-release-asset@v1
         env:
@@ -89,7 +83,25 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dcs_py_cli_${{ steps.version.outputs.number }}.exe
           asset_name: dcs_py_cli_${{ steps.version.outputs.number }}.exe
-          asset_content_type: application/zip
+          asset_content_type: application/vnd.microsoft.portable-executable
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
+          asset_name: dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
+          asset_content_type: application/x-wheel+zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dcspy-${{ steps.version.outputs.number }}.tar.gz
+          asset_name: dcspy-${{ steps.version.outputs.number }}.tar.gz
+          asset_content_type: application/tar+gzip/
 
   pypi:
     needs: [build]
@@ -100,6 +112,7 @@ jobs:
           name: dcspy_binaries
 
       - name: Publish a Python distribution to PyPI
+        shell: powershell
         run: |
           ./venv/scripts/activate
           Get-ChildItem -Recurse -Depth 2
