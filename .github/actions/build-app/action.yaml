@@ -14,8 +14,10 @@ runs:
         ./venv/scripts/activate
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller
-        $pyi_tag = (python.exe ../pyi/latest_tag.py . 1)
-        $pyi_ver = (python.exe ../pyi/latest_tag.py . 0)
+        Get-ChildItem -Recurse -Depth 1
+        Get-ChildItem -Recurse -Depth 1 ..\pyi\
+        $pyi_tag = python.exe ..\pyi\latest_tag.py . 1
+        $pyi_ver = python.exe ..\pyi\latest_tag.py . 0
         $pyi_tag
         $pyi_ver
         git checkout $pyi_tag
