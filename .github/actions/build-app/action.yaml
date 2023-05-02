@@ -12,8 +12,8 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/pyinstaller/pyinstaller.git
-        $pyi_tag = python.exe latest_tag.py pyinstaller 1
-        $pyi_ver = python.exe latest_tag.py pyinstaller 0
+        pyi_tag=$(python.exe latest_tag.py pyinstaller 1)
+        pyi_ver=$(python.exe latest_tag.py pyinstaller 0)
         cd pyinstaller\bootloader
         git checkout $pyi_tag
         python.exe ./waf all
