@@ -44,7 +44,6 @@ jobs:
 
       - name: "Get Release Notes"
         id: version
-        shell: powershell
         run: |
 #          ./venv/scripts/activate
           $dcspy_ver = python.exe latest_tag.py . 0
