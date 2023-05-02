@@ -12,12 +12,10 @@ jobs:
         python-version: ['3.11']
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up Python ${{ matrix.os }} ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install MS Fonts
         if: ${{ contains( matrix.os, 'ubuntu') }}
         run: |
@@ -25,12 +23,13 @@ jobs:
           sudo mkdir -p /usr/share/fonts/truetype
           sudo mv consola.ttf /usr/share/fonts/truetype
           fc-cache -f -v
-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install -Ur requirements_test.txt
       - name: Test with pytest
         run: |
-          ./venv/scripts/activate
           python -m pytest --random -q --disable-warnings -m "not dcsbios"
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
         if: failure()
@@ -39,8 +38,6 @@ jobs:
           path: |
             dcspy.log
           retention-days: 5
-
       - name: Check pip-audit
         run: |
-          ./venv/scripts/activate
           pip-audit -r requirements.txt --progress-spinner off

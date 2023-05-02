@@ -9,14 +9,14 @@ runs:
         python-version: "3.11"
         cache: pip
 
-    - name: Install virtual environment
-      shell: bash
-      run: |
-        python -m venv ./venv
+#    - name: Install virtual environment
+#      shell: bash
+#      run: |
+#        python -m venv ./venv
 
     - name: Install requirements
       shell: bash
       run: |
-        ./venv/scripts/activate
+#        ./venv/scripts/activate
         python -m pip install -U pip setuptools wheel
         python -m pip install -U -r requirements_test.txt
