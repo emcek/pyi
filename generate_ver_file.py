@@ -5,7 +5,7 @@ from typing import Sequence
 from PyInstaller.utils.win32 import versioninfo
 
 
-def _generate(major: int, minor: int, patch: int, build: int, git_sha: str) -> versioninfo.VSVersionInfo:
+def generate_ver_info(major: int, minor: int, patch: int, build: int, git_sha: str) -> versioninfo.VSVersionInfo:
     """
     Generate version information object.
 
@@ -55,7 +55,7 @@ def save_ver_file(ver=environ.get('GITHUB_REF_NAME'), bld=environ.get('GITHUB_RU
     if all([ver, bld, sha, ver_f]):
         if ver.startswith('v'):
             ver = ver[1:]
-        info_ver = _generate(*[int(i) for i in ver.split('.')], build=int(bld), git_sha=sha)
+        info_ver = generate_ver_info(*[int(i) for i in ver.split('.')], build=int(bld), git_sha=sha)
         with open(ver_f, mode='w+', encoding='utf-8') as f:
             f.write(str(info_ver))
     else:
