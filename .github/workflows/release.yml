@@ -49,7 +49,7 @@ jobs:
       - name: "Get Release Notes"
         id: version
         run: |
-          $dcspy_ver = python.exe latest_tag.py . 0
+          $dcspy_ver = python ci_tools.py ver .
           Rename-Item -Path dcs_py.exe -NewName dcspy_$dcspy_ver.exe
           Rename-Item -Path dcs_py_cli.exe -NewName dcspy_cli_$dcspy_ver.exe
           Write-Host $dcspy_ver
