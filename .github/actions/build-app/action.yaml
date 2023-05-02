@@ -9,9 +9,8 @@ runs:
 #        args: install -y visualstudio2022-workload-vctools
 
     - name: Compile and install PyInstaller
-      shell: powershell
+      shell: bash
       run: |
-        # ./venv/scripts/activate
         git clone https://github.com/pyinstaller/pyinstaller.git
         $pyi_tag = python.exe latest_tag.py pyinstaller 1
         $pyi_ver = python.exe latest_tag.py pyinstaller 0
@@ -23,22 +22,19 @@ runs:
         pip install dist\pyinstaller-$pyi_ver-py3-none-any.whl
 
     - name: Generate version info file
-      shell: powershell
+      shell: bash
       run: |
-        #./venv/scripts/activate
         python generate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
     - name: Build dcspy package
-      shell: powershell
+      shell: bash
       run: |
-        # ./venv/scripts/activate
         pip install -U twine wheel
         python setup.py sdist bdist_wheel
         python -m twine check dist/*
 
     - name: Build dcspy binaries
-      shell: powershell
+      shell: bash
       run: |
-        # ./venv/scripts/activate
         pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
         pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
