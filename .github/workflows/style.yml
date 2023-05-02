@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: mypy-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: mypy_3_11
           path: |
             mypyhtml/*
           retention-days: 4

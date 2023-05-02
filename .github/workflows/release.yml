@@ -33,28 +33,27 @@ jobs:
     needs: [build]
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: ./.github/actions/setup-python
+
       - uses: actions/download-artifact@v3
         with:
           name: dcspy_binaries
 
-      - name: "Get Version"
+      - name: "Get Release Notes"
         id: version
-        env:
-          TAG_NAME: ${{ github.ref }}
         run: |
-          Get-ChildItem -Recurse -Depth 1
-          Rename-Item -Path dcs_py.exe -NewName dcs_py_$env:GITHUB_REF_NAME.exe
-          Rename-Item -Path dcs_py_cli.exe -NewName dcs_py_cli_$env:GITHUB_REF_NAME.exe
-          $version = ($env:TAG_NAME -split "/") | Select-Object -Last 1
-          $prerelease = ("2.1.1-alpha3" -match '[^\.\d]').ToString().ToLower()
-          Write-Host $version
-          Write-Host $prerelease
-          Write-Output "::set-output name=number::$version"
-          Write-Output "::set-output name=prerelease::$prerelease"
+          ./venv/scripts/activate
+          $dcspy_ver = python.exe latest_tag.py . 0
+          Rename-Item -Path dcs_py.exe -NewName dcspy_$dcspy_ver.exe
+          Rename-Item -Path dcs_py_cli.exe -NewName dcspy_cli_$dcspy_ver.exe
+          Write-Host $dcspy_ver
+          Write-Output "::set-output name=number::$dcspy_ver"
           $changelog = Get-Content .\CHANGELOG.md
           $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 2
-          ($changelog | Select-Object -First $last_change) -join "`n" | Out-File .\releasenotes.md
-#          Compress-Archive -Path .\dcspy_binaries -DestinationPath "dcs_py.$version.zip" -Compression Optimal
+          ($changelog | Select-Object -First $last_change) -join "`n" | Out-File .\RELEASENOTES.md
 
       - uses: actions/create-release@v1
         id: create_release
@@ -62,18 +61,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body_path: releasenotes.md
+          release_name: dcspy ${{ github.ref }}
+          body_path: RELEASENOTES.md
           draft: false
-          prerelease: ${{ steps.version.outputs.prerelease }}
+          prerelease: false
 
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dcs_py_${{ steps.version.outputs.number }}.exe
-          asset_name: dcs_py_${{ steps.version.outputs.number }}.exe
+          asset_path: dcspy_${{ steps.version.outputs.number }}.exe
+          asset_name: dcspy_${{ steps.version.outputs.number }}.exe
           asset_content_type: application/vnd.microsoft.portable-executable
 
       - uses: actions/upload-release-asset@v1
@@ -81,8 +80,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dcs_py_cli_${{ steps.version.outputs.number }}.exe
-          asset_name: dcs_py_cli_${{ steps.version.outputs.number }}.exe
+          asset_path: dcspy_cli_${{ steps.version.outputs.number }}.exe
+          asset_name: dcspy_cli_${{ steps.version.outputs.number }}.exe
           asset_content_type: application/vnd.microsoft.portable-executable
 
       - uses: actions/upload-release-asset@v1
@@ -108,6 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -116,15 +116,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U setuptools twine
-          pip install -Ur requirements.txt
 
       - uses: actions/download-artifact@v3
         with:
           name: dcspy_binaries
 
-      - name: Publish a Python distribution to PyPI
+      - name: Publish dcspy to PyPI
         run: |
-          ls -laR
+          mkdir dist
+          mv *.whl *.tar.gz dist/
+          ls -la dist/
 
 #        uses: pypa/gh-action-pypi-publish@release/v1
 #        with:
