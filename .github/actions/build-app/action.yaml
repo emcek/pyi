@@ -3,10 +3,10 @@ description: Assembles the full dcspy application.
 runs:
   using: composite
   steps:
-    - name: Install VisualStudio 2022
-      uses: crazy-max/ghaction-chocolatey@v2
-      with:
-        args: install -y visualstudio2022-workload-vctools
+#    - name: Install VisualStudio 2022
+#      uses: crazy-max/ghaction-chocolatey@v2
+#      with:
+#        args: install -y visualstudio2022-workload-vctools
 
     - name: Compile and install PyInstaller
       shell: powershell
@@ -14,8 +14,13 @@ runs:
         ./venv/scripts/activate
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller
-        Get-ChildItem -Recurse -Depth 1
-        Get-ChildItem -Recurse -Depth 1 ..\pyi\
+        Get-ChildItem 
+        pwd
+        cd ..
+        Get-ChildItem
+        pwd
+        cd pyi
+        Get-ChildItem
         $pyi_tag = python.exe ..\pyi\latest_tag.py . 1
         $pyi_ver = python.exe ..\pyi\latest_tag.py . 0
         $pyi_tag
@@ -48,6 +53,7 @@ runs:
         pip install -U twine
         python setup.py sdist bdist_wheel
         Get-ChildItem -Recurse -Depth 1
+        python -m twine check dist/*
 
     - name: Install changelog
       shell: powershell
