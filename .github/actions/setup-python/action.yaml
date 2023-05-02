@@ -3,13 +3,13 @@ description: Sets up the dcspy Python environment.
 runs:
   using: composite
   steps:
-    - name: Set up Python
+    - name: "Set up Python 3.11"
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
         cache: pip
 
-    - name: Install requirements
+    - name: "Install requirements"
       shell: bash
       run: |
         python -m pip install -U pip setuptools wheel
