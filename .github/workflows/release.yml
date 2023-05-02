@@ -5,9 +5,9 @@ on:
     tags: ["v*"]
 
 jobs:
-#  style:
-#    uses: ./.github/workflows/style.yml
-#
+  style:
+    uses: ./.github/workflows/style.yml
+
   test:
     needs: [style]
     uses: ./.github/workflows/test.yml
