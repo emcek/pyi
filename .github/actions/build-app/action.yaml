@@ -7,8 +7,8 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/pyinstaller/pyinstaller.git
-        pyi_tag=$(python ci_tools.py tag pyinstaller)
-        pyi_ver=$(python ci_tools.py ver pyinstaller)
+        pyi_tag=$(python latest_tag.py pyinstaller 1)
+        pyi_ver=$(python latest_tag.py pyinstaller 0)
         cd pyinstaller/bootloader
         git checkout $pyi_tag
         python.exe ./waf all
@@ -19,7 +19,7 @@ runs:
     - name: "Generate version info file"
       shell: bash
       run: |
-        python ci_tools.py ver_file $GITHUB_REF_NAME $GITHUB_RUN_NUMBER $GITHUB_SHA file_version_info.txt
+        python generate_ver_file.py
 
     - name: "Build dcspy package"
       shell: bash
