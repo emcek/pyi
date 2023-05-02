@@ -105,17 +105,26 @@ jobs:
 
   pypi:
     needs: [build]
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U setuptools twine
+          pip install -Ur requirements.txt
+
       - uses: actions/download-artifact@v3
         with:
           name: dcspy_binaries
 
       - name: Publish a Python distribution to PyPI
-        shell: powershell
         run: |
-          ./venv/scripts/activate
-          Get-ChildItem -Recurse -Depth 2
+          ls -laR
 
 #        uses: pypa/gh-action-pypi-publish@release/v1
 #        with:
