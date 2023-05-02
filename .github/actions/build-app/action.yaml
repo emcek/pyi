@@ -24,7 +24,7 @@ runs:
     - name: Generate version info file
       shell: bash
       run: |
-        python generate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
+        python generate_ver_file.py $GITHUB_REF_NAME $GITHUB_RUN_NUMBER $GITHUB_SHA file_version_info.txt
 
     - name: Build dcspy package
       shell: bash
