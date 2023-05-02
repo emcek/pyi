@@ -12,7 +12,7 @@ jobs:
       - name: Set up Python environment
         uses: ./.github/actions/setup-python
 
-      - name: run tests
+      - name: Run Tests
         shell: powershell
         run: |
           ./venv/scripts/activate

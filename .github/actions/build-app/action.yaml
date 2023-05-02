@@ -14,15 +14,8 @@ runs:
         ./venv/scripts/activate
         git clone https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller
-        Get-ChildItem 
-        pwd
-        cd ..
-        Get-ChildItem
-        pwd
-        cd pyi
-        Get-ChildItem
-        $pyi_tag = python.exe ..\pyi\latest_tag.py . 1
-        $pyi_ver = python.exe ..\pyi\latest_tag.py . 0
+        $pyi_tag = python.exe ..\latest_tag.py . 1
+        $pyi_ver = python.exe ..\latest_tag.py . 0
         $pyi_tag
         $pyi_ver
         git checkout $pyi_tag
@@ -50,7 +43,7 @@ runs:
       shell: powershell
       run: |
         ./venv/scripts/activate
-        pip install -U twine
+        pip install -U twine wheel
         python setup.py sdist bdist_wheel
         Get-ChildItem -Recurse -Depth 1
         python -m twine check dist/*
