@@ -13,13 +13,10 @@ runs:
       run: |
         ./venv/scripts/activate
         git clone https://github.com/pyinstaller/pyinstaller.git
-        cd pyinstaller
-        $pyi_tag = python.exe ..\latest_tag.py . 1
-        $pyi_ver = python.exe ..\latest_tag.py . 0
-        $pyi_tag
-        $pyi_ver
+        $pyi_tag = python.exe latest_tag.py pyinstaller 1
+        $pyi_ver = python.exe latest_tag.py pyinstaller 0
+        cd pyinstaller\bootloader
         git checkout $pyi_tag
-        cd bootloader
         python.exe ./waf all
         cd ..
         python.exe setup.py bdist_wheel
@@ -31,22 +28,20 @@ runs:
         ./venv/scripts/activate
         python generate_ver_file.py $env:GITHUB_REF_NAME $env:GITHUB_RUN_NUMBER $env:GITHUB_SHA file_version_info.txt
 
-    - name: Build dcspy binaries
-      shell: powershell
-      run: |
-        ./venv/scripts/activate
-        pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
-        pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
-        Get-ChildItem -Recurse -Depth 1
-
     - name: Build dcspy package
       shell: powershell
       run: |
         ./venv/scripts/activate
         pip install -U twine wheel
         python setup.py sdist bdist_wheel
-        Get-ChildItem -Recurse -Depth 1
         python -m twine check dist/*
+
+    - name: Build dcspy binaries
+      shell: powershell
+      run: |
+        ./venv/scripts/activate
+        pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
 
     - name: Install changelog
       shell: powershell
