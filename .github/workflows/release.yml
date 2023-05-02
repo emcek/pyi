@@ -8,9 +8,9 @@ jobs:
 #  style:
 #    uses: ./.github/workflows/style.yml
 #
-#  test:
-#    needs: [style]
-#    uses: ./.github/workflows/test.yml
+  test:
+    needs: [style]
+    uses: ./.github/workflows/test.yml
 
   build:
     needs: [test]
