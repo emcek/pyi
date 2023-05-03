@@ -55,8 +55,8 @@ jobs:
           Write-Host $dcspy_ver
           Write-Output "::set-output name=number::$dcspy_ver"
           $changelog = Get-Content .\CHANGELOG.md
-          $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 2
-          ($changelog | Select-Object -First $last_change) -join "`n" | Out-File .\RELEASENOTES.md
+          $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 3
+          ($changelog | Select-Object -First $last_change -Skip 1) -join "`n" | Out-File .\RELEASENOTES.md
 
       - name: "Create Release"
         uses: actions/create-release@v1
