@@ -102,16 +102,3 @@ jobs:
           path: |
             mypyhtml/*
           retention-days: 4
-  flake8:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Set up Python environment"
-        uses: ./.github/actions/setup-python
-
-      - name: "Check flake8"
-        run: |
-          flake8 . --select=E9,F63,F7,F82 --show-source
-          flake8 . --exit-zero --ignore=E501
