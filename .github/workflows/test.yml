@@ -48,4 +48,4 @@ jobs:
 
       - name: "Check pip-audit"
         run: |
-          pip-audit -r requirements.txt --progress-spinner off
+          pip-audit -v --progress-spinner off
