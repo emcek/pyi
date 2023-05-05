@@ -3,7 +3,7 @@ name: Lint
 on: workflow_call
 
 jobs:
-  style:
+  prepare:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
@@ -12,31 +12,59 @@ jobs:
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
+  PyCodeStyle:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check PyCodeStyle"
         run: |
           pycodestyle --statistics --count dcspy
 
+  PyDocStyle:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check PyDocStyle"
         run: |
           pydocstyle --count dcspy
 
+  interrogate:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check interrogate"
         run: |
           interrogate -c pyproject.toml -vv
 
+  PyLint:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check PyLint"
         run: |
           pylint dcspy || echo $(($? % 4))
 
+  flake8:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check flake8"
         run: |
           flake8 . --select=E9,F63,F7,F82 --show-source
           flake8 . --exit-zero --ignore=E501
 
+  Ruff:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check Ruff"
         run: |
           ruff .
 
+  mypy:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check mypy"
         run: |
           mypy dcspy
@@ -50,6 +78,10 @@ jobs:
             mypyhtml/*
           retention-days: 4
 
+  MANIFEST:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
       - name: "Check MANIFEST"
         run: |
           check-manifest -q || echo $(($? -1))        
