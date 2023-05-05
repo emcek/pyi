@@ -1,9 +1,9 @@
-name: Lint
+name: Style
 
 on: workflow_call
 
 jobs:
-  prepare:
+  pycodestyle:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
@@ -12,59 +12,98 @@ jobs:
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
-  PyCodeStyle:
-    needs: [prepare]
-    runs-on: ubuntu-latest
-    steps:
       - name: "Check PyCodeStyle"
         run: |
           pycodestyle --statistics --count dcspy
 
-  PyDocStyle:
-    needs: [prepare]
+  pydocstyle:
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check PyDocStyle"
         run: |
           pydocstyle --count dcspy
 
   interrogate:
-    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check interrogate"
         run: |
           interrogate -c pyproject.toml -vv
 
-  PyLint:
-    needs: [prepare]
+  pylint:
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check PyLint"
         run: |
           pylint dcspy || echo $(($? % 4))
 
   flake8:
-    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check flake8"
         run: |
           flake8 . --select=E9,F63,F7,F82 --show-source
           flake8 . --exit-zero --ignore=E501
 
-  Ruff:
-    needs: [prepare]
+  ruff:
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check Ruff"
         run: |
           ruff .
 
-  mypy:
-    needs: [prepare]
+  manifest:
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
+      - name: "Check MANIFEST"
+        run: |
+          check-manifest -q || echo $(($? -1))
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
       - name: "Check mypy"
         run: |
           mypy dcspy
@@ -77,11 +116,3 @@ jobs:
           path: |
             mypyhtml/*
           retention-days: 4
-
-  MANIFEST:
-    needs: [prepare]
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Check MANIFEST"
-        run: |
-          check-manifest -q || echo $(($? -1))        
