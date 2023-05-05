@@ -8,14 +8,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
 
       - name: "Set up Python ${{ matrix.os }} ${{ matrix.python-version }}"
-
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -39,7 +38,7 @@ jobs:
 
       - name: "Upload pytest test results"
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: always()
         with:
           name: pytest-${{ matrix.os }}-${{ matrix.python-version }}
           path: |

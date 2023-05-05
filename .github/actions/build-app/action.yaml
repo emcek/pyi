@@ -11,7 +11,7 @@ runs:
         pyi_ver=$(python latest_tag.py pyinstaller 0)
         cd pyinstaller/bootloader
         git checkout $pyi_tag
-        python.exe ./waf all
+        python.exe ./waf -v all
         cd ..
         python.exe setup.py bdist_wheel
         pip install dist/pyinstaller-$pyi_ver-py3-none-any.whl
@@ -24,12 +24,11 @@ runs:
     - name: "Build dcspy package"
       shell: bash
       run: |
-        pip install -U twine wheel
         python setup.py sdist bdist_wheel
         python -m twine check dist/*
 
     - name: "Build dcspy binaries"
       shell: bash
       run: |
-        pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
-        pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec

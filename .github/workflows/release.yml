@@ -81,15 +81,8 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
-      - name: "Set up Python"
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: "Install dependencies"
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U setuptools twine
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
 
       - name: "Download dcspy binaries"
         uses: actions/download-artifact@v3
