@@ -2,8 +2,7 @@ name: Python CI
 
 on:
   push:
-    tags-ignore:
-      - v*
+    tags-ignore: ["v*"]
 
 jobs:
   style:
