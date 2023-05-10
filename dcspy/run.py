@@ -10,7 +10,7 @@ from dcspy.tk_gui import DcspyGui
 from dcspy.utils import check_dcs_ver
 
 LOG = getLogger(__name__)
-__version__ = '1.8.82'
+__version__ = '1.8.83'
 
 
 def run():
