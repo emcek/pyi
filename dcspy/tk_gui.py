@@ -15,12 +15,12 @@ from CTkMessagebox import CTkMessagebox
 from PIL import Image
 from packaging import version
 
-from dcspy import LCD_TYPES, config
+from dcspy import LOCAL_APPDATA, LCD_TYPES, config
 from dcspy.starter import dcspy_run
 from dcspy.utils import save_cfg, check_ver_at_github, download_file, proc_is_running, defaults_cfg, ReleaseInfo, get_version_string, check_dcs_ver, \
-    check_github_repo, check_dcs_bios_entry
+    check_github_repo, check_dcs_bios_entry, get_default_yaml
 
-__version__ = '1.8.92'
+__version__ = '1.9.90'
 LOG = getLogger(__name__)
 
 
@@ -34,7 +34,7 @@ class DcspyGui(tk.Frame):
         """
         super().__init__(master)
         self.master = master
-        self.cfg_file = Path(__file__).resolve().with_name('config.yaml')
+        self.cfg_file = get_default_yaml(local_appdata=LOCAL_APPDATA)
         self.l_bios: Union[version.Version, version.LegacyVersion] = version.LegacyVersion('Not checked')
         self.r_bios: Union[version.Version, version.LegacyVersion] = version.LegacyVersion('Not checked')
         self.event = Event()
@@ -75,7 +75,6 @@ class DcspyGui(tk.Frame):
         self.bios_git_label: customtkinter.CTkLabel
         self.bios_git: customtkinter.CTkEntry
         self._init_widgets()
-        self.status_txt.set(get_version_string(repo='emcek/dcspy', current_ver=__version__, check=config['check_ver']))
         if config.get('autostart', False):
             self.start_dcspy()
 
@@ -154,7 +153,7 @@ class DcspyGui(tk.Frame):
         showgui_label.grid(column=0, row=1, sticky=tk.W, pady=5)
         showgui = customtkinter.CTkSwitch(master=tabview.tab('General'), text='', variable=self.showgui_switch, onvalue=True, offvalue=False, command=partial(self._save_cfg))
         showgui.grid(column=1, row=1, sticky=tk.W, padx=(10, 0), pady=5)
-        checkver_label = customtkinter.CTkLabel(master=tabview.tab('General'), text='Check version:')
+        checkver_label = customtkinter.CTkLabel(master=tabview.tab('General'), text='Check DCSpy version:')
         checkver_label.grid(column=0, row=2, sticky=tk.W, pady=5)
         checkver = customtkinter.CTkSwitch(master=tabview.tab('General'), text='', variable=self.checkver_switch, onvalue=True, offvalue=False, command=partial(self._save_cfg))
         checkver.grid(column=1, row=2, sticky=tk.W, padx=(10, 0), pady=5)
@@ -270,10 +269,11 @@ class DcspyGui(tk.Frame):
         """About information."""
         system, _, release, ver, _, proc = uname()
         dcs_type, dcs_ver = check_dcs_ver(Path(str(config["dcs"])))
+        dcspy_ver = get_version_string(repo='emcek/dcspy', current_ver=__version__, check=config['check_ver'])
         self._auto_update_bios(silence=True)
-        bios_ver = self._check_local_bios().ver
-        sha_commit = f' SHA: {check_github_repo(git_ref="", update=False)}' if self.bios_git_switch.get() else ''
-        dcs_bios_ver = f'{bios_ver}{sha_commit}'
+        bios_ver = str(self._check_local_bios().ver)
+        self._show_status_versions(bios_ver, dcspy_ver)
+        dcs_bios_ver = self._get_bios_full_version(bios_ver)
         tabview.tab('About').grid_columnconfigure(index=0, weight=0)
         tabview.tab('About').grid_columnconfigure(index=1, weight=1)
         python1_label = customtkinter.CTkLabel(master=tabview.tab('About'), text='Python:')
@@ -295,7 +295,7 @@ class DcspyGui(tk.Frame):
         config2_label.bind('<Button-1>', lambda e: self._open_webpage(rf'file://{self.cfg_file}'))
         dcsp1_label = customtkinter.CTkLabel(master=tabview.tab('About'), text='DCSpy:')
         dcsp1_label.grid(column=0, row=4, sticky=tk.W, padx=10, pady=5)
-        dcsp2_label = customtkinter.CTkLabel(master=tabview.tab('About'), text=f'{__version__}')
+        dcsp2_label = customtkinter.CTkLabel(master=tabview.tab('About'), text=f'{dcspy_ver}')
         dcsp2_label.grid(column=1, row=4, sticky=tk.W, padx=10, pady=5)
         dcsbios1_label = customtkinter.CTkLabel(master=tabview.tab('About'), text='DCS-BIOS:')
         dcsbios1_label.grid(column=0, row=5, sticky=tk.W, padx=10, pady=5)
@@ -316,6 +316,29 @@ class DcspyGui(tk.Frame):
         discord2_label = customtkinter.CTkLabel(master=tabview.tab('About'), text='https://discord.gg/SP5Yjx3 (click to open)')
         discord2_label.grid(column=1, row=8, sticky=tk.W, padx=10, pady=5)
         discord2_label.bind('<Button-1>', lambda e: self._open_webpage('https://discord.gg/SP5Yjx3'))
+
+    def _show_status_versions(self, bios_ver: str, dcspy_ver: str) -> None:
+        """
+        Check dcspy and BIOS versions and update status bar.
+
+        :param bios_ver: Bios version
+        :param dcspy_ver: Dcspy version
+        """
+        status_ver = ''
+        status_ver += f"Dcspy: {dcspy_ver} " if config['check_ver'] else ''
+        status_ver += f"BIOS: {bios_ver}" if config['check_bios'] else ''
+        self.status_txt.set(status_ver)
+
+    def _get_bios_full_version(self, bios_ver: str) -> str:
+        """
+        Get full with SHA and git details DCS-BIOS version as string.
+
+        :param bios_ver: version string
+        :return: full BIOS version
+        """
+        sha_commit = f' SHA: {check_github_repo(git_ref=self.bios_git_ref.get(), update=False)}' if self.bios_git_switch.get() else ''
+        dcs_bios_ver = f'{bios_ver}{sha_commit}'
+        return dcs_bios_ver
 
     @staticmethod
     def _open_webpage(url: str) -> None:
@@ -339,7 +362,7 @@ class DcspyGui(tk.Frame):
     def _bios_git_switch(self) -> None:
         """Change state of DSC-BIOS git version controls."""
         if self.git_bios_switch.get():
-            self.bios_git_label.configure(state=tk.ACTIVE)
+            self.bios_git_label.configure(state=tk.NORMAL)
             self.bios_git.configure(state=tk.NORMAL)
         else:
             self.bios_git_label.configure(state=tk.DISABLED)
@@ -408,7 +431,6 @@ class DcspyGui(tk.Frame):
         if conf:
             cfg.update(conf)
         save_cfg(cfg_dict=cfg, filename=self.cfg_file)
-        self.status_txt.set(f'Saved: {self.cfg_file}')
 
     def _set_defaults_cfg(self) -> None:
         """Set defaults and stop application."""
@@ -539,6 +561,7 @@ class DcspyGui(tk.Frame):
         copytree(src=repo_dir / 'Scripts' / 'DCS-BIOS', dst=self.bios_path.get())
         local_bios = self._check_local_bios()
         self.status_txt.set(sha)
+        LOG.info(f'Git DCS-BIOS: {sha}')
         if not silence:
             install_result = self._handling_export_lua(temp_dir=repo_dir / 'Scripts')
             install_result = f'{install_result}\n\nUsing Git/Live version.'

@@ -17,7 +17,6 @@ from yaml import load, FullLoader, parser, dump
 
 LOG = getLogger(__name__)
 ConfigDict = Dict[str, Union[str, int, bool]]
-default_yaml = Path(__file__).resolve().with_name('config.yaml')
 defaults_cfg: ConfigDict = {
     'dcsbios': f'D:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS.openbeta\\Scripts\\DCS-BIOS',
     'dcs': 'C:\\Program Files\\Eagle Dynamics\\DCS World OpenBeta',
@@ -43,6 +42,24 @@ defaults_cfg: ConfigDict = {
 }
 
 
+def get_default_yaml(local_appdata=False) -> Path:
+    """
+    Return full path to default configuration file.
+
+    :param local_appdata: if True C:/Users/<user_name>/AppData/Local is used
+    :return: Path like object
+    """
+    cfg_ful_path = Path(__file__).resolve().with_name('config.yaml')
+    if local_appdata:
+        localappdata = environ.get('localappdata', None)
+        user_appdata = Path(localappdata) / 'dcspy' if localappdata else cfg_ful_path.parent
+        makedirs(name=user_appdata, exist_ok=True)
+        cfg_ful_path = Path(user_appdata / 'config.yaml').resolve()
+        if not cfg_ful_path.exists():
+            save_cfg(cfg_dict=defaults_cfg, filename=cfg_ful_path)
+    return cfg_ful_path
+
+
 class ReleaseInfo(NamedTuple):
     """Tuple to store release related information."""
     latest: bool
@@ -53,7 +70,7 @@ class ReleaseInfo(NamedTuple):
     archive_file: str
 
 
-def load_cfg(filename=default_yaml) -> ConfigDict:
+def load_cfg(filename: Path) -> ConfigDict:
     """
     Load configuration form yaml filename.
 
@@ -68,13 +85,13 @@ def load_cfg(filename=default_yaml) -> ConfigDict:
                 cfg_dict, old_dict = {}, cfg_dict
                 raise AttributeError(f'Config is not a dict {type(old_dict)} value: **{old_dict}**')
     except (FileNotFoundError, parser.ParserError, AttributeError) as err:
-        makedirs(name=filename.rpartition('/')[0], exist_ok=True)
+        makedirs(name=filename.parent, exist_ok=True)
         LOG.warning(f'{err.__class__.__name__}: {filename}. Default configuration will be used.')
         LOG.debug(f'{err}')
     return cfg_dict
 
 
-def save_cfg(cfg_dict: ConfigDict, filename=default_yaml) -> None:
+def save_cfg(cfg_dict: ConfigDict, filename: Path) -> None:
     """
     Update yaml file with dict.
 
@@ -87,7 +104,7 @@ def save_cfg(cfg_dict: ConfigDict, filename=default_yaml) -> None:
         dump(curr_dict, yaml_file)
 
 
-def set_defaults(cfg: ConfigDict, filename=default_yaml) -> ConfigDict:
+def set_defaults(cfg: ConfigDict, filename: Path) -> ConfigDict:
     """
     Set defaults to not existing config options.
 
@@ -161,10 +178,10 @@ def get_version_string(repo: str, current_ver: str, check=True) -> str:
     """
     Generate formatted string with version number.
 
-    :param repo: format '<organization or user>/<package>'
-    :param current_ver: current local version
-    :param check: version online
-    :return: formatted version as string
+    :param repo: format '<organization or user>/<package>'.
+    :param current_ver: current local version.
+    :param check: version online.
+    :return: formatted version as string.
     """
     ver_string = f'v{current_ver}'
     if check:
@@ -283,6 +300,7 @@ def check_github_repo(git_ref: str, update=True, repo='DCSFlightpanels/dcs-bios'
             sha = f'{head_commit.hexsha[0:8]} from: {head_commit.committed_datetime} by: {head_commit.author}'
         LOG.debug(f"Checkout: {head_commit.hexsha} from: {head_commit.committed_datetime} | {head_commit.message} | by: {head_commit.author}")  # type: ignore
     else:
+        bios_repo.git.checkout(git_ref)
         head_commit = bios_repo.head.commit
         sha = f'{head_commit.hexsha[0:8]} from: {head_commit.committed_datetime}'
     return sha
