@@ -64,5 +64,4 @@ def save_ver_file(ver=environ.get('GITHUB_REF_NAME'), bld=environ.get('GITHUB_RU
 
 
 if __name__ == '__main__':
-    str_ver, github_build, tag_sha = argv[1:]
-    print(save_ver_file(str_ver, github_build, tag_sha))
+    print(save_ver_file(*argv[1:]))
