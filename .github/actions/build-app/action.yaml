@@ -9,8 +9,6 @@ runs:
         git clone https://github.com/pyinstaller/pyinstaller.git
         pyi_tag=$(python latest_tag.py pyinstaller 1)
         pyi_ver=$(python latest_tag.py pyinstaller 0)
-        pyi_tag=v5.5
-        pyi_ver=5.5
         cd pyinstaller/bootloader
         git checkout $pyi_tag
         python.exe ./waf -v all
