@@ -10,7 +10,7 @@ runs:
         pyi_tag=$(python latest_tag.py pyinstaller 1)
         pyi_ver=$(python latest_tag.py pyinstaller 0)
         cd pyinstaller/bootloader
-        git checkout $pyi_tag
+        git checkout v5.4
         python.exe ./waf -v all
         cd ..
         python.exe setup.py bdist_wheel
