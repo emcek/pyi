@@ -1,14 +1,21 @@
-## 1.9.94
-* Allow use/update DCS-BIOS directly from GitHub (master branch)
+## 2.1.0
+* Internal:
+  * Add more unit tests
+  * Use toml instead of cfg for packing
+
+## 2.0.0
+* Allow use/update [live DCS-BIOS](https://github.com/emcek/dcspy/wiki/Information#live-dcs-bios) directly from GitHub (master branch)
 * Allow run DCSpy without console
-* Auto screenshot of LCD during operation
+* Auto [screenshot of LCD](https://github.com/emcek/dcspy/wiki/Usage#advanced) during operation
 * Auto save change options from GUI
 * Fix problem when DCS-BIOS is empty or drive letter not exists
-* Generate standalone version with PyInstaller
+* Generate [standalone version](https://github.com/emcek/dcspy/wiki/Installation#single-file-download-new-way) with PyInstaller
+* Save configuration in user local directory (preserved between updates)
 * Internal:
   * improve type checking
   * verbose setting will impact both console and file logs
   * use pathlib for path manipulation
+  * improve CI/CD process
 
 ## 1.9.5
 * Support for **Mi-8MTV2 Magnificent Eight**
@@ -24,6 +31,14 @@
   * Clean some extra characters from DED
 * Internal:
   * force update customtkinter to at least 5.1.0
+
+## 1.8.1
+* Add support for **Ka-50 Black Shark III**
+* Update footer when checking DCS-BIOS version
+* Align with DCS 2.8.1.34667.2 and DCS-BIOS 0.7.47
+* Internal:
+  * add more unit tests
+  * mark some test as DCS-BIOS tests
 
 ## 1.8.0
 * Major GUI redesign using `customtkinter` package, which provides new, modern widgets:

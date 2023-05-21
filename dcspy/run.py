@@ -10,11 +10,11 @@ from dcspy.tk_gui import DcspyGui
 from dcspy.utils import check_dcs_ver
 
 LOG = getLogger(__name__)
-__version__ = '1.9.94'
+__version__ = '2.0.0'
 
 
 def run():
-    """Function to start DCSpy GUI."""
+    """Start DCSpy GUI."""
     if config['show_gui']:
         customtkinter.set_appearance_mode(config['theme_mode'])
         customtkinter.set_default_color_theme(config['theme_color'])
