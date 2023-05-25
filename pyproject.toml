@@ -69,6 +69,7 @@ test = [
     'flake8',
     'coveralls',
     'codacy-coverage',
+    'tinyaes',
 ]
 
 [tool.setuptools.dynamic]
