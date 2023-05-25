@@ -42,7 +42,7 @@ exe = EXE(
     splash,
     splash.binaries,
     [],
-    name='dcs_py',
+    name=f'dcspy_{__version__}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
