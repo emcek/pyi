@@ -5,7 +5,7 @@ from pathlib import Path
 from re import search
 from shutil import rmtree
 from tempfile import gettempdir
-from typing import Dict, Union, Tuple, NamedTuple
+from typing import Dict, NamedTuple, Tuple, Union
 
 import git
 from git import Repo
@@ -13,7 +13,7 @@ from git.exc import InvalidGitRepositoryError
 from packaging import version
 from psutil import process_iter
 from requests import get
-from yaml import load, FullLoader, parser, dump
+from yaml import FullLoader, dump, load, parser
 
 LOG = getLogger(__name__)
 ConfigDict = Dict[str, Union[str, int, bool]]
@@ -226,8 +226,8 @@ def proc_is_running(name: str) -> int:
     :return: PID as int
     """
     for proc in process_iter(['pid', 'name']):
-        if name in proc.info['name']:
-            return proc.info['pid']
+        if name in proc.info['name']:  # type: ignore
+            return proc.info['pid']  # type: ignore
     return 0
 
 

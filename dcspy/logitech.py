@@ -7,7 +7,7 @@ from typing import List
 
 from PIL import Image, ImageDraw
 
-from dcspy import LcdColor, LcdMono, SUPPORTED_CRAFTS, SEND_ADDR, LcdButton
+from dcspy import SEND_ADDR, SUPPORTED_CRAFTS, LcdButton, LcdColor, LcdMono
 from dcspy.aircraft import Aircraft
 from dcspy.dcsbios import ProtocolParser
 from dcspy.sdk import lcd_sdk
@@ -155,7 +155,7 @@ class LogitechKeyboard:
         For G19 takes first 8 or fewer elements of list and display as 8 rows.
         :return: image instance ready display on LCD
         """
-        img = Image.new(mode=self.lcd.mode, size=(self.lcd.width, self.lcd.height), color=self.lcd.background)
+        img = Image.new(mode=self.lcd.mode.value, size=(self.lcd.width, self.lcd.height), color=self.lcd.background)
         draw = ImageDraw.Draw(img)
         for line_no, line in enumerate(self._display):
             draw.text(xy=(0, self.vert_space * line_no), text=line, fill=self.lcd.foreground, font=self.lcd.font_s)

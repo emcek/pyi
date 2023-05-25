@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 from pytest import mark, raises
 
-from dcspy import LcdColor, LcdMono, LcdButton
-from tests.helpers import all_plane_list, set_bios_during_test, compare_images
+from dcspy import LcdButton, LcdColor, LcdMono
+from tests.helpers import all_plane_list, compare_images, set_bios_during_test
 
 resources = Path(__file__).resolve().with_name('resources')
 
@@ -50,11 +50,11 @@ def test_aircraft_base_class_set_bios(selector, data, value, c_func, effect, lcd
             aircraft.set_bios(selector, value)
 
 
-@mark.parametrize('mode, c_func, lcd', [
-    ('1', 'logi_lcd_mono_set_background', LcdMono),
-    ('RGBA', 'logi_lcd_color_set_background', LcdColor),
+@mark.parametrize('c_func, lcd', [
+    ('logi_lcd_mono_set_background', LcdMono),
+    ('logi_lcd_color_set_background', LcdColor),
 ], ids=['Mono LCD', 'Color LCD'])
-def test_aircraft_base_class_prepare_img(mode, c_func, lcd, aircraft):
+def test_aircraft_base_class_prepare_img(c_func, lcd, aircraft):
     from dcspy.sdk import lcd_sdk
     aircraft.lcd = lcd
     with patch.object(lcd_sdk, 'logi_lcd_is_connected', return_value=True), \

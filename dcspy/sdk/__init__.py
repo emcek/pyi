@@ -1,4 +1,4 @@
-from ctypes import CDLL, sizeof, c_void_p
+from ctypes import CDLL, c_void_p, sizeof
 from logging import getLogger
 from os import environ
 from platform import architecture
@@ -20,7 +20,9 @@ def _init_dll(lib_type: str) -> CDLL:
         prog_files = environ['PROGRAMW6432']
     except KeyError:
         prog_files = environ['PROGRAMFILES']
-    return CDLL(f"{prog_files}\\Logitech Gaming Software\\SDK\\{lib_type}\\{arch}\\Logitech{lib_type.capitalize()}.dll")
+    dll_path = f"{prog_files}\\Logitech Gaming Software\\SDK\\{lib_type}\\{arch}\\Logitech{lib_type.capitalize()}.dll"
+    LOG.debug(f'Selected DLL: {dll_path}')
+    return CDLL(dll_path)
 
 
 def load_dll(lib_type: str) -> Optional[CDLL]:

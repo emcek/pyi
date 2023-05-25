@@ -4,17 +4,17 @@ from collections import deque
 from importlib import import_module
 from logging import getLogger
 from threading import Event
-from time import time, gmtime
+from time import gmtime, time
 from typing import Iterator
 
-from dcspy import RECV_ADDR, MULTICAST_IP, config
+from dcspy import MULTICAST_IP, RECV_ADDR, config
 from dcspy.dcsbios import ProtocolParser
 from dcspy.logitech import LogitechKeyboard
 from dcspy.utils import get_version_string
 
 LOG = getLogger(__name__)
 LOOP_FLAG = True
-__version__ = '2.1.9'
+__version__ = '2.1.10'
 
 
 def _handle_connection(logi_keyboard: LogitechKeyboard, parser: ProtocolParser, sock: socket.socket, event: Event) -> None:

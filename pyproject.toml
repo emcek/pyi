@@ -10,7 +10,7 @@ description = 'Integrating DCS (Digital Combat Simulator) planes with Logitech G
 license = {text = 'MIT License'}
 requires-python = '>=3.7'
 classifiers = [
-    'Development :: Status :: 5 - Production/Stable',
+    'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Environment :: Win32 (MS Windows)',
     'License :: OSI Approved :: MIT License',
@@ -36,8 +36,9 @@ dependencies = [
     'packaging <= 21.3',
     'Pillow >= 9.3.0',
     'psutil',
+    'pystray',
     'PyYAML',
-    'requests',
+    'requests>=2.31.0',
     'typing-extensions; python_version < "3.11"',
 ]
 
@@ -55,21 +56,23 @@ dcspy = 'dcspy.run:run'
 
 [project.optional-dependencies]
 test = [
-    'pytest',
-    'mypy',
-    'lxml',
-    'pytest-random',
-    'pytest-cov',
-    'types-requests',
-    'types-PyYAML',
-    'ruff',
+    'codacy-coverage',
+    'coveralls',
+    'flake8',
     'interrogate',
+    'lxml',
+    'mypy',
     'pycodestyle',
     'pydocstyle[toml]',
-    'flake8',
-    'coveralls',
-    'codacy-coverage',
+    'pytest',
+    'pytest-cov',
+    'pytest-random',
+    'ruff',
     'tinyaes',
+    'types-Pillow',
+    'types-psutil',
+    'types-PyYAML',
+    'types-requests',
 ]
 
 [tool.setuptools.dynamic]

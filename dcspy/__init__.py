@@ -3,15 +3,15 @@ from enum import Enum
 from logging import getLogger
 from os import name
 from pathlib import Path
-from platform import architecture, uname, python_implementation, python_version
+from platform import architecture, python_implementation, python_version, uname
 from sys import platform
-from typing import Union, Sequence
+from typing import Sequence, Tuple, Union
 
 from PIL import ImageFont
 
 from dcspy.log import config_logger
-from dcspy.sdk import lcd_sdk
-from dcspy.utils import load_cfg, set_defaults, get_default_yaml
+from dcspy.utils import get_default_yaml, load_cfg, set_defaults
+
 try:
     from typing import NotRequired
 except ImportError:
@@ -41,11 +41,23 @@ RECV_ADDR = ('', 5010)
 MULTICAST_IP = '239.255.50.10'
 LOCAL_APPDATA = True
 
+# LCD types
+TYPE_MONO = 1
+TYPE_COLOR = 2
+
+# LCD Monochrome size
+MONO_WIDTH = 160
+MONO_HEIGHT = 43
+
+# LCD Color size
+COLOR_WIDTH = 320
+COLOR_HEIGHT = 240
+
 
 class LcdType(Enum):
     """LCD Type."""
-    MONO = lcd_sdk.TYPE_MONO
-    COLOR = lcd_sdk.TYPE_COLOR
+    MONO = TYPE_MONO
+    COLOR = TYPE_COLOR
 
 
 class LcdButton(Enum):
@@ -64,6 +76,12 @@ class LcdButton(Enum):
     MENU = 0x4000
 
 
+class LcdMode(Enum):
+    """LCD Mode."""
+    BLACK_WHITE = '1'
+    TRUE_COLOR = 'RGBA'
+
+
 @dataclass
 class LcdInfo:
     """LCD info."""
@@ -71,9 +89,9 @@ class LcdInfo:
     height: int
     type: LcdType
     buttons: Sequence[LcdButton]
-    foreground: Union[int, Sequence[int]]
-    background: Union[int, Sequence[int]]
-    mode: str
+    foreground: Union[int, Tuple[int, int, int, int]]
+    background: Union[int, Tuple[int, int, int, int]]
+    mode: LcdMode
     font_xs: ImageFont.FreeTypeFont
     font_s: ImageFont.FreeTypeFont
     font_l: ImageFont.FreeTypeFont
@@ -81,16 +99,16 @@ class LcdInfo:
 
 default_yaml = get_default_yaml(local_appdata=LOCAL_APPDATA)
 config = set_defaults(load_cfg(filename=default_yaml), filename=default_yaml)
-LcdMono = LcdInfo(width=lcd_sdk.MONO_WIDTH, height=lcd_sdk.MONO_HEIGHT, type=LcdType.MONO, foreground=255,
+LcdMono = LcdInfo(width=MONO_WIDTH, height=MONO_HEIGHT, type=LcdType.MONO, foreground=255,
                   buttons=(LcdButton.ONE, LcdButton.TWO, LcdButton.THREE, LcdButton.FOUR),
-                  background=0, mode='1', font_s=ImageFont.truetype(config['font_name'], config['font_mono_s']),
-                  font_l=ImageFont.truetype(config['font_name'], config['font_mono_l']),
-                  font_xs=ImageFont.truetype(config['font_name'], config['font_mono_xs']))
-LcdColor = LcdInfo(width=lcd_sdk.COLOR_WIDTH, height=lcd_sdk.COLOR_HEIGHT, type=LcdType.COLOR, foreground=(0, 255, 0, 255),
+                  background=0, mode=LcdMode.BLACK_WHITE, font_s=ImageFont.truetype(str(config['font_name']), int(config['font_mono_s'])),
+                  font_l=ImageFont.truetype(str(config['font_name']), int(config['font_mono_l'])),
+                  font_xs=ImageFont.truetype(str(config['font_name']), int(config['font_mono_xs'])))
+LcdColor = LcdInfo(width=COLOR_WIDTH, height=COLOR_HEIGHT, type=LcdType.COLOR, foreground=(0, 255, 0, 255),
                    buttons=(LcdButton.LEFT, LcdButton.RIGHT, LcdButton.UP, LcdButton.DOWN, LcdButton.OK, LcdButton.CANCEL, LcdButton.MENU),
-                   background=(0, 0, 0, 0), mode='RGBA', font_s=ImageFont.truetype(config['font_name'], config['font_color_s']),
-                   font_l=ImageFont.truetype(config['font_name'], config['font_color_l']),
-                   font_xs=ImageFont.truetype(config['font_name'], config['font_color_xs']))
+                   background=(0, 0, 0, 0), mode=LcdMode.TRUE_COLOR, font_s=ImageFont.truetype(str(config['font_name']), int(config['font_color_s'])),
+                   font_l=ImageFont.truetype(str(config['font_name']), int(config['font_color_l'])),
+                   font_xs=ImageFont.truetype(str(config['font_name']), int(config['font_color_xs'])))
 DED_FONT = ImageFont.truetype(str(Path(__file__).resolve().with_name('falconded.ttf')), 25)
 LCD_TYPES = {
     'G19': {'type': 'KeyboardColor', 'icon': 'G19.png'},

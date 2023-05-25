@@ -1,25 +1,14 @@
-from ctypes import c_bool, c_wchar_p, c_int, c_ubyte
+from ctypes import c_bool, c_int, c_ubyte, c_wchar_p
 from logging import getLogger
 from typing import List, Tuple
 
 from PIL import Image
 
+from dcspy import (COLOR_HEIGHT, COLOR_WIDTH, MONO_HEIGHT, MONO_WIDTH,
+                   TYPE_COLOR, TYPE_MONO)
 from dcspy.sdk import load_dll
 
 LOG = getLogger(__name__)
-
-# LCD types
-TYPE_MONO = 1
-TYPE_COLOR = 2
-
-# LCD Monochrome size
-MONO_WIDTH = 160
-MONO_HEIGHT = 43
-
-# LCD Color size
-COLOR_WIDTH = 320
-COLOR_HEIGHT = 240
-
 LCD_DLL = load_dll('LCD')
 
 
