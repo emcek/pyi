@@ -1,4 +1,4 @@
-## 2.1.5
+## 2.1.6
 * Internal:
   * Add more unit tests
   * Use toml instead of cfg for packing
