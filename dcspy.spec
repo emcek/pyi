@@ -4,8 +4,8 @@ from PyInstaller.utils.hooks import collect_data_files
 resources = ['dcspy.ico', 'dcspy_white.ico', 'config.yaml', 'falconded.ttf', 'dcspy.png', 'G13.png', 'G19.png', 'G510.png', 'G15v1.png', 'G15v2.png', 'license.txt']
 files = [(f'dcspy/{r}', 'dcspy') for r in resources]
 gui_packages = collect_data_files('customtkinter') + collect_data_files('CTkMessagebox')
-__version__ = '2.1.7'
-block_cipher = None
+__version__ = '2.1.8'
+block_cipher = pyi_crypto.PyiBlockCipher(key=f'DCSpy ver. {__version__}')
 
 
 a = Analysis(
