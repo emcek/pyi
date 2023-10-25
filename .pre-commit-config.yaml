@@ -4,20 +4,20 @@ ci:
   skip: [pip-audit]
 
 default_language_version:
-  python: python3.11
+  python: python3.12
 
 repos:
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         exclude: tests
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.2
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
-        args: [--py37-plus]
+        args: [--py38-plus]
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.5.0
@@ -26,23 +26,25 @@ repos:
         args: [--verbose, --fail-under=70]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
+      - id: check-docstring-first
       - id: debug-statements
+      - id: double-quote-string-fixer
       - id: check-toml
       - id: check-yaml
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.5.5
+    rev: v2.6.1
     hooks:
       -   id: pip-audit
           args: [--local]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.12.1
+    rev: v0.15
     hooks:
       - id: validate-pyproject
 

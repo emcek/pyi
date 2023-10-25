@@ -9,12 +9,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         exclude:
-          - os: windows-latest
-            python-version: '3.7'
           - os: ubuntu-latest
-            python-version: '3.11'
+            python-version: '3.12'
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
@@ -40,9 +38,17 @@ jobs:
 
       - name: "Test with pytest"
         run: |
-          python -m pytest --random -q -m "not dcsbios"
+          python -m pytest -q -m "not dcsbios"
+
+      - name: "Upload test results"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: pytest-${{ matrix.os }}-${{ matrix.python-version }}
+          path: |
+            tests/resources/*
+          retention-days: 5
 
       - name: "Check pip-audit"
         run: |
-          pip install -U pip-audit
-          pip-audit -lv --progress-spinner off --ignore-vuln PYSEC-2022-42969 --ignore-vuln GHSA-j8r2-6x86-q33q
+          pip-audit -lv --progress-spinner off --ignore-vuln PYSEC-2022-42969

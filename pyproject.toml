@@ -8,17 +8,18 @@ authors = [{name = 'Michal Plichta'}]
 maintainers = [{name = 'Michal Plichta'}]
 description = 'Integrating DCS (Digital Combat Simulator) planes with Logitech G13/G15/G510/G19 LCD'
 license = {text = 'MIT License'}
-requires-python = '>=3.7'
+requires-python = '>=3.8'
+readme = 'README.md'
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Environment :: Win32 (MS Windows)',
     'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Operating System :: Microsoft :: Windows',
     'Operating System :: Microsoft :: Windows :: Windows 10',
     'Topic :: Games/Entertainment',
@@ -28,18 +29,20 @@ classifiers = [
     'Topic :: Utilities',
 ]
 keywords = ['logitech', 'logitech sdk', 'logitech keyboards', 'logitech gaming', 'logitech gaming keyboard', 'dcsworld', 'dcs', 'g13', 'g15', 'g510', 'g19']
-dynamic = ['version', 'readme']
+dynamic = ['version']
 dependencies = [
-    'CTkMessagebox',
-    'customtkinter >= 5.0.3',
-    'GitPython',
-    'packaging <= 21.3',
-    'Pillow >= 9.3.0',
-    'psutil',
-    'pystray',
-    'PyYAML',
-    'requests>=2.31.0',
-    'typing-extensions; python_version < "3.11"',
+    'cffi==1.16.0',
+    'CTkMessagebox==2.5',
+    'CTkToolTip==0.8',
+    'customtkinter==5.2.1',
+    'GitPython==3.1.40',
+    'packaging==23.2',
+    'Pillow==10.1.0',
+    'psutil==5.9.6',
+    'pystray==0.19.5',
+    'PyYAML==6.0.1',
+    'requests==2.31.0',
+    'typing-extensions==4.8.0; python_version < "3.11"',
 ]
 
 [project.urls]
@@ -62,13 +65,13 @@ test = [
     'interrogate',
     'lxml',
     'mypy',
+    'pip-audit',
     'pycodestyle',
     'pydocstyle[toml]',
     'pytest',
     'pytest-cov',
-    'pytest-random',
+    'pytest-randomly',
     'ruff',
-    'tinyaes',
     'types-Pillow',
     'types-psutil',
     'types-PyYAML',
@@ -77,7 +80,6 @@ test = [
 
 [tool.setuptools.dynamic]
 version = {attr = 'dcspy.run.__version__'}
-readme = {file = ['README.md']}
 
 [tool.setuptools.packages.find]
 include = ['dcspy*']
@@ -89,11 +91,13 @@ dcspy = [
     '*.yaml',
     '*.ico',
     '*.png',
+    '*.ttf',
+    'sdk/*.h',
     'py.typed',
 ]
 
 [tool.pytest.ini_options]
-addopts = ['--random', '-q']
+addopts = ['-q']
 testpaths = ['tests']
 markers = ['dcsbios: marks tests for verfification of DCS-BIOS data']
 
@@ -111,7 +115,7 @@ ignore-setters = false
 fail-under = 90
 verbose = 1
 quiet = false
-exclude = ['tests/test_*', 'tests/conftest.py']
+exclude = ['tests/test_*']
 
 [tool.ruff]
 line-length = 160

@@ -1,7 +1,55 @@
-## 2.1.11
+## 2.3.3
+* Alignment with latest DCS-BIOS for: **F-15ESE Eagle** and **AV-8B Night Attack**
+* Git is mandatory requirement since DCS-BIOS change structure with support for OB 2.9.0
+* DCS-BIOS 0.7.49 is no loger supported, use git live version
+* Internal:
+  * formatting code across project to match style
+  * update dependencies to latest version to mitigate vulnerabilities
+  * generate fixtures for unit tests instead of crating them manually
+  * use newer random pytest plugin
+
+## 2.3.2
+* Show message dialog when there is problem with DCS-BIOS live repository.
+
+## 2.3.1
+* Hotfix: add missing files
+
+## 2.3.0
+* Add radios presets for **A-10C** and **A-10C II**
+* Add ARC-210 data for **A-10C II**
+* Allow to download DCSpy while checking for new version
+* Auto refresh about tab
+* Collect data for troubleshooting
+* Internal:
+  * Remove support for Python 3.7
+  * Add Python 3.12 RC1 in CI process
+  * Loading Logitech C library using `cffi` instead of built-in `ctypes`
+
+## 2.2.0
+* Add support for **F-15E Eagle** and its UFC
+* Internal:
+  * Change way of handling buttons
+  * use newest version of `packaging`
+  * fix PyInstaller exception during runtime
+
+## 2.1.2
+* Fix problem when git executable is not available (for DCS-BIOS live)
+* Add tooltips to some widgets
+
+## 2.1.1
+* Add missing `falconded.ttf` in Python package
+
+## 2.1.0
+* Add System tray icon:
+  * Notification when DCSpy is hidden and running in background.
+  * New version notification
+* Make splashscreen nicer
+* Update DCS-BIOS (master) data for Mi-24P Hind
 * Internal:
   * Add more unit tests
+  * Make unit test configurable from CLI
   * Use toml instead of cfg for packing
+  * Improve type hinting
 
 ## 2.0.0
 * Allow use/update [live DCS-BIOS](https://github.com/emcek/dcspy/wiki/Information#live-dcs-bios) directly from GitHub (master branch)

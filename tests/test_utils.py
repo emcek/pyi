@@ -1,3 +1,4 @@
+from os import makedirs
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock, mock_open, patch
 
@@ -8,39 +9,63 @@ from dcspy import utils
 
 
 @mark.parametrize('online_tag, result', [
-    ('1.1.1', utils.ReleaseInfo(True, version.parse('1.1.1'), 'github.com/fake.tgz', '09 August 2021', 'Pre-release', 'fake.tgz')),
-    ('3.2.1', utils.ReleaseInfo(False, version.parse('3.2.1'), 'github.com/fake.tgz', '09 August 2021', 'Pre-release', 'fake.tgz'))
-], ids=['No update', 'New version'])
+    ('1.1.1', utils.ReleaseInfo(latest=True,
+                                ver=version.parse('1.1.1'),
+                                dl_url='github.com/fake.tgz',
+                                published='09 August 2021',
+                                release_type='Pre-release',
+                                asset_file='fake.tgz')),
+    ('3.2.1', utils.ReleaseInfo(latest=False,
+                                ver=version.parse('3.2.1'),
+                                dl_url='github.com/fake.tgz',
+                                published='09 August 2021',
+                                release_type='Pre-release',
+                                asset_file='fake.tgz'))
+], ids=[
+    'No update',
+    'New version',
+])
 def test_check_ver_is_possible(online_tag, result):
     with patch.object(utils, 'get') as response_get:
         type(response_get.return_value).ok = PropertyMock(return_value=True)
-        type(response_get.return_value).json = MagicMock(return_value={'tag_name': online_tag, 'prerelease': True,
-                                                                       'assets': [{'browser_download_url': 'github.com/fake.tgz'}],
-                                                                       'published_at': '2021-08-09T16:41:51Z'})
-        assert utils.check_ver_at_github(repo='fake1/package1', current_ver='1.1.1') == result
+        type(response_get.return_value).json = MagicMock(
+            return_value={
+                'tag_name': online_tag, 'prerelease': True,
+                'assets': [{'browser_download_url': 'github.com/fake.tgz'}],
+                'published_at': '2021-08-09T16:41:51Z',
+            },
+        )
+        assert utils.check_ver_at_github(repo='fake1/package1', current_ver='1.1.1', extension='.tgz') == result
 
 
 def test_check_ver_can_not_check():
     with patch.object(utils, 'get') as response_get:
         type(response_get.return_value).ok = PropertyMock(return_value=False)
-        assert utils.check_ver_at_github(repo='fake2/package2', current_ver='2.2.2') == utils.ReleaseInfo(False, version.parse('unknown'), '', '', 'Regular', '')
+        assert utils.check_ver_at_github(repo='fake2/package2', current_ver='2.2.2', extension='.zip') == utils.ReleaseInfo(False, version.parse('0.0.0'), '', '', 'Regular', '')
 
 
 def test_check_ver_exception():
     with patch.object(utils, 'get', side_effect=Exception('Connection error')):
-        assert utils.check_ver_at_github(repo='fake3/package3', current_ver='3.3.3') == utils.ReleaseInfo(False, version.parse('unknown'), '', '', 'Regular', '')
+        assert utils.check_ver_at_github(repo='fake3/package3', current_ver='3.3.3', extension='.exe') == utils.ReleaseInfo(False, version.parse('0.0.0'), '', '', 'Regular', '')
 
 
 @mark.parametrize('online_tag, result', [
     ('1.1.1', 'v1.1.1 (latest)'),
-    ('3.2.1', 'v1.1.1 (please update!)')
-], ids=['No update', 'New version'])
+    ('3.2.1', 'v1.1.1 (update!)'),
+], ids=[
+    'No update',
+    'New version',
+])
 def test_get_version_string_is_possible(online_tag, result):
     with patch.object(utils, 'get') as response_get:
         type(response_get.return_value).ok = PropertyMock(return_value=True)
-        type(response_get.return_value).json = MagicMock(return_value={'tag_name': online_tag, 'prerelease': True,
-                                                                       'assets': [{'browser_download_url': 'github.com/fake.tgz'}],
-                                                                       'published_at': '2021-08-09T16:41:51Z'})
+        type(response_get.return_value).json = MagicMock(
+            return_value={
+                'tag_name': online_tag, 'prerelease': True,
+                'assets': [{'browser_download_url': 'github.com/fake.tgz'}],
+                'published_at': '2021-08-09T16:41:51Z',
+            },
+        )
         assert utils.get_version_string(repo='fake1/package1', current_ver='1.1.1', check=True) == result
 
 
@@ -75,27 +100,29 @@ def test_dummy_save_load_set_defaults(tmpdir):
     d_cfg = utils.load_cfg(filename=test_tmp_yaml)
     assert d_cfg == {'font_mono_xs': 9}
     d_cfg = utils.set_defaults(cfg=d_cfg, filename=test_tmp_yaml)
-    assert d_cfg == {'keyboard': 'G13',
-                     'save_lcd': False,
-                     'show_gui': True,
-                     'autostart': False,
-                     'dcsbios': f'D:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS.openbeta\\Scripts\\DCS-BIOS',
-                     'dcs': 'C:\\Program Files\\Eagle Dynamics\\DCS World OpenBeta',
-                     'verbose': False,
-                     'check_bios': True,
-                     'check_ver': True,
-                     'font_name': 'consola.ttf',
-                     'font_mono_s': 11,
-                     'font_mono_xs': 9,
-                     'font_mono_l': 16,
-                     'font_color_s': 22,
-                     'font_color_xs': 18,
-                     'font_color_l': 32,
-                     'f16_ded_font': True,
-                     'git_bios': False,
-                     'git_bios_ref': 'master',
-                     'theme_mode': 'system',
-                     'theme_color': 'blue'}
+    assert d_cfg == {
+        'keyboard': 'G13',
+        'save_lcd': False,
+        'show_gui': True,
+        'autostart': False,
+        'dcsbios': f'D:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS.openbeta\\Scripts\\DCS-BIOS',
+        'dcs': 'C:\\Program Files\\Eagle Dynamics\\DCS World OpenBeta',
+        'verbose': False,
+        'check_bios': True,
+        'check_ver': True,
+        'font_name': 'consola.ttf',
+        'font_mono_s': 11,
+        'font_mono_xs': 9,
+        'font_mono_l': 16,
+        'font_color_s': 22,
+        'font_color_xs': 18,
+        'font_color_l': 32,
+        'f16_ded_font': True,
+        'git_bios': False,
+        'git_bios_ref': 'master',
+        'theme_mode': 'system',
+        'theme_color': 'blue',
+    }
     with open(test_tmp_yaml, 'w+') as f:
         f.write('')
     d_cfg = utils.load_cfg(filename=test_tmp_yaml)
@@ -127,6 +154,27 @@ def test_check_dcs_ver_file_not_exists(side_effect):
         assert dcs_ver == ('Unknown', 'Unknown')
 
 
+def test_check_bios_ver(tmpdir):
+    makedirs(Path(tmpdir) / 'lib' / 'modules' / 'common_modules')
+    with open(file=Path(tmpdir) / 'lib' / 'modules' / 'common_modules' / 'CommonData.lua', encoding='utf-8', mode='w+') as cd_lua:
+        cd_lua.write('local function getVersion()\n\treturn "1.2.3"\nend')
+    result = utils.check_bios_ver(bios_path=tmpdir)
+    assert result == utils.ReleaseInfo(latest=False, ver=version.parse('1.2.3'), dl_url='', published='', release_type='', asset_file='')
+
+
+def test_check_bios_ver_empty_lua(tmpdir):
+    makedirs(Path(tmpdir) / 'lib' / 'modules' / 'common_modules')
+    with open(file=Path(tmpdir) / 'lib' / 'modules' / 'common_modules' / 'CommonData.lua', encoding='utf-8', mode='w+') as cd_lua:
+        cd_lua.write('')
+    result = utils.check_bios_ver(bios_path=tmpdir)
+    assert result == utils.ReleaseInfo(latest=False, ver=version.parse('0.0.0'), dl_url='', published='', release_type='', asset_file='')
+
+
+def test_check_bios_ver_raise_exception(tmpdir):
+    result = utils.check_bios_ver(bios_path=tmpdir)
+    assert result == utils.ReleaseInfo(latest=False, ver=version.parse('0.0.0'), dl_url='', published='', release_type='', asset_file='')
+
+
 def test_is_git_repo(tmpdir):
     from git import Repo
     assert utils.is_git_repo(tmpdir) is False
@@ -134,15 +182,19 @@ def test_is_git_repo(tmpdir):
     assert utils.is_git_repo(tmpdir) is True
 
 
+def test_is_git_exec_present():
+    assert utils.is_git_exec_present() is True
+
+
 def test_check_github_repo(tmpdir):
     from re import search
-    sha = utils.check_github_repo(git_ref='master', update=True, repo='emcek/dcspy', repo_dir=tmpdir)
+    sha = utils.check_github_repo(git_ref='master', update=True, repo='emcek/common_sense', repo_dir=tmpdir)
     match = search(r'(master):\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}\sby:\s.*', sha)
     assert match.group(1) == 'master'
-    sha = utils.check_github_repo(git_ref='branch', update=True, repo='emcek/dcspy', repo_dir=tmpdir)
+    sha = utils.check_github_repo(git_ref='branch', update=True, repo='emcek/common_sense', repo_dir=tmpdir)
     match = search(r'([0-9a-f]{8})\sfrom:\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}\sby:\s.*', sha)
     assert match.group(1)
-    sha = utils.check_github_repo(git_ref='master', update=False, repo='emcek/dcspy', repo_dir=tmpdir)
+    sha = utils.check_github_repo(git_ref='master', update=False, repo='emcek/common_sense', repo_dir=tmpdir)
     match = search(r'([0-9a-f]{8})\sfrom:\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}', sha)
     assert match.group(1)
 
@@ -177,3 +229,35 @@ def test_check_dcs_bios_entry_ok(tmpdir):
 
     result = utils.check_dcs_bios_entry(lua_dst_data=lua_dst_data, lua_dst_path=install_dir, temp_dir=tmpdir)
     assert result == '\n\nExport.lua exists.\n\nDCS-BIOS entry detected.'
+
+
+def test_collect_debug_data():
+    from tempfile import gettempdir
+    from zipfile import ZipFile
+    with open(Path(gettempdir()) / 'Ka50_999.png', 'w+') as png:
+        png.write('')
+    zip_file = utils.collect_debug_data()
+    assert 'dcspy_debug_' in str(zip_file)
+    assert zip_file.suffix == '.zip'
+    assert zip_file.is_file()
+    assert zip_file.exists()
+    with ZipFile(file=zip_file, mode='r') as zipf:
+        zip_list = zipf.namelist()
+    assert 'system_data.txt' in zip_list
+    assert 'config.yaml' in zip_list
+    assert 'dcspy.log' in zip_list
+    assert 'Ka50_999.png' in zip_list
+
+
+def test_run_pip_command_success():
+    rc, err, out = utils.run_pip_command('list')
+    assert rc == 0
+    assert err == ''
+    assert out
+
+
+def test_run_pip_command_failed():
+    rc, err, out = utils.run_pip_command('bullshit')
+    assert rc == 1
+    assert err != ''
+    assert out == ''

@@ -3,6 +3,7 @@ from importlib import import_module
 from logging import getLogger
 from pprint import pformat
 from socket import socket
+from time import sleep
 from typing import List
 
 from PIL import Image, ImageDraw
@@ -136,9 +137,11 @@ class LogitechKeyboard:
         """
         button = self.check_buttons()
         if button.value:
-            sock.sendto(bytes(self.plane.button_request(button), 'utf-8'), SEND_ADDR)
+            for request in self.plane.button_request(button).split('|'):
+                sock.sendto(bytes(request, 'utf-8'), SEND_ADDR)
+                sleep(0.1)
 
-    def clear(self, true_clear=False):
+    def clear(self, true_clear=False) -> None:
         """
         Clear LCD.
 
@@ -167,7 +170,7 @@ class LogitechKeyboard:
 
         :return: string
         """
-        return f'{self.__class__.__name__}: {self.lcd.width}x{self.lcd.height}'
+        return f'{type(self).__name__}: {self.lcd.width}x{self.lcd.height}'
 
     def __repr__(self) -> str:
         """
