@@ -42,7 +42,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: "Download dcspy binaries"
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dcspy_binaries
 
@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/setup-python
 
       - name: "Download dcspy binaries"
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dcspy_binaries
 
