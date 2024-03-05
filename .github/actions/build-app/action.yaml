@@ -13,7 +13,8 @@ runs:
         git checkout $pyi_tag
         python.exe ./waf all
         cd ..
-        python.exe setup.py bdist_wheel
+        python -m build
+        python -m twine check dist/*
         pip install dist/pyinstaller-$pyi_ver-py3-none-any.whl
 
     - name: "Generate version info file"
@@ -32,6 +33,7 @@ runs:
       run: |
         export SOURCE_DATE_EPOCH=1674687685
         export PYTHONHASHSEED=1674687685
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
         pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec
         md5sum dist/*.exe
         unset PYTHONHASHSEED
