@@ -6,7 +6,6 @@ logi_sdk = ['LogitechLCDLib.h', 'LogitechLEDLib.h']
 files = [(f'dcspy/{res}', 'dcspy') for res in resources]
 headers = [(f'dcspy/sdk/{head}', 'dcspy/sdk') for head in logi_sdk]
 gui_packages = collect_data_files('customtkinter') + collect_data_files('CTkMessagebox')
-__version__ = '2.3.9'
 block_cipher = None
 
 
@@ -42,7 +41,7 @@ exe = EXE(
     splash,
     [],
     exclude_binaries=True,
-    name=f'dcspy_{__version__}',
+    name=f'dcspy',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
