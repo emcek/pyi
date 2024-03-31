@@ -70,6 +70,7 @@ jobs:
             dcspy_cli.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
+            dcspy.zip
 
   pypi:
     needs: [build]

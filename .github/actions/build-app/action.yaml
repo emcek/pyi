@@ -35,7 +35,16 @@ runs:
         export PYTHONHASHSEED=1674687685
         pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
         pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec
+        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_onedir.spec
         md5sum dist/*.exe
         unset PYTHONHASHSEED
         unset SOURCE_DATE_EPOCH
         pyi-bindepend dist/*.exe
+
+    - name: "Compress to zip"
+      shell: bash
+      run: |
+        cd dist
+        ls -la
+        /c/Program\ Files/7-Zip/7z.exe a -bt dcspy.zip dcs_py
+        7z.exe a -bt dcspy.zip dcs_py
