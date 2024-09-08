@@ -46,11 +46,11 @@ runs:
       id: nuitka_data
       run: |
         $sha = $Env:GITHUB_SHA
-        Write-Output "git_sha=sha" >> $env:GITHUB_OUTPUT        
+        Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
         $ref_name = $Env:GITHUB_REF_NAME
-        Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT        
+        Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT
         $run_number = $Env:GITHUB_RUN_NUMBER
-        Write-Output "git_run_number=run_number" >> $env:GITHUB_OUTPUT
+        Write-Output "git_run_number=$run_number" >> $env:GITHUB_OUTPUT
 
     - uses: Nuitka/Nuitka-Action@main
       with:
