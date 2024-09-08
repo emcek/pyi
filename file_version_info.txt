@@ -31,12 +31,12 @@ VSVersionInfo(
         '040904B0',
         [StringStruct('CompanyName', 'Michał Plichta'),
         StringStruct('FileDescription', 'Integrating DCS Planes with Logitech keyboards with LCD'),
-        StringStruct('FileVersion', '3.6.6'),
+        StringStruct('FileVersion', '3.6.7'),
         StringStruct('InternalName', 'dcs_py'),
         StringStruct('LegalCopyright', '© 2023 Michał Plichta. All rights reserved.'),
         StringStruct('OriginalFilename', 'dcs_py.exe'),
         StringStruct('ProductName', 'DCSpy'),
-        StringStruct('ProductVersion', '3.6.6 (deadbee)')])
+        StringStruct('ProductVersion', '3.6.7 (deadbee)')])
       ]), 
     VarFileInfo([VarStruct('Translation', [1033, 1200])])
   ]
