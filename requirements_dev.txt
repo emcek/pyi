@@ -1,0 +1,5 @@
+-r requirements_test.txt
+build
+detect-test-pollution
+pre-commit
+pyinstaller

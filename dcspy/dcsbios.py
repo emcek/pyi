@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from functools import partial
 from struct import pack
-from typing import Callable, Set
+from typing import Callable
 
 
 class ParserState(Enum):
@@ -24,8 +24,8 @@ class ProtocolParser:
         self.address = 0
         self.count = 0
         self.data = 0
-        self.write_callbacks: Set[Callable] = set()
-        self.frame_sync_callbacks: Set[Callable] = set()
+        self.write_callbacks: set[Callable[[int, int], None]] = set()
+        self.frame_sync_callbacks: set[Callable] = set()
 
     def process_byte(self, int_byte: int) -> None:
         """
@@ -51,7 +51,7 @@ class ProtocolParser:
         """
         Handle ADDRESS_LOW state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.address = int_byte
         self.state = ParserState.ADDRESS_HIGH
@@ -60,7 +60,7 @@ class ProtocolParser:
         """
         Handle ADDRESS_HIGH state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.address += int_byte * 256
         if self.address != 0x5555:
@@ -72,7 +72,7 @@ class ProtocolParser:
         """
         Handle COUNT_LOW state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.count = int_byte
         self.state = ParserState.COUNT_HIGH
@@ -81,7 +81,7 @@ class ProtocolParser:
         """
         Handle COUNT_HIGH state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.count += 256 * int_byte
         self.state = ParserState.DATA_LOW
@@ -90,7 +90,7 @@ class ProtocolParser:
         """
         Handle DATA_LOW state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.data = int_byte
         self.count -= 1
@@ -100,7 +100,7 @@ class ProtocolParser:
         """
         Handle DATA_HIGH state.
 
-        :param int_byte: data to process
+        :param int_byte: Data to process
         """
         self.data += 256 * int_byte
         self.count -= 1
@@ -136,11 +136,11 @@ class StringBuffer:
         self.__length = max_length
         self.__dirty = False
         self.buffer = bytearray(max_length)
-        self.callbacks: Set[Callable] = set()
+        self.callbacks: set[Callable] = set()
         self.callbacks.add(callback)
         parser.write_callbacks.add(partial(self.on_dcsbios_write))
 
-    def set_char(self, index, char) -> None:
+    def set_char(self, index: int, char: int) -> None:
         """
         Set char.
 
@@ -187,7 +187,7 @@ class IntegerBuffer:
         self.__mask = mask
         self.__shift_by = shift_by
         self.__value = int()
-        self.callbacks: Set[Callable] = set()
+        self.callbacks: set[Callable] = set()
         self.callbacks.add(callback)
         parser.write_callbacks.add(partial(self.on_dcsbios_write))
 

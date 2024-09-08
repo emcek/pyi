@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
         exclude:
           - os: windows-latest
             python-version: '3.12'
@@ -37,8 +37,12 @@ jobs:
           pip install -Ur requirements_test.txt
 
       - name: "Test with pytest"
+        env:
+          PYSIDE_DESIGNER_PLUGINS: .
+          PYTEST_QT_API: PySide6
+          DCSPY_NO_MSG_BOXES: 1
         run: |
-          python -m pytest -q -m "not dcsbios"
+          python -m pytest -v -m 'not e2e' --img_precision 0
 
       - name: "Upload test results"
         uses: actions/upload-artifact@v4

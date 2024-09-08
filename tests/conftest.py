@@ -3,23 +3,73 @@ from unittest.mock import MagicMock, patch
 
 from pytest import fixture
 
-import dcspy
-from dcspy import aircraft
+from dcspy import aircraft, logitech, models, utils
 
 
-def generate_fixture(plane_model, lcdtype):
+@fixture()
+def sock():
+    """Socket mock instance."""
+    return MagicMock()
+
+
+def generate_plane_fixtures(plane, lcd_info: models.LcdInfo, fonts: models.FontsConfig):
+    """
+    Generate fixtures for any plane with any lcd type.
+
+    :param plane: Any plane object
+    :param lcd_info: LcdInfo without font config
+    :param fonts: Fonts configuration
+    """
     @fixture()
     def _fixture():
-        return plane_model(lcdtype)
+        """Fixture."""
+        lcd_info.set_fonts(fonts=fonts)
+        with patch('dcspy.aircraft.default_yaml', Path(__file__).resolve().parents[1] / 'dcspy' / 'resources' / 'config.yaml'):
+            plane_instance = plane(lcd_type=lcd_info, update_display=bool)
+        return plane_instance
     return _fixture
 
 
-for plane in ['Aircraft', 'FA18Chornet', 'F16C50', 'F15ESE', 'Ka50', 'Ka503', 'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14B', 'F14A135GR', 'AV8BNA']:
-    for lcd in ['LcdMono', 'LcdColor']:
-        airplane = getattr(aircraft, plane)
-        lcd_type = getattr(dcspy, lcd)
-        name = f'{airplane.__name__.lower()}_{lcd_type.type.name.lower()}'
-        globals()[name] = generate_fixture(airplane, lcd_type)
+def generate_keyboard_fixtures(model: models.LogitechDeviceModel, fonts: models.FontsConfig):
+    """
+    Generate fixtures for any keyboard and with lcd_font_setting.
+
+    :param model: Logitech device
+    :param fonts: fonts configuration
+    """
+    @fixture()
+    def _fixture(sock):
+        """Fixture."""
+        from dcspy.dcsbios import ProtocolParser
+        from dcspy.logitech import LogitechDevice
+        from dcspy.sdk.key_sdk import GkeySdkManager
+        from dcspy.sdk.lcd_sdk import LcdSdkManager
+
+        lcd_sdk = LcdSdkManager('test', model.lcd_info.type)
+        model.lcd_info.set_fonts(fonts)
+        with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True), \
+                patch.object(GkeySdkManager, 'logi_gkey_init', return_value=True):
+            return LogitechDevice(parser=ProtocolParser(), sock=sock, model=model)
+    return _fixture
+
+
+for plane_model in ['AdvancedAircraft', 'FA18Chornet', 'F16C50', 'F4E45MC', 'F15ESE', 'Ka50', 'Ka503',
+                    'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14B', 'F14A135GR', 'AV8BNA']:
+    for lcd in [models.LcdMono, models.LcdColor]:
+        airplane = getattr(aircraft, plane_model)
+        if lcd.type == models.LcdType.COLOR:
+            lcd_font = models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=18, medium=22, large=32)
+        else:
+            lcd_font = models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=9, medium=11, large=16)
+        name = f'{airplane.__name__.lower()}_{lcd.type.name.lower()}'
+        globals()[name] = generate_plane_fixtures(plane=airplane, lcd_info=lcd, fonts=lcd_font)
+
+for keyboard_model in models.LCD_KEYBOARDS_DEV:
+    if keyboard_model.lcd_info.type == models.LcdType.COLOR:
+        lcd_font = models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=18, medium=22, large=32)
+    else:
+        lcd_font = models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=9, medium=11, large=16)
+    globals()[keyboard_model.klass] = generate_keyboard_fixtures(model=keyboard_model, fonts=lcd_font)
 
 
 def pytest_addoption(parser) -> None:
@@ -34,10 +84,10 @@ def pytest_addoption(parser) -> None:
 @fixture(scope='session')
 def img_precision(pytestconfig):
     """
-    Get value of img_precision parameter form command line.
+    Get a value of img_precision parameter form command line.
 
-    :param pytestconfig:
-    :return: value from command line
+    :param pytestconfig: Pytest configuration
+    :return: Value from command line
     """
     return pytestconfig.getoption('img_precision')
 
@@ -47,9 +97,29 @@ def resources():
     """
     Path to tests/resources directory.
 
-    :return: path to tests/resources directory
+    :return: Path to tests/resources directory
     """
     return Path(__file__).resolve().with_name('resources')
+
+
+@fixture()
+def test_config_yaml(resources):
+    """
+    Path to YAML tests a config file.
+
+    :return: Path to YAML config file
+    """
+    return resources / 'config.yaml'
+
+
+@fixture()
+def test_dcs_bios(resources):
+    """
+    Path to DCS-BIOS for test purposes.
+
+    :return: Path to DCS-BIOS
+    """
+    return resources / 'DCS.openbeta' / 'Scripts' / 'DCS-BIOS'
 
 
 # <=><=><=><=><=> dcsbios <=><=><=><=><=>
@@ -60,56 +130,160 @@ def protocol_parser():
     return ProtocolParser()
 
 
+@fixture
+def get_ctrl_for_plane(test_dcs_bios, request):
+    """
+    Get the Control object from DCS-BIOS for plane.
+
+    :param test_dcs_bios: The directory containing the DCS-BIOS configuration files.
+    :param request: The request object containing parameters for the test.
+    """
+    from dcspy.utils import get_full_bios_for_plane
+
+    bios_plane = request.param[0]
+    ctrl_name = request.param[1]
+    plane_bios = get_full_bios_for_plane(plane=bios_plane, bios_dir=test_dcs_bios)
+    ctrl = plane_bios.get_ctrl(ctrl_name=ctrl_name)
+    return ctrl
+
+
 # <=><=><=><=><=> logitech <=><=><=><=><=>
 @fixture()
-def keyboard_base(protocol_parser):
-    """
-    Return instance of LogitechKeyboard.
-
-    :param protocol_parser: instance of ProtocolParser
-    :return: LogitechKeyboard
-    """
-    from dcspy.logitech import LogitechKeyboard
-    from dcspy.sdk import lcd_sdk
-    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True):
-        return LogitechKeyboard(protocol_parser)
+def lcd_font_mono():
+    """Return font configuration for mono LCD."""
+    return models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=9, medium=11, large=16)
 
 
 @fixture()
-def keyboard_mono(protocol_parser):
-    """
-    Return instance of KeyboardMono.
-
-    :param protocol_parser: instance of ProtocolParser
-    :return: KeyboardMono
-    """
-    from dcspy.logitech import KeyboardMono
-    from dcspy.sdk import lcd_sdk
-    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True):
-        return KeyboardMono(protocol_parser)
+def lcd_font_color(protocol_parser):
+    """Return font configuration for color LCD."""
+    return models.FontsConfig(name=models.DEFAULT_FONT_NAME, small=18, medium=22, large=32)
 
 
 @fixture()
-def keyboard_color(protocol_parser):
+def keyboard_base(protocol_parser, sock):
     """
-    Return instance of KeyboardColor.
+    Return instance of LcdKeyboard.
 
-    :param protocol_parser: instance of ProtocolParser
-    :return: KeyboardColor
+    :param protocol_parser: Instance of ProtocolParser
+    :param sock: Network Socket object
+    :return: LcdKeyboard
     """
-    from dcspy.logitech import KeyboardColor
-    from dcspy.sdk import lcd_sdk
-    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True):
-        return KeyboardColor(protocol_parser)
+    from dcspy.models import LcdMono, LogitechDeviceModel
+    from dcspy.sdk.key_sdk import GkeySdkManager
+    from dcspy.sdk.lcd_sdk import LcdSdkManager
+
+    lcd_sdk = LcdSdkManager('test', models.LcdType.MONO)
+
+    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True), \
+            patch.object(GkeySdkManager, 'logi_gkey_init', return_value=True):
+        model = LogitechDeviceModel(klass='', lcd_info=LcdMono)
+        return logitech.LogitechDevice(protocol_parser, sock=sock, model=model)
+
+
+@fixture()
+def keyboard_mono(protocol_parser, sock, lcd_font_mono, resources):
+    """
+    Return instance of Keyboard with LcdMono.
+
+    :param protocol_parser: Instance of ProtocolParser
+    :param sock: Network socket object
+    :param lcd_font_mono: Font configuration for LCD
+    :param resources: Path to tests/resources directory.
+    :return: LcdKeyboard
+    """
+    from dcspy.aircraft import BasicAircraft
+    from dcspy.models import G510
+    from dcspy.sdk.key_sdk import GkeySdkManager
+    from dcspy.sdk.lcd_sdk import LcdSdkManager
+
+    class Mono(logitech.LogitechDevice):
+        def __init__(self, parser, socket, model) -> None:
+            model.lcd_info.set_fonts(lcd_font_mono)
+            super().__init__(parser, socket, model)
+            plane = BasicAircraft(lcd_type=self.model.lcd_info)
+            plane.key_req = utils.KeyRequest(yaml_path=resources / 'test_plane.yaml', get_bios_fn=lambda x: 1)
+            self.plane = plane
+
+        def _setup_plane_callback(self) -> None:
+            print('empty callback setup')
+
+    lcd_sdk = LcdSdkManager('test', models.LcdType.MONO)
+
+    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True), \
+            patch.object(GkeySdkManager, 'logi_gkey_init', return_value=True):
+        return Mono(parser=protocol_parser, socket=sock, model=G510)
+
+
+@fixture()
+def keyboard_color(protocol_parser, sock, lcd_font_color, resources):
+    """
+    Return instance of Keyboard with LcdColor.
+
+    :param protocol_parser: Instance of ProtocolParser
+    :param sock: Network socket object
+    :param lcd_font_color: Font configuration for LCD
+    :param resources: Path to tests/resources directory.
+    :return: LcdKeyboard
+    """
+    from dcspy.aircraft import BasicAircraft
+    from dcspy.models import G19
+    from dcspy.sdk.key_sdk import GkeySdkManager
+    from dcspy.sdk.lcd_sdk import LcdSdkManager
+
+    class Color(logitech.LogitechDevice):
+        def __init__(self, parser, socket, model) -> None:
+            model.lcd_info.set_fonts(lcd_font_color)
+            super().__init__(parser, socket, model)
+            plane = BasicAircraft(lcd_type=self.model.lcd_info)
+            plane.key_req = utils.KeyRequest(yaml_path=resources / 'test_plane.yaml', get_bios_fn=lambda x: 1)
+            self.plane = plane
+
+        def _setup_plane_callback(self) -> None:
+            print('empty callback setup')
+
+    lcd_sdk = LcdSdkManager('test', models.LcdType.COLOR)
+
+    with patch.object(lcd_sdk, 'logi_lcd_init', return_value=True), \
+            patch.object(GkeySdkManager, 'logi_gkey_init', return_value=True):
+        return Color(parser=protocol_parser, socket=sock, model=G19)
 
 
 # <=><=><=><=><=> others <=><=><=><=><=>
 @fixture()
-def sock():
-    """Socket mock instance."""
-    return MagicMock()
+def default_config():
+    """Get default configuration dict."""
+    from os import environ
+    return {
+        'dcsbios': f'C:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS.openbeta\\Scripts\\DCS-BIOS',
+        'dcs': 'C:\\Program Files\\Eagle Dynamics\\DCS World OpenBeta', 'device': 'G13', 'save_lcd': False, 'show_gui': True, 'autostart': False,
+        'verbose': False, 'check_bios': True, 'check_ver': True, 'font_name': models.DEFAULT_FONT_NAME, 'font_mono_m': 11, 'font_mono_s': 9, 'font_mono_l': 16,
+        'font_color_m': 22, 'font_color_s': 18, 'font_color_l': 32, 'f16_ded_font': True, 'git_bios': True, 'git_bios_ref': 'master', 'toolbar_style': 0,
+        'toolbar_area': 4, 'gkeys_area': 2, 'gkeys_float': False, 'theme_mode': 'system', 'theme_color': 'dark-blue', 'completer_items': 20,
+        'current_plane': 'A-10A',
+    }
 
 
+@fixture()
+def switch_dcs_bios_path_in_config(test_dcs_bios, test_config_yaml):
+    """
+    Switch a path to config YAML file during testing.
+
+    :param test_dcs_bios: Path to DCS-BIOS in a test resources
+    :param test_config_yaml: Testing confi.yaml file
+    """
+    from dcspy import utils
+
+    org = utils.load_yaml(test_config_yaml)
+    dcs_bios = org['dcsbios']
+    org['dcsbios'] = str(test_dcs_bios)
+    utils.save_yaml(data=org, full_path=test_config_yaml)
+    yield
+    org['dcsbios'] = dcs_bios
+    utils.save_yaml(data=org, full_path=test_config_yaml)
+
+
+# <=><=><=><=><=> DCS World autoupdate_cfg <=><=><=><=><=>
 @fixture()
 def autoupdate1_cfg():
     """Mock for correct autoupdate_cfg."""
@@ -171,21 +345,22 @@ def autoupdate3_cfg():
 """
 
 
+# <=><=><=><=><=> airplane bios data <=><=><=><=><=>
 @fixture()
 def apache_pre_mode_bios_data():
     """Bios values for AH-64D Apache PRE mode."""
     return [
-        ('PLT_EUFD_LINE1', 'LOW ROTOR RPM     |RECTIFIER 2 FAIL  |PRESET TUNE VHF   '),
-        ('PLT_EUFD_LINE2', 'ENGINE 2 OUT      |GENERATOR 2 FAIL  |!CO CMD   127.000 '),
-        ('PLT_EUFD_LINE3', 'ENGINE 1 OUT      |AFT FUEL LOW      | D/1/227  135.000 '),
-        ('PLT_EUFD_LINE4', '                  |FORWARD FUEL LOW  | JAAT     136.000 '),
-        ('PLT_EUFD_LINE5', '                  |                  | BDE/HIG  127.000 '),
-        ('PLT_EUFD_LINE6', '                                     | FAAD     125.000 '),
-        ('PLT_EUFD_LINE7', '                                     | JTAC     121.000 '),
-        ('PLT_EUFD_LINE8', '~<>VHF*  127.000   -----             | AWACS    141.000 '),
-        ('PLT_EUFD_LINE9', ' ==UHF*  305.000   -----             | FLIGHT   128.000 '),
-        ('PLT_EUFD_LINE10', ' ==FM1*   30.000   -----    NORM     | BATUMI   126.000 '),
-        ('PLT_EUFD_LINE11', ' ==FM2*   30.000   -----             | COMMAND  137.000 '),
+        ('PLT_EUFD_LINE1', 'LOW ROTOR RPM     |RECTIFIER 2 FAIL  |PRESET TUNE VHF  |'),
+        ('PLT_EUFD_LINE2', 'ENGINE 2 OUT      |GENERATOR 2 FAIL  |!PRESET 1 134.000|'),
+        ('PLT_EUFD_LINE3', 'ENGINE 1 OUT      |AFT FUEL LOW      | PRESET 2 134.000|'),
+        ('PLT_EUFD_LINE4', '                  |FORWARD FUEL LOW  | PRESET 3 136.000|'),
+        ('PLT_EUFD_LINE5', '                  |                  | PRESET 4 127.000|'),
+        ('PLT_EUFD_LINE6', '                  |                  | PRESET 5 125.000|'),
+        ('PLT_EUFD_LINE7', '                  |                  | PRESET 6 121.000|'),
+        ('PLT_EUFD_LINE8', '~<>VHF*  134.000   MAN               | PRESET 7 141.000|'),
+        ('PLT_EUFD_LINE9', ' ==UHF*  240.000   PRE 2         L2  | PRESET 8 128.000|'),
+        ('PLT_EUFD_LINE10', ' ==FM1*   30.015   PRE 3    NORM L3  | PRESET 9 126.000|'),
+        ('PLT_EUFD_LINE11', ' ==FM2*   30.020   PRE 4         L4  | PRESET10 137.000|'),
     ]
 
 
@@ -248,6 +423,24 @@ def f15ese_mono_bios():
         ('F_UFC_LINE5_DISPLAY', '*U262000    U133000*'),
         ('F_UFC_LINE6_DISPLAY', ' 10               G '),
     ]
+
+
+@fixture()
+def f4e45mc_mono_bios():
+    """Bios values for F-4E Phantom II for Logitech mono LCD."""
+    return [
+        ('PLT_ARC_164_FREQ_MODE', 1),
+        ('PLT_ARC_164_MODE', 3),
+        ('PLT_ARC_164_AUX_CHANNEL', 11),
+        ('PLT_ARC_164_FREQ', '251.225'),
+        ('PLT_ARC_164_COMM_CHANNEL', 8),
+    ]
+
+
+@fixture()
+def f4e45mc_color_bios(f4e45mc_mono_bios):
+    """Bios values for F-4E Phantom II for Logitech color LCD."""
+    return f4e45mc_mono_bios
 
 
 @fixture()
@@ -345,11 +538,11 @@ def mi24p_color_bios(mi24p_mono_bios):
 def ah64dblkii_mono_bios():
     """Bios values for AH-64D Apache for Logitech mono LCD."""
     return [
-        ('PLT_EUFD_LINE8', '~<>VHF*  121.000   -----              121.500   -----   '),
-        ('PLT_EUFD_LINE9', ' ==UHF*  305.000   -----              305.000   -----   '),
-        ('PLT_EUFD_LINE10', ' ==FM1*   30.000   -----    NORM       30.000   -----   '),
-        ('PLT_EUFD_LINE11', ' ==FM2*   30.000   -----               30.000   -----   '),
-        ('PLT_EUFD_LINE12', ' ==HF *    2.0000A -----    LOW         2.0000A -----   '),
+        ('PLT_EUFD_LINE8', '~<>VHF*  134.000   MAN                121.500   MAN     '),
+        ('PLT_EUFD_LINE9', ' ==UHF*  240.000   PRE 2         L2   305.000   MAN     '),
+        ('PLT_EUFD_LINE10', ' ==FM1*   30.015   PRE 3    NORM L3    30.000   MAN     '),
+        ('PLT_EUFD_LINE11', ' ==FM2*   30.020   PRE 4         L4    30.000   MAN     '),
+        ('PLT_EUFD_LINE12', ' ==HF *    2.0000A          LOW         2.0000A         '),
     ]
 
 
@@ -363,21 +556,21 @@ def ah64dblkii_color_bios(ah64dblkii_mono_bios):
 def a10c_mono_bios():
     """Bios values for A-10C Warthog for Logitech mono LCD."""
     return [
-        ('VHFAM_FREQ1', '20'),
+        ('VHFAM_FREQ1', 9),
         ('VHFAM_FREQ2', 1),
         ('VHFAM_FREQ3', 1),
-        ('VHFAM_FREQ4', '30'),
-        ('VHFAM_PRESET', ' 1'),
-        ('VHFFM_FREQ1', '40'),
+        ('VHFAM_FREQ4', 3),
+        ('VHFAM_PRESET', 1),
+        ('VHFFM_FREQ1', 3),
         ('VHFFM_FREQ2', 2),
         ('VHFFM_FREQ3', 2),
-        ('VHFFM_FREQ4', '50'),
-        ('VHFFM_PRESET', ' 1'),
-        ('UHF_100MHZ_SEL', '5'),
+        ('VHFFM_FREQ4', 0),
+        ('VHFFM_PRESET', 3),
+        ('UHF_100MHZ_SEL', 2),
         ('UHF_10MHZ_SEL', 3),
         ('UHF_1MHZ_SEL', 2),
         ('UHF_POINT1MHZ_SEL', 1),
-        ('UHF_POINT25_SEL', '25'),
+        ('UHF_POINT25_SEL', 1),
         ('UHF_PRESET', '01'),
         ('ARC210_FREQUENCY', '123.125'),
         ('ARC210_PREV_MANUAL_FREQ', '234.075'),
@@ -398,7 +591,7 @@ def a10c2_mono_bios(a10c_mono_bios):
 
 @fixture()
 def a10c2_color_bios(a10c_mono_bios):
-    """Bios values for A-10C II Tank Killer for Logitech color LCD."""
+    """DCS-BIOS values for A-10C II Tank Killer for Logitech color LCD."""
     return a10c_mono_bios
 
 
