@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import mkdocs_gen_files
+import mkdocs_gen_files  # type: ignore
 
 nav = mkdocs_gen_files.Nav()
 
