@@ -105,6 +105,7 @@ dev = [
 version = {attr = 'dcspy.run.__version__'}
 
 [tool.setuptools.packages.find]
+where = ['src/']
 include = ['dcspy*']
 exclude = ['dcspy.tests*']
 
@@ -119,6 +120,7 @@ dcspy = [
 
 [tool.pytest.ini_options]
 addopts = ['-q']
+pythonpath = ['src']
 testpaths = ['tests']
 markers = [
     'qt6: marks tests for Qt6 verfification',
@@ -140,7 +142,7 @@ ignore-setters = false
 fail-under = 90
 verbose = 1
 quiet = false
-exclude = ['tests/test_*', 'dcspy/qtgui_rc.py']
+exclude = ['tests/test_*', 'src/dcspy/qtgui_rc.py']
 
 [tool.ruff]
 line-length = 160
