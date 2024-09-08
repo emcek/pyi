@@ -31,7 +31,7 @@ except ImportError:
     pass
 
 LOG = getLogger(__name__)
-__version__ = '3.6.1'
+__version__ = '3.6.2'
 CONFIG_YAML = 'config.yaml'
 DEFAULT_YAML_FILE = Path(__file__).parent / 'resources' / CONFIG_YAML
 
@@ -554,7 +554,7 @@ def _fetch_git_data() -> tuple[Sequence[int], str]:
         import git
         git_ver = git.cmd.Git().version_info
         head_commit = str(git.Repo(DCS_BIOS_REPO_DIR).head.commit)
-    except (git.exc.NoSuchPathError, ImportError):
+    except (git.exc.NoSuchPathError, git.exc.InvalidGitRepositoryError, ImportError):
         git_ver = (0, 0, 0, 0)
         head_commit = 'N/A'
     return git_ver, head_commit
