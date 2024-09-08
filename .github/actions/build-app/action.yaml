@@ -44,7 +44,7 @@ runs:
     - name: "Build dcspy binaries with Nuitka"
       shell: bash
       run: |
-        python -m nuitka --onefile --disable-console --report=compilation-report.xml --plugin-enable=pyside6 --include-package-data=dcspy --assume-yes-for-downloads --onefile-windows-splash-screen-image=dcspy/img/splash.png --output-filename=dcspy_nuitka --output-dir=dist --windows-icon-from-ico=dcspy/img/dcspy_white.ico --product-name=DCSpy --file-version=3.0.0.0 --product-version=3.0.0.0 --file-description="Integrating DCS Planes with Logitech keyboards with LCD" --copyright="(c) 2024 Michal Plichta. All rights reserved." dcs_py.py
+        python -m nuitka --onefile --disable-console --prefer-source-code --report=compilation-report.xml --plugin-enable=pyside6 --include-package-data=dcspy --assume-yes-for-downloads --onefile-windows-splash-screen-image=dcspy/img/splash.png --output-filename=dcspy_nuitka --output-dir=dist --windows-icon-from-ico=dcspy/img/dcspy_white.ico --product-name=DCSpy --file-version=3.0.0.0 --product-version=3.0.0.0 --file-description="Integrating DCS Planes with Logitech keyboards with LCD" --copyright="(c) 2024 Michal Plichta. All rights reserved." dcs_py.py
 
     - name: "Compress to zip"
       shell: bash
