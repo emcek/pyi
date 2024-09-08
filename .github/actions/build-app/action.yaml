@@ -41,7 +41,8 @@ runs:
         unset SOURCE_DATE_EPOCH
         pyi-bindepend dist/*.exe
 
-    - name: "Release Notes"
+    - name: "Set Nuitka data"
+      shell: pwsh
       id: nuitka_data
       run: |
         $sha = $Env:GITHUB_SHA
