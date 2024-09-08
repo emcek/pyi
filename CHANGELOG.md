@@ -1,4 +1,4 @@
-## 3.6.7
+## 3.6.8
 * GUI should not be hide when starting when configuration is wrong
 * Generate BIOS JSON's file during start-up and after BIOS update
 * Internal:
