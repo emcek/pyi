@@ -58,7 +58,7 @@ runs:
         windows-console-mode: disable
         prefer-source-code: true
         enable-plugins: pyside6
-        include-package-data: src/dcspy
+        include-package-data: dcspy
         assume-yes-for-downloads: true
         onefile-windows-splash-screen-image: src/dcspy/img/splash.png
         output-file: dcspy_nuitka
