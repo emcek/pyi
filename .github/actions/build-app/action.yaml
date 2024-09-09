@@ -55,7 +55,7 @@ runs:
         nuitka-version: 2.4.8
         script-name: dcs_py.py
         onefile: true
-        windows-console-mode: enable
+        windows-console-mode: force
         prefer-source-code: true
         enable-plugins: pyside6
         include-package-data: dcspy
