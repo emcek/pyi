@@ -42,9 +42,9 @@ runs:
       run: |
         export SOURCE_DATE_EPOCH=1674687685
         export PYTHONHASHSEED=1674687685
-        pyinstaller --clean --noconfirm --log-level DEBUG dcspy.spec
-        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_cli.spec
-        pyinstaller --clean --noconfirm --log-level DEBUG dcspy_onedir.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy_cli.spec
+        pyinstaller --clean --noconfirm --log-level INFO dcspy_onedir.spec
         md5sum dist/*.exe
         unset PYTHONHASHSEED
         unset SOURCE_DATE_EPOCH
