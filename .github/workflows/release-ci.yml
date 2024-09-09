@@ -49,7 +49,7 @@ jobs:
       - name: "Release Notes"
         id: version
         run: |
-          $dcspy_ver = python latest_tag.py . 0
+          $dcspy_ver = python scripts/latest_tag.py . 0
           Write-Output "number=$dcspy_ver" >> $env:GITHUB_OUTPUT
           $changelog = Get-Content .\CHANGELOG.md
           $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 3

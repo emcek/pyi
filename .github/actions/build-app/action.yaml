@@ -7,8 +7,8 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/pyinstaller/pyinstaller.git
-        pyi_tag=$(python latest_tag.py pyinstaller 1)
-        pyi_ver=$(python latest_tag.py pyinstaller 0)
+        pyi_tag=$(python scripts/latest_tag.py pyinstaller 1)
+        pyi_ver=$(python scripts/latest_tag.py pyinstaller 0)
         cd pyinstaller/bootloader
         git checkout $pyi_tag
         python.exe ./waf all
@@ -21,12 +21,12 @@ runs:
       shell: pwsh
       id: nuitka_data
       run: |
-        $output = & python generate_ver_file.py
+        $output = & python scripts/generate_ver_file.py
         $output = $output -replace "[\(\)\s\']", ""
-        $values = $output.Split(',')        
+        $values = $output.Split(',')
         $ref_name = $values[0].Trim()
         $run_number = $values[1].Trim()
-        $sha = $values[2].Trim()        
+        $sha = $values[2].Trim()
         Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT
         Write-Output "git_run_number=$run_number" >> $env:GITHUB_OUTPUT
         Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
@@ -53,9 +53,9 @@ runs:
     - uses: Nuitka/Nuitka-Action@main
       with:
         nuitka-version: 2.4.8
-        script-name: dcs_py.py
+        script-name: src/dcs_py.py
         onefile: true
-        windows-console-mode: force
+        windows-console-mode: disable
         prefer-source-code: true
         enable-plugins: pyside6
         include-package-data: dcspy

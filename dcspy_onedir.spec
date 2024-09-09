@@ -9,7 +9,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['dcs_py.py'],
+    ['src/dcs_py.py'],
     pathex=[],
     binaries=[],
     datas=images + resources + headers,
