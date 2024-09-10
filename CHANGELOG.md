@@ -1,4 +1,4 @@
-## 3.6.18
+## 3.6.19
 * GUI should not be hide when starting when configuration is wrong (@emcek)
 * Generate BIOS JSON's file during start-up and after BIOS update (@emcek)
 * Move documentation to: [dcspy.readthedocs.io](https://dcspy.readthedocs.io) site (@emcek)
