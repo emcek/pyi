@@ -41,13 +41,9 @@ jobs:
       - name: "Download dcspy binaries"
         uses: actions/download-artifact@v4
         with:
-          name: |
-            pyinstaller_dcspy
-            pyinstaller_dcspy_cli
-            nuitka_dcspy
-            nuitka_dcspy_cli
-            nuitka_dcspy2
-            nuitka_dcspy_cli2
+          merge-multiple: true
+          pattern: |
+            dcspy_*
 
       - name: "Release Notes"
         id: version
