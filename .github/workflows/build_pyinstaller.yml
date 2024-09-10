@@ -1,5 +1,4 @@
 name: Build dcspy binary with PyInstaller
-description: Assembles the full dcspy application.
 
 on: workflow_call
 
