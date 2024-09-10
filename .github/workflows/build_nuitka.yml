@@ -1,0 +1,54 @@
+name: Build dcspy binary with Nuitka
+description: Assembles the full dcspy application.
+
+on: workflow_call
+
+jobs:
+  nuitka:
+    runs-on: windows-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Set up Python environment"
+        uses: ./.github/actions/setup-python
+
+      - name: "Generate version info file"
+        shell: pwsh
+        id: nuitka_data
+        run: |
+          $output = & python scripts/generate_ver_file.py
+          $output = $output -replace "[\(\)\s\']", ""
+          $values = $output.Split(',')
+          $ref_name = $values[0].Trim()
+          $run_number = $values[1].Trim()
+          $sha = $values[2].Trim()
+          Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT
+          Write-Output "git_run_number=$run_number" >> $env:GITHUB_OUTPUT
+          Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
+
+      - uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: 2.4.8
+          script-name: src/dcs_py.py
+          onefile: true
+          windows-console-mode: disable
+          prefer-source-code: true
+          enable-plugins: pyside6
+          include-package-data: dcspy
+          assume-yes-for-downloads: true
+          onefile-windows-splash-screen-image: src/dcspy/img/splash.png
+          output-file: dcspy_nuitka
+          output-dir: dist
+          windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
+          product-name: DCSpy
+          file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
+          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_sha }}
+          file-description: Integrating DCS Planes with Logitech keyboards with LCD
+          copyright: (c) 2024 Michal Plichta. All rights reserved.
+
+      - name: "Upload dcspy binaries"
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcspy_nuitka
+          path: dist/dcspy_nuitka.exe
