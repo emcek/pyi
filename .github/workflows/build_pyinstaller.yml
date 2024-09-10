@@ -45,3 +45,9 @@ jobs:
           unset PYTHONHASHSEED
           unset SOURCE_DATE_EPOCH
           pyi-bindepend dist/*.exe
+
+      - name: "Upload dcspy binaries"
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcspy_pyinstaller
+          path: dist/dcspy*.exe

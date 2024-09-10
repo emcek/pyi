@@ -36,6 +36,13 @@ jobs:
           python -m build
           python -m twine check dist/*
 
+      - name: "Upload dcspy wheel"
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcspy_wheel
+          path: dist/*.whl
+
+
   github:
     needs: [build_pyinstaller, build_nuitka, build_wheel]
     runs-on: windows-latest
@@ -79,7 +86,7 @@ jobs:
             dcspy.zip
 
   pypi:
-    needs: [build]
+    needs: [build_pyinstaller, build_nuitka, build_wheel]
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
