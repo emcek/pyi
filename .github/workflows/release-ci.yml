@@ -20,12 +20,16 @@ jobs:
     needs: [test]
     uses: ./.github/workflows/nuitka.yml
 
+  nuitka_old:
+    needs: [test]
+    uses: ./.github/workflows/nuitka_old.yml
+
   wheel:
     needs: [test]
     uses: ./.github/workflows/wheel.yml
 
   github:
-    needs: [pyinstaller, nuitka, wheel]
+    needs: [pyinstaller, nuitka, wheel, nuitka_old]
     runs-on: windows-latest
     steps:
       - name: "Checkout"
@@ -42,6 +46,8 @@ jobs:
             pyinstaller_dcspy_cli
             nuitka_dcspy
             nuitka_dcspy_cli
+            nuitka_dcspy2
+            nuitka_dcspy_cli2
 
       - name: "Release Notes"
         id: version
@@ -67,11 +73,13 @@ jobs:
             dcspy_cli.exe
             dcspy_nuitka.exe
             dcspy_nuitka_cli.exe
+            dcspy_nuitka2.exe
+            dcspy_nuitka_cli2.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
 
   pypi:
-    needs: [pyinstaller, nuitka, wheel]
+    needs: [pyinstaller, nuitka, wheel, nuitka_old]
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
