@@ -12,20 +12,20 @@ jobs:
     needs: [style]
     uses: ./.github/workflows/test.yml
 
-  build_pyinstaller:
+  pyinstaller:
     needs: [test]
-    uses: ./.github/workflows/build_pyinstaller.yml
+    uses: ./.github/workflows/pyinstaller.yml
 
-  build_nuitka:
+  nuitka:
     needs: [test]
-    uses: ./.github/workflows/build_nuitka.yml
+    uses: ./.github/workflows/nuitka.yml
 
-  build_wheel:
+  wheel:
     needs: [test]
-    uses: ./.github/workflows/build_wheel.yml
+    uses: ./.github/workflows/wheel.yml
 
   github:
-    needs: [build_pyinstaller, build_nuitka, build_wheel]
+    needs: [pyinstaller, nuitka, wheel]
     runs-on: windows-latest
     steps:
       - name: "Checkout"
@@ -69,7 +69,7 @@ jobs:
             dcspy_nuitka.exe
 
   pypi:
-    needs: [build_pyinstaller, build_nuitka, build_wheel]
+    needs: [pyinstaller, nuitka, wheel]
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"

@@ -3,8 +3,11 @@ name: Build dcspy binary with Nuitka
 on: workflow_call
 
 jobs:
-  nuitka:
+  build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        nuitka_type: [ dcspy_nuitka, dcspy_nuitka_cli ]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -28,6 +31,7 @@ jobs:
           Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
 
       - uses: Nuitka/Nuitka-Action@main
+        if: ${{ endsWith( matrix.nuitka_type, '_nuitka') }}
         with:
           nuitka-version: 2.4.8
           script-name: src/dcs_py.py
@@ -38,7 +42,28 @@ jobs:
           include-package-data: dcspy
           assume-yes-for-downloads: true
           onefile-windows-splash-screen-image: src/dcspy/img/splash.png
-          output-file: dcspy_nuitka
+          output-file: ${{ matrix.nuitka_type }}
+          output-dir: dist
+          windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
+          product-name: DCSpy
+          file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
+          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_sha }}
+          file-description: Integrating DCS Planes with Logitech keyboards with LCD
+          copyright: (c) 2024 Michal Plichta. All rights reserved.
+
+      - uses: Nuitka/Nuitka-Action@main
+        if: ${{ endsWith( matrix.nuitka_type, '_cli') }}
+        with:
+          nuitka-version: 2.4.8
+          script-name: src/dcs_py.py
+          onefile: true
+          windows-console-mode: force
+          prefer-source-code: true
+          enable-plugins: pyside6
+          include-package-data: dcspy
+          assume-yes-for-downloads: true
+          onefile-windows-splash-screen-image: src/dcspy/img/splash.png
+          output-file: ${{ matrix.nuitka_type }}
           output-dir: dist
           windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
           product-name: DCSpy
@@ -50,5 +75,5 @@ jobs:
       - name: "Upload dcspy binaries"
         uses: actions/upload-artifact@v4
         with:
-          name: dcspy_nuitka
-          path: dist/dcspy_nuitka.exe
+          name: nuitka_${{ matrix.nuitka_type }}
+          path: dist/${{ matrix.nuitka_type }}.exe

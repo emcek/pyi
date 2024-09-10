@@ -3,7 +3,7 @@ name: Build dcspy binary with PyInstaller
 on: workflow_call
 
 jobs:
-  pyinstaller:
+  build:
     runs-on: windows-latest
     strategy:
       matrix:

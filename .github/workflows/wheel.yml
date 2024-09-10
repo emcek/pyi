@@ -3,7 +3,7 @@ name: Build dcspy wheel package
 on: workflow_call
 
 jobs:
-  wheel:
+  build:
     runs-on: windows-latest
     steps:
       - name: "Checkout"
