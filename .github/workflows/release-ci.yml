@@ -22,26 +22,7 @@ jobs:
 
   build_wheel:
     needs: [test]
-    runs-on: windows-latest
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Set up Python environment"
-        uses: ./.github/actions/setup-python
-
-      - name: "Build dcspy wheel package"
-        shell: bash
-        run: |
-          python -m build
-          python -m twine check dist/*
-
-      - name: "Upload dcspy wheel"
-        uses: actions/upload-artifact@v4
-        with:
-          name: dcspy_wheel
-          path: dist/*.whl
-
+    uses: ./.github/workflows/build_wheel.yml
 
   github:
     needs: [build_pyinstaller, build_nuitka, build_wheel]
@@ -56,7 +37,10 @@ jobs:
       - name: "Download dcspy binaries"
         uses: actions/download-artifact@v4
         with:
-          name: dcspy_binaries
+          name: |
+            dcspy_nuitka
+            pyinstaller_dcspy
+            pyinstaller_dcspy_cli
 
       - name: "Release Notes"
         id: version
@@ -83,7 +67,6 @@ jobs:
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
             dcspy_nuitka.exe
-            dcspy.zip
 
   pypi:
     needs: [build_pyinstaller, build_nuitka, build_wheel]
@@ -98,7 +81,7 @@ jobs:
       - name: "Download dcspy binaries"
         uses: actions/download-artifact@v4
         with:
-          name: dcspy_binaries
+          name: dcspy_wheel
 
       - name: "Publish dcspy to PyPI"
         run: |

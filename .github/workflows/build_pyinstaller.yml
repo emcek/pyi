@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        spec_file: [ dcspy.spec, dcspy_cli.spec ]
+        spec_file: [ dcspy, dcspy_cli ]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         run: |
           export SOURCE_DATE_EPOCH=1674687685
           export PYTHONHASHSEED=1674687685
-          pyinstaller --clean --noconfirm --log-level INFO ${{ matrix.spec_file }}
+          pyinstaller --clean --noconfirm --log-level INFO ${{ matrix.spec_file }}.spec
           md5sum dist/*.exe
           unset PYTHONHASHSEED
           unset SOURCE_DATE_EPOCH
@@ -48,5 +48,5 @@ jobs:
       - name: "Upload dcspy binaries"
         uses: actions/upload-artifact@v4
         with:
-          name: dcspy_pyinstaller
-          path: dist/dcspy*.exe
+          name: pyinstaller_${{ matrix.spec_file }}
+          path: dist/${{ matrix.spec_file }}.exe
