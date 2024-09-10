@@ -38,9 +38,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: |
-            dcspy_nuitka
             pyinstaller_dcspy
             pyinstaller_dcspy_cli
+            dcspy_nuitka
+            dcspy_nuitka_cli
 
       - name: "Release Notes"
         id: version
@@ -64,9 +65,10 @@ jobs:
           files: |
             dcspy.exe
             dcspy_cli.exe
+            dcspy_nuitka.exe
+            dcspy_nuitka_cli.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
-            dcspy_nuitka.exe
 
   pypi:
     needs: [pyinstaller, nuitka, wheel]
