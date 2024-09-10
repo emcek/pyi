@@ -40,8 +40,8 @@ jobs:
           name: |
             pyinstaller_dcspy
             pyinstaller_dcspy_cli
-            dcspy_nuitka
-            dcspy_nuitka_cli
+            nuitka_dcspy
+            nuitka_dcspy_cli
 
       - name: "Release Notes"
         id: version
