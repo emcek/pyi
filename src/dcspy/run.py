@@ -9,10 +9,10 @@ from pathlib import Path
 from tempfile import gettempdir
 
 try:
-    import lupa.luajit21 as lupa
+    import lupa.luajit21 as lupa  # type: ignore
 except ImportError:
     try:
-        import lupa.lua51 as lupa
+        import lupa.lua51 as lupa  # type: ignore
     except ImportError:
         pass
 from PySide6.QtWidgets import QApplication

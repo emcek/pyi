@@ -15,9 +15,10 @@ jobs:
       - name: "Compile lupa"
         shell: cmd
         run: |
-          cd C:\"Program Files"\"Microsoft Visual Studio"
+          C:
+          cd C:\"Program Files (x86)"\"Microsoft Visual Studio"
           dir
-          C:\"Program Files"\"Microsoft Visual Studio"\2022\Community\VC\Auxiliary\Build\vcvars64.bat
+          C:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           git clone git@github.com:scoder/lupa.git
           cd lupa
           pip install setuptools==67.2.0 wheel cython
