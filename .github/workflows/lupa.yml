@@ -20,7 +20,10 @@ jobs:
           pip install -U setuptools==67.2.0 wheel cython
           git submodule init
           git submodule update
-          C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
+          c:
+          cd C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\
+          vcvarsall.bat x64
+          d:
           python setup.py build_ext -i
           python setup.py bdist_wheel --use-bundle --with-cython
 
