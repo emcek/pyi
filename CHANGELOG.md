@@ -1,4 +1,9 @@
-## 3.6.26
+## 3.7.0
+* Use symbolic link to DCS-BIOS live repository
+* internal:
+  * Update PySide6 framework to 6.7.3
+
+## 3.5.2
 * GUI should not be hide when starting when configuration is wrong (@emcek)
 * Generate BIOS JSON's file during start-up and after BIOS update (@emcek)
 * Move documentation to: [dcspy.readthedocs.io](https://dcspy.readthedocs.io) site (@emcek)
@@ -7,6 +12,8 @@
   * check if BIOS JSON's files exist before do generation and compilation
   * Introduction of UV tool
   * use src-layout for python package
+  * introduce Nuitka based executable generation
+  * clean-up release pipeline
 
 ## 3.5.1
 * Add missing `F-4E-45MC.yaml` - #316 (@emcek)
