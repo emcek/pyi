@@ -23,7 +23,9 @@ from dcspy.qt_gui import DcsPyQtGui
 LOG = getLogger(__name__)
 __version__ = '3.7.0'
 
+
 def lua21():
+    """Run Lua JIT 2.1."""
     lua = (lupa.LuaRuntime())
     print(f"Using {lupa.LuaRuntime().lua_implementation} (compiled with {lupa.LUA_VERSION})")
     with open('./Scripts/DCS-BIOS/test/compile/LocalCompile.lua') as lua_file:
@@ -32,11 +34,18 @@ def lua21():
 
 
 def dcs_lua():
+    """Run DCS lua."""
     lua_exec = Path(r'C:\Program Files\Eagle Dynamics\DCS World OpenBeta\bin\luae.exe')
     subprocess.run([lua_exec, r'Scripts\DCS-BIOS\test\compile\LocalCompile.lua'], check=True, shell=False)
 
 
 def change_directory_and_run(new_dir, function_to_run):
+    """
+    Change directory.
+
+    :param new_dir:
+    :param function_to_run:
+    """
     previous_dir = os.getcwd()
 
     try:
