@@ -31,13 +31,19 @@ jobs:
           git submodule init
           git submodule update
           copy /y ..\scripts\setup setup.py
+          dir
 
       - name: "Build wheels"
-        run: python -m cibuildwheel --output-dir wheelhouse
+        shell: cmd
+        run: |
+          dir
+          cd lupa
+          python -m cibuildwheel --output-dir wheelhouse
 
       - name: "dir"
         shell: cmd
         run: |
+          cd lupa
           dir wheelhouse
 
       - name: "Upload"
