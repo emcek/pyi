@@ -40,6 +40,8 @@ jobs:
           cd lupa
           call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_SKIP: cp36-win*
 
       - name: "dir"
         shell: cmd
