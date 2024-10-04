@@ -17,17 +17,17 @@ jobs:
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
-      - name: "VS setup env"
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
+#      - name: "VS setup env"
+#        uses: TheMrMilchmann/setup-msvc-dev@v3
+#        with:
+#          arch: x64
 
       - name: "Compile lupa"
         shell: cmd
         run: |
           git clone https://github.com/scoder/lupa.git
           cd lupa
-          pip install -U setuptools==67.2.0 wheel cython cibuildwheel
+          pip install -U setuptools wheel cython cibuildwheel
           git submodule init
           git submodule update
           copy /y ..\scripts\setup setup.py
@@ -38,6 +38,7 @@ jobs:
         run: |
           dir
           cd lupa
+          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           python -m cibuildwheel --output-dir wheelhouse
 
       - name: "dir"
