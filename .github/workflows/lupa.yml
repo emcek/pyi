@@ -24,7 +24,6 @@ jobs:
           copy /y ..\scripts\setup setup.py
           python setup.py build_ext -i
           python setup.py bdist_wheel --use-bundle --with-cython
-          dir dist
 
       - name: "Upload lupa binaries"
         uses: actions/upload-artifact@v4

@@ -1,4 +1,4 @@
-name: Build
+name: Build_all
 
 on: workflow_call
 
@@ -17,16 +17,28 @@ jobs:
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
-      - name: "Install cibuildwheel"
-        run: pip install cibuildwheel
-
       - name: "VS setup env"
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
 
+      - name: "Compile lupa"
+        shell: cmd
+        run: |
+          git clone https://github.com/scoder/lupa.git
+          cd lupa
+          pip install -U setuptools==67.2.0 wheel cython cibuildwheel
+          git submodule init
+          git submodule update
+          copy /y ..\scripts\setup setup.py
+
       - name: "Build wheels"
         run: python -m cibuildwheel --output-dir wheelhouse
+
+      - name: "dir"
+        shell: cmd
+        run: |
+          dir wheelhouse
 
       - name: "Upload"
         uses: actions/upload-artifact@v4
