@@ -92,3 +92,6 @@ jobs:
 
   lupa:
     uses: ./.github/workflows/lupa.yml
+
+  lupa_all:
+    uses: ./.github/workflows/lupa_all.yml
