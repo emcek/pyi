@@ -29,5 +29,5 @@ jobs:
       - name: "Upload lupa binaries"
         uses: actions/upload-artifact@v4
         with:
-          name: lupa-2.2-cp312-cp312-win_amd64
-          path: dist
+          name: lupa-2.2-win_amd64
+          path: lupa/dist/*.whl
