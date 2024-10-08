@@ -14,6 +14,11 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
+      - name: "Set up Python 3.9"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
       - name: "Compile lupa"
         shell: cmd
         run: |
@@ -28,8 +33,9 @@ jobs:
         shell: cmd
         run: |
           dir ..
+          cd lupa
+          dir
           call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
-          copy /y ..\scripts\setup setup.py
           type setup.py
           pip install -U pip setuptools wheel cython cibuildwheel
           python -m cibuildwheel --output-dir wheelhouse
