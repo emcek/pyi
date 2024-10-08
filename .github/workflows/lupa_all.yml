@@ -14,10 +14,10 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: "Set up Python 3.6"
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.6"
+#      - name: "Set up Python 3.6"
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.6"
 
 #      - name: "VS setup env"
 #        uses: TheMrMilchmann/setup-msvc-dev@v3
@@ -29,8 +29,8 @@ jobs:
         run: |
           git clone https://github.com/scoder/lupa.git
           cd lupa
-          pip install -U pip
-          pip install -U setuptools wheel cython cibuildwheel
+#          pip install -U pip
+#          pip install -U setuptools wheel cython cibuildwheel
           git submodule init
           git submodule update
           copy /y ..\scripts\setup setup.py
@@ -39,10 +39,11 @@ jobs:
       - name: "Build wheels"
         shell: cmd
         run: |
-          dir
-          cd lupa
+          dir ..
+#          cd lupa
           call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           copy /y ..\scripts\setup setup.py
+          type setup.py
           python -m cibuildwheel --output-dir wheelhouse
 #        env:
 #          CIBW_SKIP: cp36-win*

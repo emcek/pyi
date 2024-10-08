@@ -19,7 +19,7 @@ jobs:
         run: |
           git clone https://github.com/scoder/lupa.git
           cd lupa
-          pip install -U setuptools==67.2.0 wheel cython
+          pip install -U setuptools wheel cython
           git submodule init
           git submodule update
           call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
