@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: manual
     runs-on: windows-latest
     steps:
       - name: "Checkout"
@@ -35,7 +36,7 @@ jobs:
           path: lupa/dist/*.whl
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: cibuildwheel ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -50,7 +51,7 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: "Compile lupa"
+      - name: "Prepare lupa"
         shell: cmd
         run: |
           git clone https://github.com/scoder/lupa.git
@@ -59,7 +60,7 @@ jobs:
           git submodule update
           copy /y ..\setup setup.py
 
-      - name: "Build wheels"
+      - name: "CI Build wheels"
         shell: cmd
         run: |
           cd lupa
@@ -69,7 +70,7 @@ jobs:
 #        env:
 #          CIBW_SKIP: cp36-win*
 
-      - name: "dir"
+      - name: "Show dir"
         shell: cmd
         run: |
           cd lupa
