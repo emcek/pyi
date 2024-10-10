@@ -8,14 +8,18 @@ jobs:
   build:
     name: manual
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: "Set up Python 3.6"
+      - name: "Set up Python ${{ matrix.python }}"
         uses: actions/setup-python@v5
         with:
-          python-version: "3.6"
+          python-version: ${{ matrix.python }}
 
       - name: "Compile lupa"
         shell: cmd
@@ -32,7 +36,7 @@ jobs:
       - name: "Upload lupa binaries"
         uses: actions/upload-artifact@v4
         with:
-          name: lupa-2.2-win_amd64
+          name: lupa-2.2-win_amd64_${{ matrix.python }}
           path: lupa/dist/*.whl
 
   build_wheels:
