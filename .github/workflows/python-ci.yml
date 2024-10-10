@@ -64,11 +64,6 @@ jobs:
           git submodule update
           copy /y ..\setup setup.py
 
-      - name: "VS setup env"
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
-
       - name: "CI Build wheels"
         shell: cmd
         run: |
@@ -91,4 +86,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: .lupa//wheelhouse/*.whl
+          path: lupa/wheelhouse/*.whl
