@@ -64,6 +64,11 @@ jobs:
           git submodule update
           copy /y ..\setup setup.py
 
+      - name: "VS setup env"
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+
       - name: "CI Build wheels"
         shell: cmd
         run: |
