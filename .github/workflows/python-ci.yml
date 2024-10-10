@@ -69,6 +69,7 @@ jobs:
         run: |
           cd lupa
           pip install -U pip setuptools wheel cython cibuildwheel
+          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BEFORE_ALL: C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
