@@ -76,10 +76,10 @@ jobs:
           pip install -U pip setuptools wheel cython cibuildwheel
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_BUILD: python setup.py build_ext -i
+          CIBW_BEFORE_ALL: call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           CIBW_PLATFORM: windows
           CIBW_ARCHS: AMD64
-#          CIBW_BEFORE_ALL: C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
+#          CIBW_BEFORE_BUILD: python setup.py build_ext -i
 
       - name: "Show dir"
         shell: cmd
