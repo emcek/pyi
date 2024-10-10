@@ -5,39 +5,39 @@ on:
     branches: ["*"]
 
 jobs:
-  build:
-    name: manual
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.7", "pypy3.8", "pypy3.9", "pypy3.10" ]
-
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Set up Python ${{ matrix.python }}"
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: "Compile lupa"
-        shell: cmd
-        run: |
-          git clone https://github.com/scoder/lupa.git
-          cd lupa
-          pip install -U setuptools wheel cython
-          git submodule init
-          git submodule update
-          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
-          copy /y ..\setup setup.py
-          python setup.py build_ext -i bdist_wheel --use-bundle --with-cython
-
-      - name: "Upload lupa binaries"
-        uses: actions/upload-artifact@v4
-        with:
-          name: lupa-2.2-win_amd64_${{ matrix.python }}
-          path: lupa/dist/*.whl
+#  build:
+#    name: manual
+#    runs-on: windows-latest
+#    strategy:
+#      matrix:
+#        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.7", "pypy3.8", "pypy3.9", "pypy3.10" ]
+#
+#    steps:
+#      - name: "Checkout"
+#        uses: actions/checkout@v4
+#
+#      - name: "Set up Python ${{ matrix.python }}"
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: ${{ matrix.python }}
+#
+#      - name: "Compile lupa"
+#        shell: cmd
+#        run: |
+#          git clone https://github.com/scoder/lupa.git
+#          cd lupa
+#          pip install -U setuptools wheel cython
+#          git submodule init
+#          git submodule update
+#          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
+#          copy /y ..\setup setup.py
+#          python setup.py build_ext -i bdist_wheel --use-bundle --with-cython
+#
+#      - name: "Upload lupa binaries"
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: lupa-2.2-win_amd64_${{ matrix.python }}
+#          path: lupa/dist/*.whl
 
   build_wheels:
     name: cibuildwheel ${{ matrix.os }}
@@ -64,10 +64,10 @@ jobs:
           git submodule update
           copy /y ..\setup setup.py
 
-      - name: "VS setup env"
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
+#      - name: "VS setup env"
+#        uses: TheMrMilchmann/setup-msvc-dev@v3
+#        with:
+#          arch: x64
 
       - name: "CI Build wheels"
         shell: cmd
@@ -76,10 +76,12 @@ jobs:
           pip install -U pip setuptools wheel cython cibuildwheel
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_ALL: call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
+          CIBW_BEFORE_ALL_WINDOWS: call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           CIBW_PLATFORM: windows
           CIBW_ARCHS: AMD64
-#          CIBW_BEFORE_BUILD: python setup.py build_ext -i
+          CIBW_SKIP: *
+          CIBW_BUILD: cp312-win_amd64
+#          CIBW_BEFORE_BUILD_WINDOWS: python setup.py build_ext -i
 
       - name: "Show dir"
         shell: cmd
@@ -91,4 +93,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: ./wheelhouse/*.whl
+          path: .lupa//wheelhouse/*.whl
