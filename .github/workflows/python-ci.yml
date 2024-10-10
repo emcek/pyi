@@ -77,8 +77,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_PLATFORM: windows
-          CIBW_ARCHS: AMD64
-          CIBW_BUILD: cp312-win_amd64
+          CIBW_BUILD: cp312-win_*
 
       - name: "Show dir"
         shell: cmd
