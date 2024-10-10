@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.7", "pypy3.8", "pypy3.9", "pypy3.10" ]
 
     steps:
       - name: "Checkout"
@@ -68,11 +68,12 @@ jobs:
         shell: cmd
         run: |
           cd lupa
-          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           pip install -U pip setuptools wheel cython cibuildwheel
           python -m cibuildwheel --output-dir wheelhouse
-#        env:
-#          CIBW_SKIP: cp36-win*
+        env:
+          CIBW_BEFORE_ALL: C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
+          CIBW_PLATFORM: windows
+          CIBW_ARCHS: AMD64
 
       - name: "Show dir"
         shell: cmd
