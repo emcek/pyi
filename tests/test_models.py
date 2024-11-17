@@ -441,18 +441,18 @@ def test_release_model(resources):
 
     from dcspy.models import Release
 
-    with open(resources / 'dcspy_3.7.0.json', encoding='utf-8') as json_file:
+    with open(resources / 'dcspy_3.6.1.json', encoding='utf-8') as json_file:
         content = json_file.read()
     json_data = json.loads(content)
     release = Release(**json_data)
     assert release.is_latest(current_ver='3.5.0') is False
     assert release.is_latest(current_ver=version.parse('3.7.0')) is True
-    assert release.download_url(extension='.exe', file_name='dcspy_cli') == 'https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy_cli.exe'
+    assert release.download_url(extension='.exe', file_name='dcspy_cli') == 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe'
     assert release.download_url(extension='.exe', file_name='fake') == ''
     assert release.download_url(extension='.pdf', file_name='dcspy_cli') == ''
-    assert release.version == version.parse('3.7.0')
+    assert release.version == version.parse('3.6.1')
     assert release.published == '05 November 2024'
-    assert str(release) == 'v3.7.0 pre:False date:05 November 2024'
+    assert str(release) == 'v3.6.1 pre:False date:05 November 2024'
 
 
 # <=><=><=><=><=> RequestModel <=><=><=><=><=>
