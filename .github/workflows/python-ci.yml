@@ -3,90 +3,16 @@ name: Python CI
 on:
   push:
     branches: ["*"]
+    tags-ignore: ["v*"]
 
 jobs:
-#  build:
-#    name: manual
-#    runs-on: windows-latest
-#    strategy:
-#      matrix:
-#        python: [ "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.7", "pypy3.8", "pypy3.9", "pypy3.10" ]
-#
-#    steps:
-#      - name: "Checkout"
-#        uses: actions/checkout@v4
-#
-#      - name: "Set up Python ${{ matrix.python }}"
-#        uses: actions/setup-python@v5
-#        with:
-#          python-version: ${{ matrix.python }}
-#
-#      - name: "Compile lupa"
-#        shell: cmd
-#        run: |
-#          git clone https://github.com/scoder/lupa.git
-#          cd lupa
-#          pip install -U setuptools wheel cython
-#          git submodule init
-#          git submodule update
-#          call C:\"Program Files"\"Microsoft Visual Studio"\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
-#          copy /y ..\setup setup.py
-#          python setup.py build_ext -i bdist_wheel --use-bundle --with-cython
-#
-#      - name: "Upload lupa binaries"
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: lupa-2.2-win_amd64_${{ matrix.python }}
-#          path: lupa/dist/*.whl
+  style:
+    uses: ./.github/workflows/style.yml
 
-  build_wheels:
-    name: cibuildwheel ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
+  test:
+    needs: [style]
+    uses: ./.github/workflows/test.yml
 
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Set up Python 3.9"
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-
-      - name: "Prepare lupa"
-        shell: cmd
-        run: |
-          git clone https://github.com/scoder/lupa.git
-          cd lupa
-          git submodule init
-          git submodule update
-          copy /y ..\setup setup.py
-
-      - name: "VS setup env"
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
-
-      - name: "CI Build wheels"
-        shell: cmd
-        run: |
-          cd lupa
-          pip install -U cibuildwheel
-          python -m cibuildwheel --output-dir wheelhouse
-        env:
-          CIBW_PLATFORM: windows
-          CIBW_BUILD: cp312-win_amd64
-
-      - name: "Show dir"
-        shell: cmd
-        run: |
-          cd lupa
-          dir wheelhouse
-
-      - name: "Upload"
-        uses: actions/upload-artifact@v4
-        with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: lupa/wheelhouse/*.whl
+  coverage:
+    needs: [style]
+    uses: ./.github/workflows/coverage.yml

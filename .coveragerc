@@ -1,0 +1,12 @@
+[run]
+source = src/dcspy/
+relative_files = True
+branch = True
+
+[report]
+omit = tests/*
+       src/dcspy/qt_gui.py
+       src/dcspy/qtgui_rc.py
+
+[html]
+directory = covhtml
