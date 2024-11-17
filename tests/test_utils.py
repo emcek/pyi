@@ -23,14 +23,14 @@ def test_check_ver_exception():
             utils.check_ver_at_github(repo='fake3/package3')
 
 @mark.parametrize('current_ver, extension, file_name, result', [
-    ('3.6.1', 'tar.gz', 'dcspy', {'latest': True, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy-3.6.1.tar.gz'}),
-    ('3.5.0', 'exe', 'dcspy_cli', {'latest': False, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe'}),
-    ('3.6.1', 'exe', 'fake', {'latest': True, 'dl_url': ''}),
+    ('3.7.0', 'tar.gz', 'dcspy', {'latest': True, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy-3.7.0.tar.gz'}),
+    ('3.5.0', 'exe', 'dcspy_cli', {'latest': False, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy_cli.exe'}),
+    ('3.7.0', 'exe', 'fake', {'latest': True, 'dl_url': ''}),
     ('3.5.0', 'jpg', 'dcspy', {'latest': False, 'dl_url': ''}),
 ], ids=['latest', 'not latest', 'fake file', 'fake ext'])
 def test_new_check_ver_at_github(current_ver, extension, file_name, result, resources):
     import json
-    with open(resources / 'dcspy_3.6.1.json', encoding='utf-8') as json_file:
+    with open(resources / 'dcspy_3.7.0.json', encoding='utf-8') as json_file:
         content = json_file.read()
     json_data = json.loads(content)
 
@@ -39,18 +39,18 @@ def test_new_check_ver_at_github(current_ver, extension, file_name, result, reso
         type(response_get.return_value).json = MagicMock(return_value=json_data)
         rel = utils.check_ver_at_github(repo='emcek/dcspy')
         assert rel.is_latest(current_ver=current_ver) == result['latest']
-        assert rel.version == version.parse('3.6.1')
+        assert rel.version == version.parse('3.7.0')
         assert rel.download_url(extension=extension, file_name=file_name) == result['dl_url']
         assert rel.published == '05 November 2024'
 
 
 @mark.parametrize('current_ver, result', [
-    ('3.6.1', 'v3.6.1 (latest)'),
-    ('1.1.1', 'v3.6.1 (update!)')
+    ('3.7.0', 'v3.7.0 (latest)'),
+    ('1.1.1', 'v3.7.0 (update!)')
 ], ids=['No update', 'New version'])
 def test_get_version_string_is_possible(current_ver, result, resources):
     import json
-    with open(resources / 'dcspy_3.6.1.json', encoding='utf-8') as json_file:
+    with open(resources / 'dcspy_3.7.0.json', encoding='utf-8') as json_file:
         content = json_file.read()
     json_data = json.loads(content)
 
@@ -93,7 +93,7 @@ def test_dummy_save_load_migrate(tmpdir):
     assert d_cfg == {'font_mono_s': 9}
     d_cfg = migrate(cfg=d_cfg)
     assert d_cfg == {
-        'api_ver': '3.6.1',
+        'api_ver': '3.7.0',
         'device': 'G13',
         'save_lcd': False,
         'show_gui': True,

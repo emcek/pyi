@@ -2,7 +2,7 @@
   "url": "https://api.github.com/repos/emcek/dcspy/releases/183556669",
   "assets_url": "https://api.github.com/repos/emcek/dcspy/releases/183556669/assets",
   "upload_url": "https://uploads.github.com/repos/emcek/dcspy/releases/183556669/assets{?name,label}",
-  "html_url": "https://github.com/emcek/dcspy/releases/tag/v3.6.1",
+  "html_url": "https://github.com/emcek/dcspy/releases/tag/v3.7.0",
   "id": 183556669,
   "author": {
     "login": "github-actions[bot]",
@@ -26,9 +26,9 @@
     "site_admin": false
   },
   "node_id": "RE_kwDODdMFZs4K8No9",
-  "tag_name": "v3.6.1",
+  "tag_name": "v3.7.0",
   "target_commitish": "master",
-  "name": "dcspy 3.6.1",
+  "name": "dcspy 3.7.0",
   "draft": false,
   "prerelease": false,
   "created_at": "2024-11-05T10:02:06Z",
@@ -38,7 +38,7 @@
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246018",
       "id": 204246018,
       "node_id": "RA_kwDODdMFZs4MLIwC",
-      "name": "dcspy-3.6.1-py3-none-any.whl",
+      "name": "dcspy-3.7.0-py3-none-any.whl",
       "label": "",
       "uploader": {
         "login": "github-actions[bot]",
@@ -67,13 +67,13 @@
       "download_count": 0,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:11Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy-3.6.1-py3-none-any.whl"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy-3.7.0-py3-none-any.whl"
     },
     {
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246021",
       "id": 204246021,
       "node_id": "RA_kwDODdMFZs4MLIwF",
-      "name": "dcspy-3.6.1.tar.gz",
+      "name": "dcspy-3.7.0.tar.gz",
       "label": "",
       "uploader": {
         "login": "github-actions[bot]",
@@ -102,7 +102,7 @@
       "download_count": 0,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:11Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy-3.6.1.tar.gz"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy-3.7.0.tar.gz"
     },
     {
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246019",
@@ -137,7 +137,7 @@
       "download_count": 4,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:12Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy.exe"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy.exe"
     },
     {
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246016",
@@ -172,7 +172,7 @@
       "download_count": 0,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:12Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy_cli.exe"
     },
     {
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246020",
@@ -207,7 +207,7 @@
       "download_count": 0,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:11Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_nuitka.exe"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy_nuitka.exe"
     },
     {
       "url": "https://api.github.com/repos/emcek/dcspy/releases/assets/204246017",
@@ -242,11 +242,11 @@
       "download_count": 0,
       "created_at": "2024-11-05T10:33:10Z",
       "updated_at": "2024-11-05T10:33:11Z",
-      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_nuitka_cli.exe"
+      "browser_download_url": "https://github.com/emcek/dcspy/releases/download/v3.7.0/dcspy_nuitka_cli.exe"
     }
   ],
-  "tarball_url": "https://api.github.com/repos/emcek/dcspy/tarball/v3.6.1",
-  "zipball_url": "https://api.github.com/repos/emcek/dcspy/zipball/v3.6.1",
+  "tarball_url": "https://api.github.com/repos/emcek/dcspy/tarball/v3.7.0",
+  "zipball_url": "https://api.github.com/repos/emcek/dcspy/zipball/v3.7.0",
   "body": "* Fix issue font size for G19 can be overwritten #394 - @emcek\n* Dcspy not started with Python 3.9, fix issue with pyadantic and type annotations - @emcek\n* Internal:\n  * Improve test coverage\n  * Use type annotation from future\r\n",
   "mentions_count": 1
 }
