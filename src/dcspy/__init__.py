@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 from logging import getLogger
 from os import name
 from pathlib import Path
 from platform import architecture, python_implementation, python_version, uname
 from sys import executable, platform
-from typing import Optional
 
 from dcspy.log import config_logger
 from dcspy.migration import migrate
-from dcspy.models import LOCAL_APPDATA, ConfigValue
+from dcspy.models import DCSPY_REPO_NAME, LOCAL_APPDATA, ConfigValue
 from dcspy.utils import check_dcs_ver, get_default_yaml, load_yaml, save_yaml
 
 LOG = getLogger(__name__)
-__version__ = '3.7.0'
+__version__ = '3.6.1'
 
 default_yaml = get_default_yaml(local_appdata=LOCAL_APPDATA)
 _start_cfg = load_yaml(full_path=default_yaml)
@@ -24,12 +25,12 @@ LOG.debug(f'Python: {python_implementation()}-{python_version()}')
 LOG.debug(f'Python exec: {executable}')
 LOG.debug(f'{uname()}')
 LOG.debug(f'Configuration: {_config} from: {default_yaml}')
-LOG.info(f'dcspy {__version__} https://github.com/emcek/dcspy')
+LOG.info(f'dcspy {__version__} https://github.com/{DCSPY_REPO_NAME}')
 dcs_type, dcs_ver = check_dcs_ver(Path(str(_config['dcs'])))
 LOG.info(f'DCS {dcs_type} ver: {dcs_ver}')
 
 
-def get_config_yaml_item(key: str, /, default: Optional[ConfigValue] = None) -> ConfigValue:
+def get_config_yaml_item(key: str, /, default: ConfigValue | None = None) -> ConfigValue:
     """
     Get item from a configuration YAML file.
 

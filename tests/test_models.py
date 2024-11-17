@@ -313,6 +313,7 @@ def test_get_empty_ctrl(test_dcs_bios):
     assert c is None
 
 
+
 def test_get_inputs_for_plane(test_dcs_bios):
     from dcspy.utils import get_full_bios_for_plane
 
@@ -327,7 +328,7 @@ def test_get_sha_of_system_data():
     from dcspy.models import SystemData
 
     sys_data = SystemData(system='Windows', release='10', ver='10.0.19045', proc='Intel64 Family 6 Model 158 Stepping 9, GenuineIntel', dcs_type='openbeta',
-                          dcs_ver='2.9.0.47168', dcspy_ver='v2.9.9', bios_ver='0.7.50', dcs_bios_ver='07771667 from: 26-Oct-2023 06:59:50', git_ver='2.41.0')
+                          dcs_ver='2.9.0.47168', dcspy_ver='v2.9.9', bios_ver='0.8.3', dcs_bios_ver='07771667 from: 26-Oct-2023 06:59:50', git_ver='2.41.0')
     assert sys_data.sha == '07771667'
 
 
@@ -430,6 +431,28 @@ def test_zigzag_iterator_direction():
     assert next(zz) == 7
     assert next(zz) == 5
     assert zz.direction == Direction.BACKWARD
+
+
+# <=><=><=><=><=> Release <=><=><=><=><=>
+def test_release_model(resources):
+    import json
+
+    from packaging import version
+
+    from dcspy.models import Release
+
+    with open(resources / 'dcspy_3.6.1.json', encoding='utf-8') as json_file:
+        content = json_file.read()
+    json_data = json.loads(content)
+    release = Release(**json_data)
+    assert release.is_latest(current_ver='3.5.0') is False
+    assert release.is_latest(current_ver=version.parse('3.6.1')) is True
+    assert release.download_url(extension='.exe', file_name='dcspy_cli') == 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe'
+    assert release.download_url(extension='.exe', file_name='fake') == ''
+    assert release.download_url(extension='.pdf', file_name='dcspy_cli') == ''
+    assert release.version == version.parse('3.6.1')
+    assert release.published == '05 November 2024'
+    assert str(release) == 'v3.6.1 pre:False date:05 November 2024'
 
 
 # <=><=><=><=><=> RequestModel <=><=><=><=><=>

@@ -1,7 +1,23 @@
-## 3.7.0
-* Use symbolic link to DCS-BIOS live repository
-* internal:
-  * Update PySide6 framework to 6.7.3
+## 3.6.2
+* Internal:
+  * Improve checking for new releases (pydantic model) - @emcek
+  * Make Nuitka with Python 3.13 default when building executable - @emcek
+
+## 3.6.1
+* Fix issue font size for G19 can be overwritten #394 - @emcek
+* Dcspy not started with Python 3.9, fix issue with pydantic and type annotations - @emcek
+* Internal:
+  * Improve test coverage
+  * Use type annotation from future
+
+## 3.6.0
+* Use symbolic link to DCS-BIOS live repository #347 (@emcek)
+* Compile DCS-BIOS using LuaJIT from lupa library #373 (@emcek)
+* Make switching between regular and live version of DCS-BIOS more reliable #390 (@emcek)
+* Internal:
+  * Update PySide6 framework to 6.8.0.2
+  * Add support for Python 3.13
+  * Introduce `WorkerSignalsMixIn` to remove code duplication
 
 ## 3.5.2
 * GUI should not be hide when starting when configuration is wrong (@emcek)

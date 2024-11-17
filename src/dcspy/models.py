@@ -1,8 +1,11 @@
-from collections.abc import Iterator, Mapping, Sequence
+from __future__ import annotations
+
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from datetime import datetime
 from enum import Enum
 from functools import partial
 from re import search
-from typing import Any, Callable, Final, Optional, TypedDict, TypeVar, Union
+from typing import Any, Final, TypedDict, TypeVar, Union
 
 from packaging import version
 from PIL import Image, ImageFont
@@ -27,6 +30,7 @@ NO_OF_LCD_SCREENSHOTS: Final = 301
 TIME_BETWEEN_REQUESTS: Final = 0.2
 LOCAL_APPDATA: Final = True
 DCSPY_REPO_NAME: Final = 'emcek/dcspy'
+BIOS_REPO_NAME: Final = 'DCS-Skunkworks/dcs-bios'
 DEFAULT_FONT_NAME: Final = 'consola.ttf'
 CTRL_LIST_SEPARATOR: Final = '--'
 SUPPORTED_CRAFTS = {
@@ -59,7 +63,7 @@ class Input(BaseModel):
     """Input base class of inputs section of Control."""
     description: str
 
-    def get(self, attribute: str, default=None) -> Optional[Any]:
+    def get(self, attribute: str, default=None) -> Any | None:
         """
         Access attribute and get default when is not available.
 
@@ -269,9 +273,9 @@ class ControlKeyData:
         return True
 
     @classmethod
-    def from_control(cls, /, ctrl: 'Control') -> 'ControlKeyData':
+    def from_control(cls, /, ctrl: Control) -> ControlKeyData:
         """
-        Construct object based on Control BIOS model.
+        Construct an object based on Control BIOS Model.
 
         :param ctrl: Control BIOS model
         :return: ControlKeyData instance
@@ -405,13 +409,13 @@ class ControlKeyData:
 
 class Control(BaseModel):
     """Control section of the BIOS model."""
-    api_variant: Optional[str] = None
+    api_variant: str | None = None
     category: str
     control_type: str
     description: str
     identifier: str
-    inputs: list[Union[FixedStep, VariableStep, SetState, Action, SetString]]
-    outputs: list[Union[OutputStr, OutputInt]]
+    inputs: list[FixedStep | VariableStep | SetState | Action | SetString]
+    outputs: list[OutputStr | OutputInt]
 
     @property
     def input(self) -> ControlKeyData:
@@ -423,7 +427,7 @@ class Control(BaseModel):
         return ControlKeyData.from_control(ctrl=self)
 
     @property
-    def output(self) -> Union[BiosValueInt, BiosValueStr]:
+    def output(self) -> BiosValueInt | BiosValueStr:
         """
         Extract outputs data.
 
@@ -444,7 +448,7 @@ class DcsBiosPlaneData(RootModel):
     """DcsBios plane data model."""
     root: dict[str, dict[str, Control]]
 
-    def get_ctrl(self, ctrl_name: str) -> Optional[Control]:
+    def get_ctrl(self, ctrl_name: str) -> Control | None:
         """
         Get Control from DCS-BIOS with name.
 
@@ -488,7 +492,7 @@ class CycleButton(BaseModel):
     iter: Iterator[int] = iter([0])
 
     @classmethod
-    def from_request(cls, /, req: str) -> 'CycleButton':
+    def from_request(cls, /, req: str) -> CycleButton:
         """
         Use BIOS request string from plane configuration YAML.
 
@@ -509,7 +513,7 @@ class GuiPlaneInputRequest(BaseModel):
     widget_iface: str
 
     @classmethod
-    def from_control_key(cls, ctrl_key: ControlKeyData, rb_iface: str, custom_value: str = '') -> 'GuiPlaneInputRequest':
+    def from_control_key(cls, ctrl_key: ControlKeyData, rb_iface: str, custom_value: str = '') -> GuiPlaneInputRequest:
         """
         Generate GuiPlaneInputRequest from ControlKeyData and radio button widget.
 
@@ -532,7 +536,7 @@ class GuiPlaneInputRequest(BaseModel):
         return cls(identifier=ctrl_key.name, request=rb_iface_request[rb_iface], widget_iface=rb_iface)
 
     @classmethod
-    def from_plane_gkeys(cls, /, plane_gkeys: dict[str, str]) -> dict[str, 'GuiPlaneInputRequest']:
+    def from_plane_gkeys(cls, /, plane_gkeys: dict[str, str]) -> dict[str, GuiPlaneInputRequest]:
         """
         Generate GuiPlaneInputRequest from plane_gkeys yaml.
 
@@ -562,7 +566,7 @@ class GuiPlaneInputRequest(BaseModel):
         return input_reqs
 
     @classmethod
-    def make_empty(cls) -> 'GuiPlaneInputRequest':
+    def make_empty(cls) -> GuiPlaneInputRequest:
         """Make empty GuiPlaneInputRequest."""
         return cls(identifier='', request='', widget_iface='')
 
@@ -610,7 +614,7 @@ class MouseButton(BaseModel):
         return hash(self.button)
 
     @classmethod
-    def from_yaml(cls, /, yaml_str: str) -> 'MouseButton':
+    def from_yaml(cls, /, yaml_str: str) -> MouseButton:
         """
         Construct MouseButton from YAML string.
 
@@ -623,7 +627,7 @@ class MouseButton(BaseModel):
         raise ValueError(f'Invalid MouseButton format: {yaml_str}. Expected: M_<i>')
 
     @staticmethod
-    def generate(button_range: tuple[int, int]) -> Sequence['MouseButton']:
+    def generate(button_range: tuple[int, int]) -> Sequence[MouseButton]:
         """
         Generate a sequence of MouseButton-Keys.
 
@@ -670,13 +674,13 @@ class LcdInfo(BaseModel):
     width: LcdSize
     height: LcdSize
     type: LcdType
-    foreground: Union[int, tuple[int, int, int, int]]
-    background: Union[int, tuple[int, int, int, int]]
+    foreground: int | tuple[int, int, int, int]
+    background: int | tuple[int, int, int, int]
     mode: LcdMode
     line_spacing: int
-    font_xs: Optional[ImageFont.FreeTypeFont] = None
-    font_s: Optional[ImageFont.FreeTypeFont] = None
-    font_l: Optional[ImageFont.FreeTypeFont] = None
+    font_xs: ImageFont.FreeTypeFont | None = None
+    font_s: ImageFont.FreeTypeFont | None = None
+    font_l: ImageFont.FreeTypeFont | None = None
 
     def set_fonts(self, fonts: FontsConfig) -> None:
         """
@@ -718,7 +722,7 @@ class Gkey(BaseModel):
         return hash((self.key, self.mode))
 
     @classmethod
-    def from_yaml(cls, /, yaml_str: str) -> 'Gkey':
+    def from_yaml(cls, /, yaml_str: str) -> Gkey:
         """
         Construct Gkey from YAML string.
 
@@ -731,7 +735,7 @@ class Gkey(BaseModel):
         raise ValueError(f'Invalid Gkey format: {yaml_str}. Expected: G<i>_M<j>')
 
     @staticmethod
-    def generate(key: int, mode: int) -> Sequence['Gkey']:
+    def generate(key: int, mode: int) -> Sequence[Gkey]:
         """
         Generate a sequence of G-Keys.
 
@@ -774,7 +778,7 @@ class LogitechDeviceModel(BaseModel):
     lcd_keys: Sequence[LcdButton] = tuple()
     lcd_info: LcdInfo = NoneLcd
 
-    def get_key_at(self, row: int, col: int) -> Optional[AnyButton]:
+    def get_key_at(self, row: int, col: int) -> AnyButton | None:
         """
         Get the keys at the specified row and column in the table layout.
 
@@ -902,7 +906,7 @@ MOUSES_DEV = [G600, G300, G400, G700, G9, MX518, G402, G502, G602]
 ALL_DEV = LCD_KEYBOARDS_DEV + KEYBOARDS_DEV + HEADPHONES_DEV + MOUSES_DEV
 
 
-def _try_key_instance(klass: Union[type[Gkey], type[LcdButton], type[MouseButton]], method: str, key_str: str) -> Optional[AnyButton]:
+def _try_key_instance(klass: type[Gkey] | type[LcdButton] | type[MouseButton], method: str, key_str: str) -> AnyButton | None:
     """
     Detect key string could be parsed with method.
 
@@ -979,18 +983,18 @@ class ZigZagIterator:
         """
         Initialize with current and max value.
 
-        Default direction is towards max_val.
+        A default direction is towards max_val.
 
-        :param current: current value
-        :param max_val: maximum value
-        :param step: step size, 1 by default
+        :param current: Current value
+        :param max_val: Maximum value
+        :param step: Step size, 1 by default
         """
         self.current = current
         self.step = step
         self.max_val = max_val
         self._direction = Direction.FORWARD
 
-    def __iter__(self) -> 'ZigZagIterator':
+    def __iter__(self) -> ZigZagIterator:
         return self
 
     def __str__(self) -> str:
@@ -1023,16 +1027,88 @@ class ZigZagIterator:
         self._direction = value
 
 
-class ReleaseInfo(BaseModel):
-    """Store release related information."""
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class Asset(BaseModel):
+    """GitHub Release Asset model."""
+    url: str
+    name: str
+    label: str
+    content_type: str
+    size: int
+    browser_download_url: str
 
-    latest: bool
-    ver: version.Version
-    dl_url: str
-    published: str
-    release_type: str
-    asset_file: str
+    def correct_asset(self, extension: str = '', file_name: str = '') -> bool:
+        """
+        Check if asset meet criteria.
+
+        :param extension: File extension
+        :param file_name: File name
+        :return: True if asset met requirements, False otherwise
+        """
+        result = False
+        if self.name.endswith(extension) and file_name in self.name:
+            result = True
+        return result
+
+
+class Release(BaseModel):
+    """GitHub Release model."""
+    url: str
+    html_url: str
+    tag_name: str
+    name: str
+    draft: bool
+    prerelease: bool
+    created_at: str
+    published_at: str
+    assets: list[Asset]
+    body: str
+
+    def is_latest(self, current_ver: str | version.Version) -> bool:
+        """
+        Check if a release is latest.
+
+        :param current_ver: String or Version object
+        :return: True if the current version is latest, False otherwise
+        """
+        if isinstance(current_ver, str):
+            current_ver = version.parse(current_ver)
+        return self.version <= current_ver
+
+    def download_url(self, extension: str = '', file_name: str = '') -> str:
+        """
+        Get downloadable URL for asset with extension and file name.
+
+        :param extension: File extension
+        :param file_name: String in file name
+        :return: downloadable URL
+        """
+        try:
+            dl_url = next(asset.browser_download_url for asset in self.assets if asset.correct_asset(extension=extension, file_name=file_name))
+        except StopIteration:
+            dl_url = ''
+        return dl_url
+
+    @property
+    def version(self) -> version.Version:
+        """
+        Get version.
+
+        :return: Version object for git tag
+        """
+        return version.parse(self.tag_name)
+
+    @property
+    def published(self) -> str:
+        """
+        Get published date.
+
+        :return: Date as string
+        """
+        published = datetime.strptime(self.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime('%d %B %Y')
+        return str(published)
+
+    def __str__(self):
+        return f'{self.tag_name} pre:{self.prerelease} date:{self.published}'
 
 
 class RequestType(Enum):
@@ -1064,7 +1140,7 @@ class RequestModel(BaseModel):
         return value
 
     @classmethod
-    def from_request(cls, key: AnyButton, request: str, get_bios_fn: Callable[[str], BiosValue]) -> 'RequestModel':
+    def from_request(cls, key: AnyButton, request: str, get_bios_fn: Callable[[str], BiosValue]) -> RequestModel:
         """
         Build an object based on string request.
 
@@ -1082,7 +1158,7 @@ class RequestModel(BaseModel):
         return RequestModel(ctrl_name=ctrl_name, raw_request=request, get_bios_fn=get_bios_fn, cycle=cycle_button, key=key)
 
     @classmethod
-    def empty(cls, key: AnyButton) -> 'RequestModel':
+    def empty(cls, key: AnyButton) -> RequestModel:
         """
         Create an empty request model, for a key which isn't assign.
 
@@ -1114,7 +1190,7 @@ class RequestModel(BaseModel):
         """Return True if push button request, False otherwise."""
         return RequestType.PUSH_BUTTON.value in self.raw_request
 
-    def bytes_requests(self, key_down: Optional[int] = None) -> list[bytes]:
+    def bytes_requests(self, key_down: int | None = None) -> list[bytes]:
         """
         Generate a list of bytes that represent the individual requests based on the current state of the model.
 
@@ -1124,7 +1200,7 @@ class RequestModel(BaseModel):
         request = self._generate_request_based_on_case(key_down)
         return [bytes(req, 'utf-8') for req in request.split('|')]
 
-    def _generate_request_based_on_case(self, key_down: Optional[int] = None) -> str:
+    def _generate_request_based_on_case(self, key_down: int | None = None) -> str:
         """
         Generate a request based on the current state of the object.
 
@@ -1157,7 +1233,7 @@ class RequestModel(BaseModel):
                 return case['method']()
         return f'{self.raw_request}\n'
 
-    def __generate_push_btn_req_for_gkey_and_mouse(self, key_down: Optional[int]) -> str:
+    def __generate_push_btn_req_for_gkey_and_mouse(self, key_down: int | None) -> str:
         """
         Generate a push button request for GKey and MouseButton.
 

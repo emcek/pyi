@@ -122,6 +122,16 @@ def test_dcs_bios(resources):
     return resources / 'DCS.openbeta' / 'Scripts' / 'DCS-BIOS'
 
 
+@fixture()
+def test_saved_games(resources):
+    """
+    Path to DCS-BIOS for Lua compile test.
+
+    :return: Path to DCS-BIOS
+    """
+    return resources / 'Saved.Games.DCS'
+
+
 # <=><=><=><=><=> dcsbios <=><=><=><=><=>
 @fixture
 def protocol_parser():
@@ -281,6 +291,19 @@ def switch_dcs_bios_path_in_config(test_dcs_bios, test_config_yaml):
     yield
     org['dcsbios'] = dcs_bios
     utils.save_yaml(data=org, full_path=test_config_yaml)
+
+
+@fixture()
+def migration_file(resources):
+    """
+    Recover content of test file for migration.
+
+    :param resources: Path to tests/resources directory.
+    """
+    yield
+    content = """some text\nbefore migration before\nother text\n"""
+    with open(resources / 'migration.txt', 'w') as txt_file:
+        txt_file.write(content)
 
 
 # <=><=><=><=><=> DCS World autoupdate_cfg <=><=><=><=><=>
