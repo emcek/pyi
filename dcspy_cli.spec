@@ -48,7 +48,7 @@ exe = EXE(
     splash,
     splash.binaries,
     [],
-    name='dcspy_pyinstaller_cli',
+    name='dcspy_cli_pyinstaller',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
