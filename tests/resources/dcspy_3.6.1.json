@@ -2,7 +2,7 @@
   "url": "https://api.github.com/repos/emcek/dcspy/releases/183556669",
   "assets_url": "https://api.github.com/repos/emcek/dcspy/releases/183556669/assets",
   "upload_url": "https://uploads.github.com/repos/emcek/dcspy/releases/183556669/assets{?name,label}",
-  "html_url": "https://github.com/emcek/dcspy/releases/tag/v3.7.0",
+  "html_url": "https://github.com/emcek/dcspy/releases/tag/v3.6.1",
   "id": 183556669,
   "author": {
     "login": "github-actions[bot]",

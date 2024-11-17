@@ -1,4 +1,4 @@
-## 3.7.0
+## 3.7.1
 * Internal:
   * Improve checking for new releases (pydantic model) - @emcek
   * Make Nuitka with Python 3.13 default when building executable - @emcek
