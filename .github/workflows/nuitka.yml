@@ -35,7 +35,7 @@ jobs:
         with:
           nuitka-version: 2.5
           script-name: src/dcs_py.py
-          onefile: true
+          mode: onefile
           windows-console-mode: disable
           prefer-source-code: true
           enable-plugins: pyside6
@@ -56,7 +56,7 @@ jobs:
         with:
           nuitka-version: 2.5
           script-name: src/dcs_py.py
-          onefile: true
+          mode: onefile
           windows-console-mode: force
           prefer-source-code: true
           enable-plugins: pyside6

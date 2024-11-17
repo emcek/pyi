@@ -446,7 +446,7 @@ def test_release_model(resources):
     json_data = json.loads(content)
     release = Release(**json_data)
     assert release.is_latest(current_ver='3.5.0') is False
-    assert release.is_latest(current_ver=version.parse('3.7.1')) is True
+    assert release.is_latest(current_ver=version.parse('3.6.1')) is True
     assert release.download_url(extension='.exe', file_name='dcspy_cli') == 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe'
     assert release.download_url(extension='.exe', file_name='fake') == ''
     assert release.download_url(extension='.pdf', file_name='dcspy_cli') == ''
