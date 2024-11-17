@@ -31,7 +31,7 @@ jobs:
           Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
 
       - uses: Nuitka/Nuitka-Action@main
-        if: ${{ endsWith( matrix.nuitka_type, '_nuitka') }}
+        if: ${{ endsWith( matrix.nuitka_type, 'dcspy') }}
         with:
           nuitka-version: 2.5
           script-name: src/dcs_py.py
