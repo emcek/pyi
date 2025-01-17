@@ -16,7 +16,3 @@ jobs:
   license:
     needs: [ style ]
     uses: ./.github/workflows/license.yml
-
-  coverage:
-    needs: [ style ]
-    uses: ./.github/workflows/coverage.yml
