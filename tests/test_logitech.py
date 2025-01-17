@@ -2,7 +2,7 @@ from unittest.mock import call, patch
 
 from pytest import mark
 
-from dcspy.models import Gkey, LcdButton, LcdInfo, LcdMode, LcdSize, LcdType, MouseButton
+from dcspy.models import Color, Gkey, LcdButton, LcdInfo, LcdMode, LcdSize, LcdType, MouseButton
 
 
 def test_keyboard_base_basic_check(keyboard_base):
@@ -10,7 +10,7 @@ def test_keyboard_base_basic_check(keyboard_base):
 
     assert str(keyboard_base) == 'LogitechDevice: 160x43'
     logitech_repr = repr(keyboard_base)
-    data = ('bios_name', 'plane_name', 'plane_detected', 'lcdbutton_pressed', 'cfg', 'socket', '_display',
+    data = ('bios_name', 'plane_name', 'plane_detected', 'lcdbutton_pressed', 'cfg', 'socket', '_text',
             'parser', 'ProtocolParser',
             'plane', 'BasicAircraft',
             'model', 'LogitechDeviceModel', 'LcdInfo', 'LcdMode', 'FreeTypeFont',
@@ -22,6 +22,7 @@ def test_keyboard_base_basic_check(keyboard_base):
         keyboard_base.clear()
 
 
+@mark.benchmark
 @mark.parametrize('keyboard, pressed1, effect, chk_btn, calls, pressed2', [
     ('keyboard_mono', False, [False] * 3 + [True], LcdButton.FOUR,
      [call(LcdButton.ONE), call(LcdButton.TWO), call(LcdButton.THREE), call(LcdButton.FOUR)], True),
@@ -55,6 +56,7 @@ def test_keyboard_check_buttons(keyboard, pressed1, effect, chk_btn, calls, pres
     assert logi_keyboard.lcdbutton_pressed is pressed2
 
 
+@mark.benchmark
 @mark.parametrize('keyboard', ['keyboard_mono', 'keyboard_color'], ids=['Mono Keyboard', 'Color Keyboard'])
 def test_keyboard_button_handle_lcdbutton(keyboard, request):
     from dcspy.sdk.lcd_sdk import LcdSdkManager
@@ -65,6 +67,7 @@ def test_keyboard_button_handle_lcdbutton(keyboard, request):
     keyboard.socket.sendto.assert_called_once_with(b'TEST 1\n', ('127.0.0.1', 7778))
 
 
+@mark.benchmark
 @mark.parametrize('key_idx, mode, key_down, mouse, calls', [
     (2, 3, 1, 1, {'button': MouseButton(button=2), 'key_down': 1}),
     (1, 2, 1, 0, {'button': Gkey(key=1, mode=2), 'key_down': 1}),
@@ -80,7 +83,8 @@ def test_keyboard_mono_gkey_callback_handler(key_idx, mode, key_down, mouse, cal
     mock_send_request.assert_called_once_with(**calls)
 
 
-@mark.parametrize('plane_str, bios_name, plane, display, detect', [
+@mark.benchmark
+@mark.parametrize('plane_str, bios_name, plane, text, detect', [
     ('FA-18C_hornet', '', 'FA18Chornet', ['Detected aircraft:', 'F/A-18C Hornet'], True),
     ('F-16C_50', '', 'F16C50', ['Detected aircraft:', 'F-16C Viper'], True),
     ('F-4E-45MC', '', 'F4E45MC', ['Detected aircraft:', 'F-4E Phantom II'], True),
@@ -120,15 +124,16 @@ def test_keyboard_mono_gkey_callback_handler(key_idx, mode, key_down, mouse, cal
     'A-10A',
     'F-117 Nighthawk',
     'Empty'])
-def test_keyboard_mono_detecting_plane(plane_str, bios_name, plane, display, detect, keyboard_mono):
+def test_keyboard_mono_detecting_plane(plane_str, bios_name, plane, text, detect, keyboard_mono):
     with patch('dcspy.logitech.get_planes_list', return_value=['SpitfireLFMkIX', 'F-22A']):
         keyboard_mono.detecting_plane(plane_str)
     assert keyboard_mono.plane_name == plane
     assert keyboard_mono.bios_name == bios_name
-    assert keyboard_mono._display == display
+    assert keyboard_mono.messages == text
     assert keyboard_mono.plane_detected is detect
 
 
+@mark.benchmark
 @mark.parametrize('mode, width, height,  lcd_type, keyboard', [
     (LcdMode.BLACK_WHITE, LcdSize.MONO_WIDTH, LcdSize.MONO_HEIGHT, LcdType.MONO, 'G13'),
     (LcdMode.BLACK_WHITE, LcdSize.MONO_WIDTH, LcdSize.MONO_HEIGHT, LcdType.MONO, 'G510'),
@@ -145,9 +150,10 @@ def test_check_keyboard_display_and_prepare_image(mode, width, height, lcd_type,
         assert isinstance(keyboard.plane, BasicAircraft)
         assert isinstance(keyboard.model.lcd_info, LcdInfo)
         assert keyboard.model.lcd_info.type == lcd_type
-        assert isinstance(keyboard.display, list)
-        keyboard.display = ['1', '2']
-        assert len(keyboard.display) == 2
+        assert isinstance(keyboard.text, list)
+        keyboard.text = [('1', Color.red), ('2', Color.green)]
+        assert len(keyboard.text) == 2
+        keyboard.display()
         upd_display.assert_called_once()
 
     img = keyboard._prepare_image()
@@ -155,6 +161,7 @@ def test_check_keyboard_display_and_prepare_image(mode, width, height, lcd_type,
     assert img.size == (width.value, height.value)
 
 
+@mark.benchmark
 @mark.parametrize('keyboard', [
     'G13', 'G510', 'G15v1', 'G15v2', 'G19',
 ], ids=['Mono G13', 'Mono G510', 'Mono G15v1', 'Mono G15v2', 'Color G19'])
@@ -162,11 +169,13 @@ def test_check_keyboard_text(keyboard, protocol_parser, sock, request):
     from dcspy.sdk.lcd_sdk import LcdSdkManager
 
     keyboard = request.getfixturevalue(keyboard)
+    txt_list = [('0', Color.white), ('1', Color.green), ('2', Color.white), ('3', Color.green), ('4', Color.white), ('5', Color.green)]
     with patch.object(LcdSdkManager, 'update_text') as upd_txt:
-        keyboard.text(['1', '2'])
-        upd_txt.assert_called_once()
+        keyboard.text = txt_list
+        upd_txt.assert_called_once_with(txt_list)
 
 
+@mark.benchmark
 @mark.parametrize('model', [
     'FA18Chornet', 'F16C50', 'F4E45MC', 'F15ESE', 'Ka50', 'Ka503', 'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14A135GR', 'F14B', 'AV8BNA',
 ])
@@ -181,6 +190,7 @@ def test_keyboard_mono_load_advanced_plane(model, keyboard_mono, test_config_yam
     assert model in type(keyboard_mono.plane).__name__
 
 
+@mark.benchmark
 def test_test_keyboard_mono_load_basic_plane(keyboard_mono):
     from dcspy.aircraft import BasicAircraft
 
@@ -192,6 +202,7 @@ def test_test_keyboard_mono_load_basic_plane(keyboard_mono):
     assert keyboard_mono.plane.bios_name == 'Bf-109K-4'
 
 
+@mark.benchmark
 @mark.parametrize('model', [
     'FA18Chornet', 'F16C50', 'F4E45MC', 'F15ESE', 'Ka50', 'Ka503', 'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14A135GR', 'F14B', 'AV8BNA',
 ])
@@ -206,6 +217,7 @@ def test_keyboard_color_load_advanced_plane(model, keyboard_color, test_config_y
     assert model in type(keyboard_color.plane).__name__
 
 
+@mark.benchmark
 def test_test_keyboard_color_load_basic_plane(keyboard_color):
     from dcspy.aircraft import BasicAircraft
 
@@ -217,6 +229,7 @@ def test_test_keyboard_color_load_basic_plane(keyboard_color):
     assert keyboard_color.plane.bios_name == 'P-47D-30'
 
 
+@mark.benchmark
 @mark.parametrize('model', [
     'FA18Chornet', 'F16C50', 'F4E45MC', 'F15ESE', 'Ka50', 'Ka503', 'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14A135GR', 'F14B', 'AV8BNA'
 ])

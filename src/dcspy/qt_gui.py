@@ -39,7 +39,7 @@ from dcspy.utils import (CloneProgress, check_bios_ver, check_dcs_bios_entry, ch
                          load_yaml, proc_is_running, run_command, run_pip_command, save_yaml)
 
 _ = qtgui_rc  # prevent to remove import statement accidentally
-__version__ = '3.7.4'
+__version__ = '3.8.0'
 LOG = getLogger(__name__)
 NO_MSG_BOX = int(os.environ.get('DCSPY_NO_MSG_BOXES', 0))
 LOGI_DEV_RADIO_BUTTON = {'rb_g19': 0, 'rb_g13': 0, 'rb_g15v1': 0, 'rb_g15v2': 0, 'rb_g510': 0,
@@ -926,21 +926,23 @@ class DcsPyQtGui(QMainWindow):
             self._show_message_box(kind_of=MsgBoxTypes.WARNING, title='Warning', message='Unable to check DCSpy version online')
 
     def _download_new_release(self) -> None:
-        """Download the new release if running PyInstaller version or Pip version."""
-        if getattr(sys, 'frozen', False):
-            self._restart_pyinstaller_ver()
+        """Download the new release if running Nuitka version or Pip version."""
+        if globals().get('__compiled__', False):
+            self._restart_nuitka_ver()
         else:
             self._restart_pip_ver()
 
-    def _restart_pyinstaller_ver(self):
-        """Download and restart a new version of DCSpy when using an executable/pyinstaller version."""
-        cli = '' if 'cli' not in Path(sys.executable).name else '_cli'
+    def _restart_nuitka_ver(self):
+        """Download and restart a new version of DCSpy when using an executable/nuitka version."""
+        LOG.debug(f'Nuitka unpacked: {globals().get("__builtins__", {}).get("__nuitka_binary_exe", "")}')
+        exe_parent_dir = Path(globals()['__compiled__'].containing_dir)
+        nuitka_packed_exec = globals()['__compiled__'].original_argv0
+        cli = '' if 'cli' not in Path(nuitka_packed_exec).name else '_cli'
         ext = f'{cli}.exe'
         # this is run only when get_version_string() not return failed in _dcspy_check_clicked()
         rel_info = check_ver_at_github(repo=DCSPY_REPO_NAME)
-        exe_parent_dir = Path(sys.executable).parent
         reply = self._show_message_box(kind_of=MsgBoxTypes.QUESTION, title='Update DCSpy',
-                                       message=f'Download new version {rel_info.version} to:\n\n{exe_parent_dir}\n\nand restart DCSpy?',
+                                       message=f'Download new version {rel_info.version} to: \n\n{exe_parent_dir}\n\nand restart DCSpy?',
                                        defaultButton=QMessageBox.StandardButton.Yes)
         if bool(reply == QMessageBox.StandardButton.Yes):
             try:
@@ -1474,7 +1476,7 @@ class DcsPyQtGui(QMainWindow):
         :return: SystemData named tuple with all data
         """
         system, _, release, ver, _, proc = uname()
-        dcs_type, dcs_ver = check_dcs_ver(Path(self.config['dcs']))
+        dcs_ver = check_dcs_ver(Path(self.config['dcs']))
         dcspy_ver = get_version_string(repo=DCSPY_REPO_NAME, current_ver=__version__, check=self.config['check_ver'])
         bios_ver = str(self._check_local_bios())
         dcs_bios_ver = self._get_bios_full_version(silence=silence)
@@ -1482,7 +1484,7 @@ class DcsPyQtGui(QMainWindow):
         if self.git_exec:
             from git import cmd
             git_ver = '.'.join([str(i) for i in cmd.Git().version_info])
-        return SystemData(system=system, release=release, ver=ver, proc=proc, dcs_type=dcs_type, dcs_ver=dcs_ver,
+        return SystemData(system=system, release=release, ver=ver, proc=proc, dcs_ver=dcs_ver,
                           dcspy_ver=dcspy_ver, bios_ver=bios_ver, dcs_bios_ver=dcs_bios_ver, git_ver=git_ver)
 
     def _run_file_dialog(self, last_dir: Callable[..., str], widget_name: str | None = None) -> str:
@@ -1761,7 +1763,7 @@ class AboutDialog(QDialog):
             text += f'<b>SHA:</b> <a href="https://github.com/DCS-Skunkworks/dcs-bios/commit/{d.sha}">{d.dcs_bios_ver}</a>'
         else:
             text += f'<b>SHA:</b> {d.dcs_bios_ver}</a>'
-        text += f'<br><b>DCS World</b>: <a href="https://www.digitalcombatsimulator.com/en/news/changelog/openbeta/{d.dcs_ver}/">{d.dcs_ver}</a> ({d.dcs_type})'
+        text += f'<br><b>DCS World</b>: <a href="https://www.digitalcombatsimulator.com/en/news/changelog/stable/{d.dcs_ver}/">{d.dcs_ver}</a>'
         text += '</p></body></html>'
         self.l_info.setText(text)
 
