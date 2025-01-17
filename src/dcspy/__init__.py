@@ -12,7 +12,7 @@ from dcspy.models import DCSPY_REPO_NAME, LOCAL_APPDATA, ConfigValue
 from dcspy.utils import check_dcs_ver, get_default_yaml, load_yaml, save_yaml
 
 LOG = getLogger(__name__)
-__version__ = '3.8.2'
+__version__ = '3.8.3'
 
 default_yaml = get_default_yaml(local_appdata=LOCAL_APPDATA)
 _start_cfg = load_yaml(full_path=default_yaml)
