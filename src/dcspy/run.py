@@ -1,4 +1,3 @@
-import logging
 import signal
 import sys
 import time
@@ -17,7 +16,7 @@ from dcspy import get_config_yaml_item
 from dcspy.qt_gui import DcsPyQtGui
 
 LOG = getLogger(__name__)
-__version__ = '3.8.7'
+__version__ = '3.8.8'
 
 
 def _update_progress(progbar: QProgressBar, splash: QSplashScreen, app: DcsPyQtGui) -> None:
@@ -32,7 +31,7 @@ def _update_progress(progbar: QProgressBar, splash: QSplashScreen, app: DcsPyQtG
         progbar.setValue(i)
         time.sleep(0.01)
     splash.finish(app)
-    logging.debug('Splash screen loading finished.')
+    LOG.debug('Splash screen loading finished.')
 
 
 def run(cli_args: Namespace = Namespace()) -> None:
