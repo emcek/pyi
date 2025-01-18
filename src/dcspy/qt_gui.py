@@ -955,7 +955,7 @@ class DcsPyQtGui(QMainWindow):
                 os.rename(src=destination, dst=new_ver_dst)
                 LOG.debug(f'Rename: {destination} -> {new_ver_dst}')
                 LOG.info('Restart to run new version.')
-                os.execv(exe_parent_dir / 'dcspy.exe', sys.argv)
+                os.execv(new_ver_dst, sys.argv)
             except PermissionError as exc:
                 self._show_message_box(kind_of=MsgBoxTypes.WARNING, title=exc.args[1], message=f'Can not save file:\n{exc.filename}')
 
