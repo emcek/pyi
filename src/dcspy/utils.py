@@ -25,8 +25,8 @@ from PIL import ImageColor
 from psutil import process_iter
 from requests import get
 
-from dcspy.models import (CTRL_LIST_SEPARATOR, AnyButton, BiosValue, Color, ControlDepiction, ControlKeyData, DcsBiosPlaneData, DcspyConfigYaml, LcdMode,
-                          Release, RequestModel, get_key_instance)
+from dcspy.models import (CONFIG_YAML, CTRL_LIST_SEPARATOR, DEFAULT_YAML_FILE, AnyButton, BiosValue, Color, ControlDepiction, ControlKeyData, DcsBiosPlaneData,
+                          DcspyConfigYaml, LcdMode, Release, RequestModel, __version__, get_key_instance)
 
 try:
     import git
@@ -34,9 +34,6 @@ except ImportError:
     pass
 
 LOG = getLogger(__name__)
-__version__ = '3.8.9'
-CONFIG_YAML = 'config.yaml'
-DEFAULT_YAML_FILE = Path(__file__).parent / 'resources' / CONFIG_YAML
 
 with open(DEFAULT_YAML_FILE) as c_file:
     defaults_cfg: DcspyConfigYaml = yaml.load(c_file, Loader=yaml.SafeLoader)
@@ -137,19 +134,29 @@ def get_version_string(repo: str, current_ver: str | version.Version, check: boo
     return ver_string
 
 
-def download_file(url: str, save_path: Path) -> bool:
+def download_file(url: str, save_path: Path, progress_fn: Callable[[int], None] | None = None) -> bool:
     """
     Download a file from URL and save to save_path.
 
     :param url: URL address
     :param save_path: full path to save
+    :param progress_fn: a callable object to report download progress
     """
     response = get(url=url, stream=True, timeout=5)
     if response.ok:
+        file_size = int(response.headers.get('Content-Length', 0))
+        LOG.debug(f'File size: {file_size / (1024 * 1024):.2f} MB' if file_size else 'File size: Unknown')
         LOG.debug(f'Download file from: {url}')
         with open(save_path, 'wb+') as dl_file:
-            for chunk in response.iter_content(chunk_size=128):
+            downloaded = 0
+            progress = 0
+            for chunk in response.iter_content(chunk_size=1024):
                 dl_file.write(chunk)
+                downloaded += len(chunk)
+                new_progress = int((downloaded / file_size) * 100)
+                if progress_fn and new_progress == progress + 1:
+                    progress = new_progress
+                    progress_fn(progress)
             LOG.debug(f'Saved as: {save_path}')
             return True
     else:
@@ -364,11 +371,10 @@ def is_git_object(repo_dir: Path, git_obj: str) -> bool:
     result = False
     if is_git_repo(str(repo_dir)):
         bios_repo = git.Repo(repo_dir)
-        bios_repo.git.checkout('master')
         try:
             bios_repo.commit(git_obj)
             result = True
-        except gitdb.exc.BadName:
+        except (gitdb.exc.BadName, TypeError):
             pass
     return result
 
@@ -413,7 +419,7 @@ class CloneProgress(git.RemoteProgress):
         op_code_masked = op_code & self.OP_MASK
         return self.OP_CODE_MAP.get(op_code_masked, '?').title()
 
-    def update(self, op_code: int, cur_count, max_count=None, message: str = ''):
+    def update(self, op_code: int, cur_count, max_count=None, message: str = '') -> None:
         """
         Call whenever the progress changes.
 
@@ -441,15 +447,15 @@ def collect_debug_data() -> Path:
     dcs_log = _get_dcs_log(conf_dict)
 
     zip_file = Path(gettempdir()) / f'dcspy_debug_{str(datetime.now()).replace(" ", "_").replace(":", "")}.zip'
-    with zipfile.ZipFile(file=zip_file, mode='w', compresslevel=9, compression=zipfile.ZIP_DEFLATED) as zipf:
-        zipf.write(sys_data, arcname=sys_data.name)
-        zipf.write(dcs_log, arcname=dcs_log.name)
+    with zipfile.ZipFile(file=zip_file, mode='w', compresslevel=9, compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.write(sys_data, arcname=sys_data.name)
+        archive.write(dcs_log, arcname=dcs_log.name)
         for log_file in _get_log_files():
-            zipf.write(log_file, arcname=log_file.name)
+            archive.write(log_file, arcname=log_file.name)
         for yaml_file in _get_yaml_files(config_file):
-            zipf.write(yaml_file, arcname=yaml_file.name)
+            archive.write(yaml_file, arcname=yaml_file.name)
         for png in _get_png_files():
-            zipf.write(png, arcname=png.name)
+            archive.write(png, arcname=png.name)
 
     return zip_file
 
@@ -603,7 +609,7 @@ def run_command(cmd: Sequence[str], cwd: Path | None = None) -> int:
         return -1
 
 
-def load_json(full_path: Path) -> Any:
+def load_json(full_path: Path) -> dict[Any, Any]:
     """
     Load JSON from a file into dictionary.
 
@@ -731,7 +737,7 @@ def replace_symbols(value: str, symbol_replacement: Sequence[Sequence[str]]) -> 
 
 
 class KeyRequest:
-    """Map LCD button ot G-Key with an abstract request model."""
+    """Map LCD button or G-Key with an abstract request model."""
 
     def __init__(self, yaml_path: Path, get_bios_fn: Callable[[str], BiosValue]) -> None:
         """
@@ -754,7 +760,7 @@ class KeyRequest:
 
     def get_request(self, button: AnyButton) -> RequestModel:
         """
-        Get abstract representation for request ti be sent gor requested button.
+        Get abstract representation for request ti be sent for requested button.
 
         :param button: LcdButton, Gkey or MouseButton
         :return: RequestModel object

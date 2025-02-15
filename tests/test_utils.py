@@ -22,6 +22,7 @@ def test_check_ver_exception():
         with raises(ValueError):
             utils.check_ver_at_github(repo='fake3/package3')
 
+
 @mark.parametrize('current_ver, extension, file_name, result', [
     ('3.6.1', 'tar.gz', 'dcspy', {'latest': True, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy-3.6.1.tar.gz'}),
     ('3.5.0', 'exe', 'dcspy_cli', {'latest': False, 'dl_url': 'https://github.com/emcek/dcspy/releases/download/v3.6.1/dcspy_cli.exe'}),
@@ -93,7 +94,7 @@ def test_dummy_save_load_migrate(tmpdir):
     assert d_cfg == {'font_mono_s': 9}
     d_cfg = migrate(cfg=d_cfg)
     assert d_cfg == {
-        'api_ver': '3.8.9',
+        'api_ver': '3.6.3',
         'device': 'G13',
         'save_lcd': False,
         'show_gui': True,
@@ -116,7 +117,7 @@ def test_dummy_save_load_migrate(tmpdir):
         'git_bios': True,
         'toolbar_area': 4,
         'toolbar_style': 0,
-        'git_bios_ref': 'master',
+        'git_bios_ref': 'main',
         'gkeys_area': 2,
         'gkeys_float': False,
     }
@@ -206,6 +207,7 @@ def test_is_git_object(tmpdir):
     assert utils.is_git_object(repo_dir=tmpdir, git_obj='master') is True
     assert utils.is_git_object(repo_dir=tmpdir, git_obj='wrong') is False
     assert utils.is_git_object(repo_dir=Path('/'), git_obj='master') is False
+    assert utils.is_git_object(repo_dir=tmpdir, git_obj='') is False
 
 
 @mark.slow
@@ -269,8 +271,8 @@ def test_collect_debug_data(switch_dcs_bios_path_in_config, resources):
     assert zip_file.suffix == '.zip'
     assert zip_file.is_file()
     assert zip_file.exists()
-    with ZipFile(file=zip_file, mode='r') as zipf:
-        zip_list = zipf.namelist()
+    with ZipFile(file=zip_file, mode='r') as archive:
+        zip_list = archive.namelist()
     assert 'system_data.txt' in zip_list
     assert sum('.yaml' in s for s in zip_list) == 4
     assert 'dcspy.log' in zip_list

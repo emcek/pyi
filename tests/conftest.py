@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 from pytest import fixture
 
 from dcspy import aircraft, logitech, models, utils
+from dcspy.starter import DCSpyStarter
 
 
 @fixture()
@@ -259,18 +260,48 @@ def keyboard_color(protocol_parser, sock, lcd_font_color, resources):
         return Color(parser=protocol_parser, socket=sock, model=G19)
 
 
+@fixture()
+def g13_starter() -> DCSpyStarter:
+    """
+    DCSpyStarter instance for G13.
+
+    :return: DCSpyStarter
+    """
+    from threading import Event
+
+    from dcspy.models import DEFAULT_FONT_NAME, G13, FontsConfig
+
+    G13.lcd_info.set_fonts(FontsConfig(name=DEFAULT_FONT_NAME, small=9, medium=11, large=16))
+    return DCSpyStarter(model=G13, event=Event())
+
+
+@fixture()
+def g19_starter() -> DCSpyStarter:
+    """
+    DCSpyStarter instance for G19.
+
+    :return: DCSpyStarter
+    """
+    from threading import Event
+
+    from dcspy.models import DEFAULT_FONT_NAME, G19, FontsConfig
+
+    G19.lcd_info.set_fonts(FontsConfig(name=DEFAULT_FONT_NAME, small=18, medium=22, large=32))
+    return DCSpyStarter(model=G19, event=Event())
+
+
 # <=><=><=><=><=> others <=><=><=><=><=>
 @fixture()
 def default_config():
     """Get default configuration dict."""
     from os import environ
     return {
-        'dcsbios': f'C:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS\\Scripts\\DCS-BIOS',
-        'dcs': 'C:\\Program Files\\Eagle Dynamics\\DCS World', 'device': 'G13', 'save_lcd': False, 'show_gui': True, 'autostart': False,
+        'dcsbios': f'C:/Users/{environ.get("USERNAME", "UNKNOWN")}/Saved Games/DCS/Scripts/DCS-BIOS',
+        'dcs': 'C:/Program Files/Eagle Dynamics/DCS World', 'device': 'G13', 'save_lcd': False, 'show_gui': True, 'autostart': False,
         'verbose': False, 'check_bios': True, 'check_ver': True, 'font_name': models.DEFAULT_FONT_NAME, 'font_mono_m': 11, 'font_mono_s': 9, 'font_mono_l': 16,
-        'font_color_m': 22, 'font_color_s': 18, 'font_color_l': 32, 'f16_ded_font': True, 'git_bios': True, 'git_bios_ref': 'master', 'toolbar_style': 0,
+        'font_color_m': 22, 'font_color_s': 18, 'font_color_l': 32, 'f16_ded_font': True, 'git_bios': True, 'git_bios_ref': 'main', 'toolbar_style': 0,
         'toolbar_area': 4, 'gkeys_area': 2, 'gkeys_float': False, 'theme_mode': 'system', 'theme_color': 'dark-blue', 'completer_items': 20,
-        'current_plane': 'A-10A',
+        'current_plane': 'A-10C', 'api_ver': '3.6.3'
     }
 
 
@@ -296,7 +327,7 @@ def switch_dcs_bios_path_in_config(test_dcs_bios, test_config_yaml):
 @fixture()
 def migration_file(resources):
     """
-    Recover content of test file for migration.
+    Recover content of a test file for migration.
 
     :param resources: Path to tests/resources directory.
     """

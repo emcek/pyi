@@ -4,12 +4,15 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from datetime import datetime
 from enum import Enum
 from functools import partial
+from pathlib import Path
 from re import search
 from typing import Any, Final, TypedDict, TypeVar, Union
 
 from packaging import version
 from PIL import Image, ImageFont
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
+
+__version__ = '3.6.3'
 
 # Network
 SEND_ADDR: Final = ('127.0.0.1', 7778)
@@ -29,10 +32,12 @@ KEY_UP: Final = 0
 NO_OF_LCD_SCREENSHOTS: Final = 301
 TIME_BETWEEN_REQUESTS: Final = 0.2
 LOCAL_APPDATA: Final = True
-DCSPY_REPO_NAME: Final = 'emcek/pyi'
+DCSPY_REPO_NAME: Final = 'emcek/dcspy'
 BIOS_REPO_NAME: Final = 'DCS-Skunkworks/dcs-bios'
 DEFAULT_FONT_NAME: Final = 'consola.ttf'
 CTRL_LIST_SEPARATOR: Final = '--'
+CONFIG_YAML: Final = 'config.yaml'
+DEFAULT_YAML_FILE: Final = Path(__file__).parent / 'resources' / CONFIG_YAML
 SUPPORTED_CRAFTS = {
     'FA18Chornet': {'name': 'F/A-18C Hornet', 'bios': 'FA-18C_hornet'},
     'Ka50': {'name': 'Ka-50 Black Shark II', 'bios': 'Ka-50'},
@@ -1199,7 +1204,7 @@ class Release(BaseModel):
         published = datetime.strptime(self.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime('%d %B %Y')
         return str(published)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.tag_name} pre:{self.prerelease} date:{self.published}'
 
 

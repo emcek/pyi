@@ -1,4 +1,4 @@
-[![image](https://img.shields.io/badge/pypi-v3.8.9-blue.svg)](https://pypi.org/project/dcspy/)
+[![image](https://img.shields.io/badge/pypi-v3.6.3-blue.svg)](https://pypi.org/project/dcspy/)
 [![Python CI](https://github.com/emcek/dcspy/actions/workflows/python-ci.yml/badge.svg?branch=master)](https://github.com/emcek/dcspy/actions/workflows/python-ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/emcek/dcspy/badge.svg?branch=master)](https://coveralls.io/github/emcek/dcspy?branch=master)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5270a4fc2ba24261a3bfa7361150e8ff)](https://app.codacy.com/gh/emcek/dcspy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
@@ -55,9 +55,9 @@ Why a such way? Basically advanced support is for aircraft that I own and theref
 * [Logitech Gaming Software 9.04.49](https://support.logitech.com/software/lgs)
 * DCS-Skunkworks DCS-BIOS:
   * [DCS-BIOS 0.8.3](https://github.com/DCS-Skunkworks/dcs-bios/releases/tag/v0.8.3) or newer (can be [installed](https://dcspy.readthedocs.io/en/latest/upgrade/#manual-procedure) directly from DCSpy)
-  * However, it is recommended use [Live DCS-BIOS](https://dcspy.readthedocs.io/en/latest/bios_live/) as latest git version
-  * [Git](https://git-scm.com/download/win) it is necessary for using the live version of DCS-BIOS
-* DCS World: [2.9.10.3948](https://www.digitalcombatsimulator.com/en/news/changelog/stable/2.9.10.3948/), but any version from 2.9.* branch should be fine.
+  * However, it is recommended to use [Live DCS-BIOS](https://dcspy.readthedocs.io/en/latest/bios_live/) latest git version
+  * [Git](https://git-scm.com/download/win) it is necessary to use the live version of DCS-BIOS
+* DCS World: [2.9.12.5336.1](https://www.digitalcombatsimulator.com/en/news/changelog/stable/2.9.12.5336.1/), but any version from 2.9.* branch should be fine.
 * optional:
   * [Python 3.13](https://www.python.org/downloads/) but 3.9+ should be fine (see [installation](https://dcspy.readthedocs.io/en/latest/install/))
 
@@ -66,7 +66,7 @@ I have lots of plans and new ideas how to improve it internally and form a user'
 You are welcome [dcspy discord](https://discord.gg/SP5Yjx3) server.
 
 ## Contributing
-You want contribute, perfect see: [contributing](./CONTRIBUTING.md) guide.
+You want to contribute, perfect see: [contributing](./CONTRIBUTING.md) guide.
 
 ## Credits
 More details [here](https://dcspy.readthedocs.io/en/latest/credits/).
