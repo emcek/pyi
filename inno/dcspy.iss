@@ -29,65 +29,65 @@ ArchitecturesAllowed=x64compatible
 ; the 64-bit view of the registry.
 ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
-LicenseFile=D:\pyi\pyi\LICENSE.md
+LicenseFile=D:\a\pyi\pyi\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
-OutputDir=D:\pyi\pyi\inno
+OutputDir=D:\a\pyi\pyi\inno
 OutputBaseFilename=dcspy_3.11.4_setup
-SetupIconFile=D:\pyi\pyi\inno\SetupClassicIcon.ico
+SetupIconFile=D:\a\pyi\pyi\inno\SetupClassicIcon.ico
 SolidCompression=yes
 WizardStyle=modern
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "arabic"; MessagesFile: "D:\pyi\pyi\inno\Arabic.isl"
-Name: "armenian"; MessagesFile: "D:\pyi\pyi\inno\Armenian.isl"
-Name: "brazilianportuguese"; MessagesFile: "D:\pyi\pyi\inno\BrazilianPortuguese.isl"
-Name: "bulgarian"; MessagesFile: "D:\pyi\pyi\inno\Bulgarian.isl"
-Name: "catalan"; MessagesFile: "D:\pyi\pyi\inno\Catalan.isl"
-Name: "corsican"; MessagesFile: "D:\pyi\pyi\inno\Corsican.isl"
-Name: "czech"; MessagesFile: "D:\pyi\pyi\inno\Czech.isl"
-Name: "danish"; MessagesFile: "D:\pyi\pyi\inno\Danish.isl"
-Name: "dutch"; MessagesFile: "D:\pyi\pyi\inno\Dutch.isl"
-Name: "finnish"; MessagesFile: "D:\pyi\pyi\inno\Finnish.isl"
-Name: "french"; MessagesFile: "D:\pyi\pyi\inno\French.isl"
-Name: "german"; MessagesFile: "D:\pyi\pyi\inno\German.isl"
-Name: "hebrew"; MessagesFile: "D:\pyi\pyi\inno\Hebrew.isl"
-Name: "hungarian"; MessagesFile: "D:\pyi\pyi\inno\Hungarian.isl"
-Name: "icelandic"; MessagesFile: "D:\pyi\pyi\inno\Icelandic.isl"
-Name: "italian"; MessagesFile: "D:\pyi\pyi\inno\Italian.isl"
-Name: "japanese"; MessagesFile: "D:\pyi\pyi\inno\Japanese.isl"
-Name: "korean"; MessagesFile: "D:\pyi\pyi\inno\Korean.isl"
-Name: "norwegian"; MessagesFile: "D:\pyi\pyi\inno\Norwegian.isl"
-Name: "polish"; MessagesFile: "D:\pyi\pyi\inno\Polish.isl"
-Name: "portuguese"; MessagesFile: "D:\pyi\pyi\inno\Portuguese.isl"
-Name: "russian"; MessagesFile: "D:\pyi\pyi\inno\Russian.isl"
-Name: "slovak"; MessagesFile: "D:\pyi\pyi\inno\Slovak.isl"
-Name: "slovenian"; MessagesFile: "D:\pyi\pyi\inno\Slovenian.isl"
-Name: "spanish"; MessagesFile: "D:\pyi\pyi\inno\Spanish.isl"
-Name: "swedish"; MessagesFile: "D:\pyi\pyi\inno\Swedish.isl"
-Name: "tamil"; MessagesFile: "D:\pyi\pyi\inno\Tamil.isl"
-Name: "turkish"; MessagesFile: "D:\pyi\pyi\inno\Turkish.isl"
-Name: "ukrainian"; MessagesFile: "D:\pyi\pyi\inno\Ukrainian.isl"
+Name: "arabic"; MessagesFile: "D:\a\pyi\pyi\inno\Arabic.isl"
+Name: "armenian"; MessagesFile: "D:\a\pyi\pyi\inno\Armenian.isl"
+Name: "brazilianportuguese"; MessagesFile: "D:\a\pyi\pyi\inno\BrazilianPortuguese.isl"
+Name: "bulgarian"; MessagesFile: "D:\a\pyi\pyi\inno\Bulgarian.isl"
+Name: "catalan"; MessagesFile: "D:\a\pyi\pyi\inno\Catalan.isl"
+Name: "corsican"; MessagesFile: "D:\a\pyi\pyi\inno\Corsican.isl"
+Name: "czech"; MessagesFile: "D:\a\pyi\pyi\inno\Czech.isl"
+Name: "danish"; MessagesFile: "D:\a\pyi\pyi\inno\Danish.isl"
+Name: "dutch"; MessagesFile: "D:\a\pyi\pyi\inno\Dutch.isl"
+Name: "finnish"; MessagesFile: "D:\a\pyi\pyi\inno\Finnish.isl"
+Name: "french"; MessagesFile: "D:\a\pyi\pyi\inno\French.isl"
+Name: "german"; MessagesFile: "D:\a\pyi\pyi\inno\German.isl"
+Name: "hebrew"; MessagesFile: "D:\a\pyi\pyi\inno\Hebrew.isl"
+Name: "hungarian"; MessagesFile: "D:\a\pyi\pyi\inno\Hungarian.isl"
+Name: "icelandic"; MessagesFile: "D:\a\pyi\pyi\inno\Icelandic.isl"
+Name: "italian"; MessagesFile: "D:\a\pyi\pyi\inno\Italian.isl"
+Name: "japanese"; MessagesFile: "D:\a\pyi\pyi\inno\Japanese.isl"
+Name: "korean"; MessagesFile: "D:\a\pyi\pyi\inno\Korean.isl"
+Name: "norwegian"; MessagesFile: "D:\a\pyi\pyi\inno\Norwegian.isl"
+Name: "polish"; MessagesFile: "D:\a\pyi\pyi\inno\Polish.isl"
+Name: "portuguese"; MessagesFile: "D:\a\pyi\pyi\inno\Portuguese.isl"
+Name: "russian"; MessagesFile: "D:\a\pyi\pyi\inno\Russian.isl"
+Name: "slovak"; MessagesFile: "D:\a\pyi\pyi\inno\Slovak.isl"
+Name: "slovenian"; MessagesFile: "D:\a\pyi\pyi\inno\Slovenian.isl"
+Name: "spanish"; MessagesFile: "D:\a\pyi\pyi\inno\Spanish.isl"
+Name: "swedish"; MessagesFile: "D:\a\pyi\pyi\inno\Swedish.isl"
+Name: "tamil"; MessagesFile: "D:\a\pyi\pyi\inno\Tamil.isl"
+Name: "turkish"; MessagesFile: "D:\a\pyi\pyi\inno\Turkish.isl"
+Name: "ukrainian"; MessagesFile: "D:\a\pyi\pyi\inno\Ukrainian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\pyi\pyi\dist\dcs_py.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\pyi\pyi\dist\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\mypy\*"; DestDir: "{app}\mypy"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\PIL\*"; DestDir: "{app}\PIL"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\psutil\*"; DestDir: "{app}\psutil"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\pydantic_core\*"; DestDir: "{app}\pydantic_core"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\PySide6\*"; DestDir: "{app}\PySide6"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\shiboken6\*"; DestDir: "{app}\shiboken6"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\yaml\*"; DestDir: "{app}\yaml"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\pyi\pyi\dist\dcs_py.dist\zstandard\*"; DestDir: "{app}\zstandard"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\mypy\*"; DestDir: "{app}\mypy"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\PIL\*"; DestDir: "{app}\PIL"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\psutil\*"; DestDir: "{app}\psutil"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\pydantic_core\*"; DestDir: "{app}\pydantic_core"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\PySide6\*"; DestDir: "{app}\PySide6"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\shiboken6\*"; DestDir: "{app}\shiboken6"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\yaml\*"; DestDir: "{app}\yaml"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dist\dcs_py.dist\zstandard\*"; DestDir: "{app}\zstandard"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
