@@ -74,20 +74,20 @@ Name: "ukrainian"; MessagesFile: "D:\a\pyi\pyi\inno\Ukrainian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\mypy\*"; DestDir: "{app}\mypy"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\PIL\*"; DestDir: "{app}\PIL"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\psutil\*"; DestDir: "{app}\psutil"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\pydantic_core\*"; DestDir: "{app}\pydantic_core"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\PySide6\*"; DestDir: "{app}\PySide6"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\shiboken6\*"; DestDir: "{app}\shiboken6"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\yaml\*"; DestDir: "{app}\yaml"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dist\dcs_py.dist\zstandard\*"; DestDir: "{app}\zstandard"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\a\pyi\pyi\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\mypy\*"; DestDir: "{app}\mypy"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\PIL\*"; DestDir: "{app}\PIL"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\psutil\*"; DestDir: "{app}\psutil"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\pydantic_core\*"; DestDir: "{app}\pydantic_core"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\PySide6\*"; DestDir: "{app}\PySide6"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\shiboken6\*"; DestDir: "{app}\shiboken6"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\yaml\*"; DestDir: "{app}\yaml"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\zstandard\*"; DestDir: "{app}\zstandard"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
