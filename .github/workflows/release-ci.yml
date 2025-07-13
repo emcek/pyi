@@ -73,7 +73,7 @@ jobs:
             dcspy_cli.exe
             dcspy_pyinstaller.exe
             dcspy_cli_pyinstaller.exe
-            inno/dcspy_3.11.0_setup.exe
+            inno/dcspy_3.11.1_setup.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
 
