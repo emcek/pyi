@@ -53,7 +53,7 @@
                <x>0</x>
                <y>0</y>
                <width>657</width>
-               <height>396</height>
+               <height>385</height>
               </rect>
              </property>
              <attribute name="icon">
@@ -216,7 +216,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>146</width>
+               <width>152</width>
                <height>105</height>
               </rect>
              </property>
@@ -409,7 +409,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>146</width>
+               <width>152</width>
                <height>74</height>
               </rect>
              </property>
@@ -544,7 +544,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>227</width>
+               <width>236</width>
                <height>105</height>
               </rect>
              </property>
@@ -924,22 +924,8 @@
             <property name="title">
              <string>Debug</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_8">
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="cb_verbose">
-               <property name="toolTip">
-                <string>Logging more data (good for troubleshooting)</string>
-               </property>
-               <property name="text">
-                <string>Collect more logs</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../qtgui.qrc">
-                 <normaloff>:/icons/img/cpu.svg</normaloff>:/icons/img/cpu.svg</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
               <widget class="QCheckBox" name="cb_lcd_screenshot">
                <property name="toolTip">
                 <string>Make LCD screenshot everytime when updated (good for troubleshooting)</string>
@@ -953,7 +939,35 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item>
+              <widget class="QCheckBox" name="cb_verbose">
+               <property name="toolTip">
+                <string>Logging more data (good for troubleshooting)</string>
+               </property>
+               <property name="text">
+                <string>Collect more logs</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../qtgui.qrc">
+                 <normaloff>:/icons/img/cpu.svg</normaloff>:/icons/img/cpu.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="cb_debug_enable">
+               <property name="toolTip">
+                <string>Logging more data (good for troubleshooting)</string>
+               </property>
+               <property name="text">
+                <string>Enable Debug tab</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../qtgui.qrc">
+                 <normaloff>:/icons/img/view-list-details.svg</normaloff>:/icons/img/view-list-details.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="pb_collect_data">
                <property name="text">
                 <string>Collect debug data</string>
@@ -1345,6 +1359,74 @@
           </item>
          </layout>
         </widget>
+        <widget class="QWidget" name="tab_debug">
+         <attribute name="icon">
+          <iconset>
+           <normalon>:/icons/img/view-list-details.svg</normalon>
+          </iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Debug</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_1">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Font size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSlider" name="hs_debug_font_size">
+            <property name="minimum">
+             <number>5</number>
+            </property>
+            <property name="maximum">
+             <number>50</number>
+            </property>
+            <property name="pageStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+            <property name="sliderPosition">
+             <number>10</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TickPosition::TicksAbove</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="QTextEdit" name="te_debug">
+            <property name="font">
+             <font>
+              <family>Courier</family>
+              <pointsize>12</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QTextEdit::LineWrapMode::NoWrap</enum>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextBrowserInteraction|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>10</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item>
@@ -1416,7 +1498,7 @@
      <x>0</x>
      <y>0</y>
      <width>970</width>
-     <height>22</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1458,8 +1540,18 @@
      <addaction name="a_text_beside"/>
      <addaction name="a_text_under"/>
     </widget>
+    <widget class="QMenu" name="menuMode">
+     <property name="title">
+      <string>Mode</string>
+     </property>
+     <addaction name="a_mode_system"/>
+     <addaction name="a_mode_dark"/>
+     <addaction name="a_mode_light"/>
+    </widget>
     <addaction name="a_show_toolbar"/>
     <addaction name="menuToolbar_icons"/>
+    <addaction name="separator"/>
+    <addaction name="menuMode"/>
     <addaction name="separator"/>
     <addaction name="a_show_gkeys"/>
     <addaction name="a_show_device"/>
@@ -1934,6 +2026,9 @@ Avaliable for two-state switches and knobs.</string>
    <property name="text">
     <string>Show G-Keys</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+G</string>
+   </property>
   </action>
   <action name="a_show_device">
    <property name="checkable">
@@ -1948,6 +2043,9 @@ Avaliable for two-state switches and knobs.</string>
    </property>
    <property name="toolTip">
     <string>Show Device</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+D</string>
    </property>
   </action>
   <action name="a_save_plane">
@@ -2054,6 +2152,51 @@ Avaliable for two-state switches and knobs.</string>
     <string>Text under</string>
    </property>
   </action>
+  <action name="a_mode_light">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../qtgui.qrc">
+     <normaloff>:/icons/img/contrast.svg</normaloff>:/icons/img/contrast.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Light</string>
+   </property>
+   <property name="toolTip">
+    <string>Light Mode</string>
+   </property>
+  </action>
+  <action name="a_mode_dark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../qtgui.qrc">
+     <normaloff>:/icons/img/system-suspend.svg</normaloff>:/icons/img/system-suspend.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Dark</string>
+   </property>
+   <property name="toolTip">
+    <string>Dark Mode</string>
+   </property>
+  </action>
+  <action name="a_mode_system">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../qtgui.qrc">
+     <normaloff>:/icons/img/edit-select-invert.svg</normaloff>:/icons/img/edit-select-invert.svg</iconset>
+   </property>
+   <property name="text">
+    <string>System</string>
+   </property>
+   <property name="toolTip">
+    <string>System Mode</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../qtgui.qrc"/>
@@ -2114,12 +2257,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>237</y>
+     <x>173</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2130,12 +2273,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>353</y>
+     <x>459</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>354</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2146,12 +2289,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>469</y>
+     <x>173</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>354</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2162,12 +2305,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>469</y>
+     <x>459</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2178,12 +2321,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>353</y>
+     <x>173</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2194,12 +2337,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>297</y>
+     <x>315</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2210,12 +2353,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>301</y>
+     <x>173</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2226,12 +2369,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>532</x>
-     <y>297</y>
+     <x>543</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2242,12 +2385,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>529</y>
+     <x>101</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2258,12 +2401,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>529</y>
+     <x>315</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2274,12 +2417,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>297</y>
+     <x>101</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2290,12 +2433,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>532</x>
-     <y>529</y>
+     <x>543</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2306,12 +2449,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>301</y>
+     <x>459</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2322,12 +2465,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>413</y>
+     <x>101</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2338,12 +2481,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>237</y>
+     <x>459</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2354,12 +2497,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>413</y>
+     <x>315</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2370,12 +2513,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>457</y>
+     <x>173</x>
+     <y>427</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2386,12 +2529,12 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>448</x>
-     <y>457</y>
+     <x>459</x>
+     <y>427</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
     </hint>
    </hints>
   </connection>
@@ -2402,12 +2545,28 @@ Avaliable for two-state switches and knobs.</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>532</x>
-     <y>413</y>
+     <x>543</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>347</y>
+     <x>239</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hs_debug_font_size</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>label_9</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>608</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>609</y>
     </hint>
    </hints>
   </connection>

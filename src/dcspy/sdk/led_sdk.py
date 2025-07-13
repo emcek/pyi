@@ -5,8 +5,8 @@ from time import sleep
 from _cffi_backend import Lib
 from cffi import FFI
 
-from dcspy.models import LedConstants
-from dcspy.sdk import LedDll, load_dll
+from dcspy.models import LedConstants, LedDll
+from dcspy.sdk import load_dll
 
 LOG = getLogger(__name__)
 LED_DLL: Lib = load_dll(LedDll)  # type: ignore[assignment]
@@ -92,12 +92,12 @@ def logi_led_set_lighting(rgb: tuple[int, int, int]) -> bool:
     """
     Set the lighting on connected and supported devices.
 
-    Do not call this function immediately after logi_led_init(), instead of leave a little of time after logi_led_init().
+    Do not call this function immediately after logi_led_init(), instead of wait a little of time after logi_led_init().
     For devices that only support a single color, the highest percentage value given of the three colors will
     define the intensity. For monochrome device, Logitech Gaming Software will proportionally reduce
     the value of the highest color, according to the user hardware brightness setting.
 
-    :param rgb: Tuple with integer values range 0 to 100 as amount of red, green, blue
+    :param rgb: Tuple with integer range 0 to 100 as an amount of red, green, blue
     :return: A result of execution
     """
     try:
@@ -111,8 +111,8 @@ def logi_led_flash_lighting(rgb: tuple[int, int, int], duration: int, interval: 
     Save the current lighting, plays the flashing effect on the targeted devices.
 
     Finally, restores the saved lighting.
-    :param rgb: Tuple with integer values range 0 to 100 as amount of red, green, blue
-    :param duration: in millisecond this parameter can be set to LOGI_LED_DURATION_INFINITE
+    :param rgb: Tuple with integer range 0 to 100 as an amount of red, green, blue
+    :param duration: Parameter can be set (in millisecond) to LOGI_LED_DURATION_INFINITE
                      to make the effect run until stopped with logi_led_stop_effects()
     :param interval: Duration of the flashing interval in millisecond
     :return: A result of execution
@@ -128,11 +128,11 @@ def logi_led_pulse_lighting(rgb: tuple[int, int, int], duration: int, interval: 
     Save the current lighting, plays the pulsing effect on the targeted devices.
 
     Finally, restores the saved lighting.
-    :param rgb: Tuple with integer values range 0 to 100 as amount of red, green, blue
-    :param duration: in millisecond this parameter can be set to LOGI_LED_DURATION_INFINITE
-                     to make the effect run until stopped with logi_led_stop_effects()
-    :param interval: Duration of the flashing interval in millisecond
-    :return: A result of execution
+    :param rgb: Tuple with integer values range 0 to 100 as an amount of red, green, blue.
+    :param duration: Parameter can be set (in millisecond) to LOGI_LED_DURATION_INFINITE
+                     to make the effect run until stopped with logi_led_stop_effects().
+    :param interval: Duration of the flashing interval in millisecond.
+    :return: A result of execution.
     """
     try:
         return LED_DLL.LogiLedPulseLighting(*rgb, duration, interval)  # type: ignore[attr-defined]
@@ -142,7 +142,7 @@ def logi_led_pulse_lighting(rgb: tuple[int, int, int], duration: int, interval: 
 
 def logi_led_stop_effects() -> bool:
     """
-    Stop any of the presets effects.
+    Stop any of the preset effect.
 
     Started from logi_led_flash_lighting() or logi_led_pulse_lighting().
     :return: A result of execution
@@ -163,13 +163,12 @@ def logi_led_shutdown() -> None:
 
 def start_led_pulse(rgb: tuple[int, int, int], duration: int, interval: int, event: Event) -> None:
     """
-    Start the pulsing red effect in thread on the keyboard.
+    Start the pulsing red effect in the thread on the keyboard.
 
-    :param rgb: Tuple with integer values range 0 to 100 as amount of red, green, blue
-    :param duration: in millisecond this parameter can be set to 0 (zero)
-                     to make the effect run until event is set
-    :param interval: flashing interval in millisecond
-    :param event: Stop event for infinite loop
+    :param rgb: Tuple with integer values range 0 to 100 as an amount of red, green, blue.
+    :param duration: Parameter can be set (in millisecond) to 0 (zero) to make the effect run until an event is set.
+    :param interval: Flashing an interval in millisecond.
+    :param event: Stop event for infinite loop.
     """
     LOG.debug('Start LED thread')
     logi_led_init()

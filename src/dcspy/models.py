@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator, Mapping, Sequence
+from ctypes import c_void_p
 from datetime import datetime
-from enum import Enum
+from enum import Enum, IntEnum
 from functools import partial
+from os import environ
 from pathlib import Path
+from platform import architecture
 from re import search
+from sys import maxsize
 from typing import Any, Final, TypedDict, TypeVar, Union
 
+from _ctypes import sizeof
 from packaging import version
 from PIL import Image, ImageFont
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
@@ -70,7 +75,7 @@ class Input(BaseModel):
 
     def get(self, attribute: str, default=None) -> Any | None:
         """
-        Access attribute and get default when is not available.
+        Access an attribute and get default when is not available.
 
         :param attribute:
         :param default:
@@ -97,7 +102,7 @@ class FixedStep(Input):
 
 
 class VariableStep(Input):
-    """VariableStep input interface of inputs section of Control."""
+    """VariableStep input interface of the inputs section of Control."""
     interface: str = 'variable_step'
     max_value: int
     suggested_step: int
@@ -116,7 +121,7 @@ class VariableStep(Input):
 
 
 class SetState(Input):
-    """SetState input interface of inputs section of Control."""
+    """SetState input interface of the inputs section of Control."""
     interface: str = 'set_state'
     max_value: int
 
@@ -134,7 +139,7 @@ class SetState(Input):
 
 
 class Action(Input):
-    """Action input interface of inputs section of Control."""
+    """Action input interface of the inputs section of Control."""
     argument: str
     interface: str = 'action'
 
@@ -197,7 +202,7 @@ class OutputStr(Output):
 
 
 class OutputInt(Output):
-    """Integer output interface of outputs section of Control."""
+    """Integer output interface of the outputs section of Control."""
     mask: int
     max_value: int
     shift_by: int
@@ -256,11 +261,11 @@ class ControlKeyData:
 
     def __init__(self, name: str, description: str, max_value: int, suggested_step: int = 1) -> None:
         """
-        Define a type of input for cockpit controller.
+        Define a type of input for a cockpit controller.
 
         :param name: Name of the input
         :param description: Short description
-        :param max_value: Max value (zero based)
+        :param max_value: Max value (zero-based)
         :param suggested_step: One (1) by default
         """
         self.name = name
@@ -273,6 +278,7 @@ class ControlKeyData:
         return f'KeyControl({self.name}: {self.description} - max_value={self.max_value}, suggested_step={self.suggested_step}'
 
     def __bool__(self) -> bool:
+        """Return True if both `max_value` and `suggested_step`: are truthy, False otherwise."""
         if not all([self.max_value, self.suggested_step]):
             return False
         return True
@@ -287,7 +293,7 @@ class ControlKeyData:
         """
         try:
             max_value = cls._get_max_value(ctrl.inputs)
-            suggested_step: int = max(d.get('suggested_step', 1) for d in ctrl.inputs)  # type: ignore
+            suggested_step: int = max(d.get('suggested_step', 1) for d in ctrl.inputs)  # type: ignore[type-var, assignment]
         except ValueError:
             max_value = 0
             suggested_step = 0
@@ -335,7 +341,7 @@ class ControlKeyData:
         """
         Return the depiction of the control.
 
-        :return: ControlDepiction object representing the control's name amd description.
+        :return: ControlDepiction object representing the control's name and description.
         """
         return ControlDepiction(name=self.name, description=self.description)
 
@@ -351,7 +357,7 @@ class ControlKeyData:
     @property
     def one_input(self) -> bool:
         """
-        Check if input has only one input dict.
+        Check if an input has only one input dict.
 
         :return: True if ControlKeyData has only one input, False otherwise
         """
@@ -407,7 +413,7 @@ class ControlKeyData:
         """
         Check if the controller is a push button type.
 
-        :return: True if controller is a push button type, False otherwise
+        :return: True if a controller is a push button type, False otherwise
         """
         return self.has_fixed_step and self.has_set_state and self.max_value == 1
 
@@ -448,12 +454,25 @@ class Control(BaseModel):
                                 args=StrBuffArgs(address=self.outputs[0].address, max_length=self.outputs[0].max_length),
                                 value='')
 
+    @classmethod
+    def make_empty(cls) -> Control:
+        """
+        Make an empty Control object with default values assigned to its attributes.
+
+        :return: Control an object with empty values.
+        """
+        return cls(api_variant='', category='', control_type='', description='', identifier='', inputs=[], outputs=[])
+
+    def __bool__(self) -> bool:
+        """Return True if all attributes: are truthy, False otherwise."""
+        return all([self.api_variant, self.category, self.control_type, self.description, self.identifier, len(self.inputs), len(self.outputs)])
+
 
 class DcsBiosPlaneData(RootModel):
     """DcsBios plane data model."""
     root: dict[str, dict[str, Control]]
 
-    def get_ctrl(self, ctrl_name: str) -> Control | None:
+    def get_ctrl(self, ctrl_name: str) -> Control:
         """
         Get Control from DCS-BIOS with name.
 
@@ -464,7 +483,7 @@ class DcsBiosPlaneData(RootModel):
             for ctrl, data in controllers.items():
                 if ctrl == ctrl_name:
                     return Control.model_validate(data)
-        return None
+        return Control.make_empty()
 
     def get_inputs(self) -> dict[str, dict[str, ControlKeyData]]:
         """
@@ -488,7 +507,7 @@ class DcsBiosPlaneData(RootModel):
 
 
 class CycleButton(BaseModel):
-    """Map BIOS key string with iterator to keep current value."""
+    """Map BIOS key string with iterator to keep a current value."""
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     ctrl_name: str
@@ -504,7 +523,7 @@ class CycleButton(BaseModel):
         The request is expected to follow a predefined structure where its components
         are separated by spaces.
 
-        :param req: A string request expected to contain `control_name`, an underscore, `step`, and `max_value`, separated by spaces.
+        :param req: A string a request expected to contain `control_name`, an underscore, `step`, and `max_value`, separated by spaces.
         :return: Instance of `CycleButton` based on extracted data.
         """
         selector, _, step, max_value = req.split(' ')
@@ -523,7 +542,7 @@ class GuiPlaneInputRequest(BaseModel):
     a graphical interface, such as radio buttons or other control widgets,
     that interact with plane systems.
     It allows for structured generation of requests based on provided parameters or
-    configurations, and provides utility methods to convert data into request objects.
+    configurations and provides utility methods to convert data into request objects.
     """
     identifier: str
     request: str
@@ -603,26 +622,26 @@ class GuiPlaneInputRequest(BaseModel):
 
 class LedConstants(Enum):
     """LED constants."""
-    LOGI_LED_DURATION_INFINITE: Final = 0
-    LOGI_DEVICETYPE_MONOCHROME: Final = 1
-    LOGI_DEVICETYPE_RGB: Final = 2
-    LOGI_DEVICETYPE_ALL: Final = 3  # LOGI_DEVICETYPE_MONOCHROME | LOGI_DEVICETYPE_RGB
+    LOGI_LED_DURATION_INFINITE = 0
+    LOGI_DEVICETYPE_MONOCHROME = 1
+    LOGI_DEVICETYPE_RGB = 2
+    LOGI_DEVICETYPE_ALL = 3  # LOGI_DEVICETYPE_MONOCHROME | LOGI_DEVICETYPE_RGB
 
 
 class LcdButton(Enum):
     """LCD Buttons."""
-    NONE: Final = 0x0
-    ONE: Final = 0x1
-    TWO: Final = 0x2
-    THREE: Final = 0x4
-    FOUR: Final = 0x8
-    LEFT: Final = 0x100
-    RIGHT: Final = 0x200
-    OK: Final = 0x400
-    CANCEL: Final = 0x800
-    UP: Final = 0x1000
-    DOWN: Final = 0x2000
-    MENU: Final = 0x4000
+    NONE = 0x0
+    ONE = 0x1
+    TWO = 0x2
+    THREE = 0x4
+    FOUR = 0x8
+    LEFT = 0x100
+    RIGHT = 0x200
+    OK = 0x400
+    CANCEL = 0x800
+    UP = 0x1000
+    DOWN = 0x2000
+    MENU = 0x4000
 
     def __str__(self) -> str:
         return self.name
@@ -685,25 +704,25 @@ class MouseButton(BaseModel):
 
 class LcdType(Enum):
     """LCD Type."""
-    NONE: Final = 0
-    MONO: Final = 1
-    COLOR: Final = 2
+    NONE = 0
+    MONO = 1
+    COLOR = 2
 
 
 class LcdSize(Enum):
     """LCD dimensions."""
-    NONE: Final = 0
-    MONO_WIDTH: Final = 160
-    MONO_HEIGHT: Final = 43
-    COLOR_WIDTH: Final = 320
-    COLOR_HEIGHT: Final = 240
+    NONE = 0
+    MONO_WIDTH = 160
+    MONO_HEIGHT = 43
+    COLOR_WIDTH = 320
+    COLOR_HEIGHT = 240
 
 
 class LcdMode(Enum):
     """LCD Mode."""
-    NONE: Final = '0'
-    BLACK_WHITE: Final = '1'
-    TRUE_COLOR: Final = 'RGBA'
+    NONE = '0'
+    BLACK_WHITE = '1'
+    TRUE_COLOR = 'RGBA'
 
 
 class FontsConfig(BaseModel):
@@ -788,7 +807,7 @@ class Gkey(BaseModel):
 
         :param key: Number of keys
         :param mode: Number of modes
-        :return: sequence of a Gkey instances
+        :return: sequence of Gkey instances
         """
         return tuple([Gkey(key=k, mode=m) for k in range(1, key + 1) for m in range(1, mode + 1)])
 
@@ -829,8 +848,8 @@ class LogitechDeviceModel(BaseModel):
         """
         Get the keys at the specified row and column in the table layout.
 
-        :param row: The row index, zero based.
-        :param col: The column index, zero based.
+        :param row: The row index (zero-based).
+        :param col: The column index (zero-based).
         :return: The key at the specified row and column, if it exists, otherwise None.
         """
         try:
@@ -1029,7 +1048,7 @@ ConfigValue = TypeVar('ConfigValue', str, int, float, bool)
 DcspyConfigYaml = dict[str, ConfigValue]
 
 
-class Direction(Enum):
+class Direction(IntEnum):
     """Direction of iteration."""
     FORWARD = 1
     BACKWARD = -1
@@ -1072,7 +1091,7 @@ class ZigZagIterator:
             self._direction = Direction.BACKWARD
         elif self.current <= 0:
             self._direction = Direction.FORWARD
-        self.current += self.step * self._direction.value
+        self.current += self.step * self._direction
         if self._direction == Direction.FORWARD:
             self.current = min(self.current, self.max_val)
         else:
@@ -1268,14 +1287,14 @@ class RequestModel(BaseModel):
         return RequestModel(ctrl_name=ctrl_name, raw_request=request, get_bios_fn=get_bios_fn, cycle=cycle_button, key=key)
 
     @classmethod
-    def empty(cls, key: AnyButton) -> RequestModel:
+    def make_empty(cls, key: AnyButton) -> RequestModel:
         """
         Create an empty instance of RequestModel with default values for its attributes.
 
         :param key: Represents the key parameter, which will be used as a button object type for the RequestModel instance.
         :return: A new instance of RequestModel initialized with default attribute values and the provided key parameter.
         """
-        return RequestModel(ctrl_name='EMPTY', raw_request='', get_bios_fn=int, cycle=CycleButton(ctrl_name='', step=0, max_value=0), key=key)
+        return cls(ctrl_name='EMPTY', raw_request='', get_bios_fn=int, cycle=CycleButton(ctrl_name='', step=0, max_value=0), key=key)
 
     def _get_next_value_for_button(self) -> int:
         """
@@ -1352,7 +1371,7 @@ class RequestModel(BaseModel):
         If no conditions match, the raw request is returned appended with a newline.
 
         :param key_down: Integer representing a key state, it can be either a specific value such as `KEY_UP` or
-                         `None` for cases where key down state is not applicable.
+                         `None` for cases where a key down state is not applicable.
         :return: Returns a string representing the generated request based on the active case conditions.
         """
 
@@ -1597,3 +1616,48 @@ class Color(Enum):
     whitesmoke = 0xf5f5f5
     yellow = 0xffff00
     yellowgreen = 0x9acd32
+
+
+class GuiTab(IntEnum):
+    """Describe GUI mani window tabs."""
+    devices = 0
+    settings = 1
+    g_keys = 2
+    debug = 3
+
+
+class DllSdk(BaseModel):
+    """DLL SDK."""
+    name: str
+    header_file: str
+    directory: str
+
+    @property
+    def header(self) -> str:
+        """
+        Load the header content of the DLL.
+
+        :return: The header content as a string.
+        """
+        with open(file=Path(__file__) / '..' / 'resources' / f'{self.header_file}') as header_file:
+            header = header_file.read()
+        return header
+
+    def get_path(self) -> str:
+        """
+        Return the path of the DLL file based on the provided library type.
+
+        :return: The path of the DLL file as a string.
+        """
+        arch = 'x64' if all([architecture()[0] == '64bit', maxsize > 2 ** 32, sizeof(c_void_p) > 4]) else 'x86'
+        try:
+            prog_files = environ['PROGRAMW6432']
+        except KeyError:
+            prog_files = environ['PROGRAMFILES']
+        dll_path = f'{prog_files}\\Logitech Gaming Software\\SDK\\{self.directory}\\{arch}\\Logitech{self.name.capitalize()}.dll'
+        return dll_path
+
+
+LcdDll = DllSdk(name='LCD', directory='LCD', header_file='LogitechLCDLib.h')
+LedDll = DllSdk(name='LED', directory='LED', header_file='LogitechLEDLib.h')
+KeyDll = DllSdk(name='Gkey', directory='G-key', header_file='LogitechGkeyLib.h')

@@ -42,15 +42,15 @@ dependencies = [
     'cffi==1.17.1',
     'eval-type-backport==0.2.0 ; python_version < "3.10"',
     'gitpython==3.1.44',
-    'lupa==2.4',
-    'packaging==24.2',
-    'pillow==11.1.0',
+    'lupa==2.5',
+    'packaging==25.0',
+    'pillow==11.3.0',
     'psutil==7.0.0',
-    'pydantic==2.10.6',
-    'pyside6==6.8.2.1',
+    'pydantic==2.11.7',
+    'pyside6==6.9.1',
     'pyyaml==6.0.2',
-    'requests==2.32.3',
-    'typing-extensions==4.12.2 ; python_full_version < "3.12"',
+    'requests==2.32.4',
+    'typing-extensions==4.14.1',
 ]
 
 [project.urls]
@@ -67,36 +67,35 @@ dcspy = 'dcspy.run:run'
 
 [project.optional-dependencies]
 test = [
-    'flake8==7.1.1',
     'interrogate==1.7.0',
-    'isort==6.0.0',
-    'lxml==5.3.1',
-    'mypy==1.15.0',
-    'pip-audit==2.8.0',
-    'pycodestyle==2.12.1',
-    'pytest==8.3.4',
+    'isort==6.0.1',
+    'lxml==6.0.0',
+    'mypy==1.16.1',
+    'pip-audit==2.9.0',
+    'pytest==8.4.1',
     'pytest-codspeed==3.2.0',
-    'pytest-cov==6.0.0',
-    'pytest-qt==4.4.0 ; sys_platform == "win32"',
+    'pytest-cov==6.2.1',
+    'pytest-qt==4.5.0 ; sys_platform == "win32"',
     'pytest-randomly==3.16.0',
-    'ruff==0.9.6',
-    'types-cffi==1.16.0.20241221',
+    'ruff==0.12.3',
+    'types-cffi==1.17.0.20250523',
+    'types-lupa==2.5.0.20250701',
     'types-pillow==10.2.0.20240822',
-    'types-psutil==6.1.0.20241221',
-    'types-pyinstaller==6.12.0.20250210',
-    'types-pyyaml==6.0.12.20241230',
-    'types-requests==2.32.0.20241016',
+    'types-psutil==7.0.0.20250601',
+    'types-pyinstaller==6.14.0.20250611',
+    'types-pyyaml==6.0.12.20250516',
+    'types-requests==2.32.4.20250611',
 ]
 docs = [
     'black==25.1.0',
     'mkdocs==1.6.1',
     'mkdocs-gen-files==0.5.0',
-    'mkdocs-literate-nav==0.6.1',
-    'mkdocs-material==9.6.4',
+    'mkdocs-literate-nav==0.6.2',
+    'mkdocs-material==9.6.15',
     'mkdocs-plantuml==0.1.1',
-    'mkdocs-section-index==0.3.9',
-    'mkdocstrings==0.28.1',
-    'mkdocstrings-python==1.15.0',
+    'mkdocs-section-index==0.3.10',
+    'mkdocstrings==0.29.1',
+    'mkdocstrings-python==1.16.12',
     'plantuml==0.3.0',
 ]
 
@@ -175,13 +174,17 @@ follow_imports = 'skip'
 [tool.isort]
 line_length = 160
 
-[tool.uv]
-dev-dependencies = [
-    'dcspy[test]',
-    'dcspy[docs]',
+[tool.uv.sources]
+dcspy = { workspace = true }
+PySide6-stubs = { git = 'https://github.com/python-qt-tools/PySide6-stubs.git' }
+
+[dependency-groups]
+dev = [
     'build',
+    'dcspy[docs,test]',
     'detect-test-pollution',
     'nuitka',
     'pre-commit',
     'pyinstaller',
+    'PySide6-stubs',
 ]

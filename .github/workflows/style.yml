@@ -3,19 +3,6 @@ name: Style
 on: workflow_call
 
 jobs:
-  pycodestyle:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Set up Python environment"
-        uses: ./.github/actions/setup-python
-
-      - name: "Check PyCodeStyle"
-        run: |
-          pycodestyle --statistics --count src
-
   interrogate:
     runs-on: ubuntu-latest
     steps:
@@ -51,6 +38,11 @@ jobs:
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
+      - name: "Install mkdocs-gen-files"
+        shell: bash
+        run: |
+          uv pip install -U mkdocs-gen-files
+
       - name: "Check mypy"
         run: |
           mypy .
@@ -63,16 +55,3 @@ jobs:
           path: |
             mypyhtml/*
           retention-days: 4
-
-  flake8:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Set up Python environment"
-        uses: ./.github/actions/setup-python
-
-      - name: "Check flake8"
-        run: |
-          flake8 src

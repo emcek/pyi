@@ -7,7 +7,7 @@ from argparse import Namespace
 from collections.abc import Callable
 from functools import partial
 from importlib import import_module
-from logging import getLogger
+from logging import DEBUG, INFO, Formatter, Handler, LogRecord, getLogger
 from pathlib import Path
 from platform import architecture, python_implementation, python_version, uname
 from pprint import pformat
@@ -15,29 +15,30 @@ from shutil import copy, copytree, rmtree, unpack_archive
 from tempfile import gettempdir
 from threading import Event, Thread
 from time import sleep
-from typing import Any
+from typing import Any, ClassVar
 from webbrowser import open_new_tab
 
 from packaging import version
-from pydantic_core import ValidationError
+from pydantic import ValidationError
 from PySide6 import __version__ as pyside6_ver
 from PySide6.QtCore import QAbstractItemModel, QFile, QIODevice, QMetaObject, QObject, QRunnable, Qt, QThreadPool, Signal, SignalInstance, Slot
 from PySide6.QtCore import __version__ as qt6_ver
-from PySide6.QtGui import QAction, QActionGroup, QFont, QIcon, QPixmap, QShowEvent, QStandardItemModel
+from PySide6.QtGui import (QAction, QActionGroup, QColor, QColorConstants, QFont, QGuiApplication, QIcon, QPixmap, QShowEvent, QStandardItemModel, QStyleHints,
+                           QTextCharFormat)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QCompleter, QDialog, QDockWidget, QFileDialog, QGroupBox, QLabel, QLineEdit,
                                QListView, QMainWindow, QMenu, QMessageBox, QProgressBar, QPushButton, QRadioButton, QSlider, QSpinBox, QStatusBar,
-                               QSystemTrayIcon, QTableWidget, QTabWidget, QToolBar, QToolBox, QWidget)
+                               QSystemTrayIcon, QTableWidget, QTabWidget, QTextEdit, QToolBar, QToolBox, QWidget)
 
 from dcspy import default_yaml, qtgui_rc
 from dcspy.models import (ALL_DEV, BIOS_REPO_NAME, CTRL_LIST_SEPARATOR, DCSPY_REPO_NAME, AnyButton, ControlDepiction, ControlKeyData, DcspyConfigYaml,
-                          FontsConfig, Gkey, GuiPlaneInputRequest, LcdButton, LcdMono, LcdType, LogitechDeviceModel, MouseButton, MsgBoxTypes, Release,
+                          FontsConfig, Gkey, GuiPlaneInputRequest, GuiTab, LcdButton, LcdMono, LcdType, LogitechDeviceModel, MouseButton, MsgBoxTypes, Release,
                           RequestType, SystemData, __version__)
 from dcspy.starter import DCSpyStarter
 from dcspy.utils import (CloneProgress, check_bios_ver, check_dcs_bios_entry, check_dcs_ver, check_github_repo, check_ver_at_github, collect_debug_data,
-                         count_files, defaults_cfg, download_file, generate_bios_jsons_with_lupa, get_all_git_refs, get_depiction_of_ctrls,
-                         get_inputs_for_plane, get_list_of_ctrls, get_plane_aliases, get_planes_list, get_version_string, is_git_exec_present, is_git_object,
-                         load_yaml, proc_is_running, run_command, run_pip_command, save_yaml)
+                         count_files, defaults_cfg, detect_system_color_mode, download_file, generate_bios_jsons_with_lupa, get_all_git_refs,
+                         get_depiction_of_ctrls, get_inputs_for_plane, get_list_of_ctrls, get_plane_aliases, get_planes_list, get_version_string,
+                         is_git_exec_present, is_git_object, load_yaml, proc_is_running, run_command, run_pip_command, save_yaml)
 
 _ = qtgui_rc  # prevent to remove import statement accidentally
 LOG = getLogger(__name__)
@@ -59,12 +60,16 @@ class DcsPyQtGui(QMainWindow):
         :param cfg_dict: dict with configuration
         """
         super().__init__()
-        UiLoader().loadUi(':/ui/ui/qtdcs.ui', self)
+        UiLoader().load_ui(':/ui/ui/qtdcs.ui', self)
         self._find_children()
+        self.config = cfg_dict
+        if not cfg_dict:
+            self.config = load_yaml(full_path=default_yaml)
+        self._init_gui_logger()
         self.threadpool = QThreadPool.globalInstance()
         LOG.debug(f'QThreadPool with {self.threadpool.maxThreadCount()} thread(s)')
         self.cli_args = cli_args
-        self.event = Event()
+        self.event: Event = Event()
         self.device = LogitechDeviceModel(klass='', lcd_info=LcdMono)
         self.mono_font = {'large': 0, 'medium': 0, 'small': 0}
         self.color_font = {'large': 0, 'medium': 0, 'small': 0}
@@ -82,9 +87,6 @@ class DcsPyQtGui(QMainWindow):
         self.r_bios = version.Version('0.0.0')
         self.systray = QSystemTrayIcon()
         self.traymenu = QMenu()
-        self.config = cfg_dict
-        if not cfg_dict:
-            self.config = load_yaml(full_path=default_yaml)
         self.dw_gkeys.hide()
         self.dw_device.hide()
         self.dw_device.setFloating(True)
@@ -110,6 +112,17 @@ class DcsPyQtGui(QMainWindow):
         if self.config.get('autostart', False):
             self._start_clicked()
         self.statusbar.showMessage(f'ver. {__version__}')
+
+    def _init_gui_logger(self) -> None:
+        """Initialize GUI log handler."""
+        self.gui_log = QTextEditLogHandler(text_widget=self.te_debug)
+        formatter = Formatter(fmt='%(asctime)s | %(levelname)-7s | %(threadName)-10s | %(message)s / %(funcName)s:%(lineno)d', datefmt='%H:%M:%S')
+        self.gui_log.setFormatter(formatter)
+        self.gui_log.setLevel(INFO)
+        if self.config.get('verbose', False):
+            self.gui_log.setLevel(DEBUG)
+        LOG.parent.addHandler(self.gui_log)
+        self.hs_debug_font_size.valueChanged.connect(self._hs_debug_font_size_changed)
 
     def _init_tray(self) -> None:
         """Initialize of system tray icon."""
@@ -182,6 +195,7 @@ class DcsPyQtGui(QMainWindow):
         for rb_dev_widget in ['rb_g19', 'rb_g13', 'rb_g15v1', 'rb_g15v2', 'rb_g510', 'rb_g910', 'rb_g710', 'rb_g110', 'rb_g103', 'rb_g105', 'rb_g11', 'rb_g633',
                               'rb_g35', 'rb_g930', 'rb_g933', 'rb_g600', 'rb_g300', 'rb_g400', 'rb_g700', 'rb_g9', 'rb_mx518', 'rb_g402', 'rb_g502', 'rb_g602']:
             self.bg_rb_device.addButton(getattr(self, rb_dev_widget))
+        self.cb_debug_enable.toggled.connect(self._toggle_gui_logging)
 
     def _init_devices(self) -> None:
         """Initialize of a Logitech device."""
@@ -211,21 +225,27 @@ class DcsPyQtGui(QMainWindow):
         toolbar_style.addAction(self.a_text_only)
         toolbar_style.addAction(self.a_text_beside)
         toolbar_style.addAction(self.a_text_under)
-
         self.a_icons_only.toggled.connect(lambda _: self.toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly))
         self.a_text_only.toggled.connect(lambda _: self.toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly))
         self.a_text_beside.toggled.connect(lambda _: self.toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon))
         self.a_text_under.toggled.connect(lambda _: self.toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon))
 
+        color_mode = QActionGroup(self)
+        color_mode.addAction(self.a_mode_light)
+        color_mode.addAction(self.a_mode_dark)
+        color_mode.addAction(self.a_mode_system)
+        color_mode.triggered.connect(self._switch_color_mode)
+
     def _init_autosave(self) -> None:
         """Initialize of autosave."""
         widget_dict = {
             'le_dcsdir': 'textChanged', 'le_biosdir': 'textChanged', 'le_font_name': 'textEdited', 'le_bios_live': 'textEdited',
-            'hs_large_font': 'valueChanged', 'hs_medium_font': 'valueChanged', 'hs_small_font': 'valueChanged', 'sp_completer': 'valueChanged',
-            'combo_planes': 'currentIndexChanged', 'toolbar': 'visibilityChanged', 'dw_gkeys': 'visibilityChanged',
+            'hs_large_font': 'valueChanged', 'hs_medium_font': 'valueChanged', 'hs_small_font': 'valueChanged', 'hs_debug_font_size': 'valueChanged',
+            'sp_completer': 'valueChanged', 'combo_planes': 'currentIndexChanged', 'toolbar': 'visibilityChanged', 'dw_gkeys': 'visibilityChanged',
             'a_icons_only': 'triggered', 'a_text_only': 'triggered', 'a_text_beside': 'triggered', 'a_text_under': 'triggered',
+            'a_mode_light': 'triggered', 'a_mode_dark': 'triggered', 'a_mode_system': 'triggered',
             'cb_autostart': 'toggled', 'cb_show_gui': 'toggled', 'cb_check_ver': 'toggled', 'cb_ded_font': 'toggled', 'cb_lcd_screenshot': 'toggled',
-            'cb_verbose': 'toggled', 'cb_autoupdate_bios': 'toggled', 'cb_bios_live': 'toggled',
+            'cb_verbose': 'toggled', 'cb_autoupdate_bios': 'toggled', 'cb_bios_live': 'toggled', 'cb_debug_enable': 'toggled',
             'rb_g19': 'toggled', 'rb_g13': 'toggled', 'rb_g15v1': 'toggled', 'rb_g15v2': 'toggled', 'rb_g510': 'toggled',
             'rb_g910': 'toggled', 'rb_g710': 'toggled', 'rb_g110': 'toggled', 'rb_g103': 'toggled', 'rb_g105': 'toggled',
             'rb_g11': 'toggled', 'rb_g35': 'toggled', 'rb_g633': 'toggled', 'rb_g930': 'toggled', 'rb_g933': 'toggled',
@@ -279,7 +299,7 @@ class DcsPyQtGui(QMainWindow):
             * Add correct numbers of rows and columns
             * enable DED font checkbox
             * updates font sliders (range and values)
-            * update dock with image of a device
+            * update dock with an image of a device
 
         :param logi_dev: Logitech device model object
         :param state: of radio button
@@ -303,7 +323,7 @@ class DcsPyQtGui(QMainWindow):
             self._cell_ctrl_content_changed(text=cell_combo.currentText(), widget=cell_combo, row=self.current_row, col=self.current_col)
 
     def _set_ded_font_and_font_sliders(self) -> None:
-        """Enable DED font checkbox and updates font sliders."""
+        """Enable the DED font checkbox and updates font sliders."""
         if self.device.lcd_info.type == LcdType.COLOR:
             self.cb_ded_font.setEnabled(True)
             minimum = 15
@@ -336,11 +356,11 @@ class DcsPyQtGui(QMainWindow):
         getattr(self, f'l_{name}').setText(str(value))
 
     def _update_dock(self) -> None:
-        """Update dock with image of a device."""
+        """Update dock with an image of a device."""
         self.l_keyboard.setPixmap(QPixmap(f':/img/img/{self.device.klass}device.png'))
 
     def _collect_data_clicked(self) -> None:
-        """Collect data for troubleshooting and ask user where to save."""
+        """Collect data for troubleshooting and ask a user where to save."""
         zip_file = collect_debug_data()
         try:
             dst_dir = str(Path(os.environ['USERPROFILE']) / 'Desktop')
@@ -360,9 +380,9 @@ class DcsPyQtGui(QMainWindow):
         """
         Check if the directory exists.
 
-        :param text: Contents of text field
+        :param text: Contents of a text field
         :param widget_name: Widget name
-        :return: True if directory exists, False otherwise.
+        :return: True if a directory exists, False otherwise.
         """
         dir_exists = Path(text).is_dir()
         LOG.debug(f'Path: {text} for {widget_name} exists: {dir_exists}')
@@ -374,9 +394,9 @@ class DcsPyQtGui(QMainWindow):
 
     def _is_dir_dcs_bios(self, text: Path | str, widget_name: str) -> bool:
         """
-        Check if the directory is valid DCS-BIOS installation.
+        Check if the directory is a valid DCS-BIOS installation.
 
-        :param text: Contents of text field
+        :param text: Contents of a text field
         :param widget_name: Widget name
         :return: True if valid BIOS directory, False otherwise.
         """
@@ -397,7 +417,7 @@ class DcsPyQtGui(QMainWindow):
         """
         Regenerate DCS-BIOS JSON files.
 
-        :return: True if generation is successful, False otherwise.
+        :return: True if a generation is successful, False otherwise.
         """
         lua_exec = self.dcs_path / 'bin' / 'luae.exe'
         LOG.info('Regenerating DCS-BIOS JSONs files...')
@@ -489,12 +509,12 @@ class DcsPyQtGui(QMainWindow):
 
         Compare old and new plane aliases and reload when needed:
             * regenerate control inputs for a new plane
-            * construct list of controls for every cell in table
+            * construct a list of controls for every cell in the table
             * update aliases
 
         In case of problems:
             * pop-up with details
-            * back to previous plane or first in list
+            * back to a previous plane or first in a list
 
         :param plane_name: BIOS plane name
         :return: True when rebuild is not needed, False otherwise.
@@ -528,10 +548,10 @@ class DcsPyQtGui(QMainWindow):
 
     def _rebuild_or_not_rebuild_planes_aliases(self, plane_aliases: dict[str, list[str]], plane_name: str) -> bool:
         """
-        Check if rebuild is possible and return False or not possible and return True.
+        Check if rebuild is possible and return false or not possible and return true.
 
-        :param plane_aliases: BIOS plane aliases
-        :param plane_name: That is to be validated
+        :param plane_aliases: Dict with BIOS plane aliases
+        :param plane_name: Plane name which should be validated
         :return: True when rebuild is not required, False otherwise
         """
         try:
@@ -580,7 +600,7 @@ class DcsPyQtGui(QMainWindow):
         """
         Copy the specified text to the clipboard.
 
-        Selects only a first word before space and update statusbar message.
+        Selects only the first word before space and update the statusbar message.
 
         :param text: The text to be copied to the clipboard.
         """
@@ -617,12 +637,12 @@ class DcsPyQtGui(QMainWindow):
 
     def _cell_ctrl_content_changed(self, text: str, widget: QComboBox, row: int, col: int) -> None:
         """
-        Check if control input exists in a current plane control a list.
+        Check if control input exists in a current plane's control list.
 
-        * set details for current control input
+        * set details for a current control input
         * set styling
         * add description tooltip
-        * save control request for current plane
+        * save control request for a current plane
 
         :param text: Current text
         :param widget: Combo instance
@@ -738,7 +758,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _checked_iface_rb_for_identifier(self, key_name: str) -> None:
         """
-        Enable input interfaces for current control input identifier.
+        Enable input interfaces for a current control input identifier.
 
         :param key_name: G-Key, LCD or Mouse button as string
         """
@@ -776,7 +796,7 @@ class DcsPyQtGui(QMainWindow):
                 model.item(i).setFlags(Qt.ItemFlag.NoItemFlags)
 
     def _save_gkeys_cfg(self) -> None:
-        """Save G-Keys configuration for current plane."""
+        """Save G-Keys configuration for a current plane."""
         plane_cfg_yaml = {g_key: value.request for g_key, value in self.input_reqs[self.current_plane].items() if value.request}
         LOG.debug(f'Save {self.current_plane}:\n{pformat(plane_cfg_yaml)}')
         save_yaml(data=plane_cfg_yaml, full_path=default_yaml.parent / f'{self.current_plane}.yaml')
@@ -800,9 +820,9 @@ class DcsPyQtGui(QMainWindow):
         Triggered for a radio button group and custom text.
 
         When:
-            * new input interface is selected
-            * a text is changed and user press enter
-            * the widget lost focus
+            * New input interface is selected
+            * A text is changed and a user pressed enter
+            * The widget lost focus
         """
         current_cell: QComboBox | QWidget = self.tw_gkeys.cellWidget(self.current_row, self.current_col)
         current_cell_text = current_cell.currentText()
@@ -837,7 +857,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _get_custom_value(self, selected_rb_name: str) -> str:
         """
-        Get custom value for request depending on a currently selected action radio button.
+        Get custom value for a request depending on a currently selected action radio button.
 
         :param selected_rb_name: Name of radio button widget
         :return: Custom value as string
@@ -849,13 +869,32 @@ class DcsPyQtGui(QMainWindow):
             custom_value = str(self.hs_set_state.value())
         return custom_value
 
+    def _toggle_gui_logging(self, state: bool) -> None:
+        """
+        Toggle GUI logging on and off.
+
+        :param state: State to switch to.
+        """
+        if state:
+            LOG.parent.addHandler(self.gui_log)
+        else:
+            LOG.parent.removeHandler(self.gui_log)
+        self.tw_main.setTabEnabled(GuiTab.debug, state)
+        self.gui_log.toggle_logging(state=state)
+
+    def _hs_debug_font_size_changed(self) -> None:
+        """Change font size for debug log text edit."""
+        current_font = self.te_debug.font()
+        current_font.setPointSize(self.hs_debug_font_size.value())
+        self.te_debug.setFont(current_font)
+
     # <=><=><=><=><=><=><=><=><=><=><=> dcs-bios tab <=><=><=><=><=><=><=><=><=><=><=>
-    def _is_git_object_exists(self, text: str) -> bool:
+    def _is_git_object_exists(self, text: str) -> bool | None:
         """
         Check if an entered git object exists.
 
         :param text: Git reference
-        :return: True if git object exists, False otherwise.
+        :return: True if a git object exists, False otherwise.
         """
         if self.cb_bios_live.isChecked():
             git_ref = is_git_object(repo_dir=self.bios_repo_path, git_obj=text)
@@ -866,6 +905,7 @@ class DcsPyQtGui(QMainWindow):
                 return True
             self.le_bios_live.setStyleSheet('color: red;')
             return False
+        return None
 
     def _get_bios_full_version(self, silence=True) -> str:
         """
@@ -900,7 +940,7 @@ class DcsPyQtGui(QMainWindow):
         self._bios_check_clicked(silence=False)
 
     def _set_completer_for_git_ref(self) -> None:
-        """Setups completer for Git references of DCS-BIOS git repo."""
+        """Setups completer for Git references of the DCS-BIOS git repository."""
         if not self._git_refs_count:
             git_refs = get_all_git_refs(repo_dir=self.bios_repo_path)
             self._git_refs_count = len(git_refs)
@@ -913,7 +953,7 @@ class DcsPyQtGui(QMainWindow):
 
     # <=><=><=><=><=><=><=><=><=><=><=> check dcspy updates <=><=><=><=><=><=><=><=><=><=><=>
     def _dcspy_check_clicked(self) -> None:
-        """Check a version of DCSpy and show message box."""
+        """Check a version of DCSpy and show a message box."""
         ver_string = get_version_string(repo=DCSPY_REPO_NAME, current_ver=__version__, check=True)
         self.statusbar.showMessage(ver_string)
         if 'update!' in ver_string:
@@ -970,7 +1010,7 @@ class DcsPyQtGui(QMainWindow):
     # <=><=><=><=><=><=><=><=><=><=><=> check bios updates <=><=><=><=><=><=><=><=><=><=><=>
     def _bios_check_clicked(self, silence=False) -> None:
         """
-        Check DCS-BIOS directory and perform update.
+        Check the DCS-BIOS directory and perform update.
 
         :param silence: Perform action with silence
         """
@@ -986,8 +1026,8 @@ class DcsPyQtGui(QMainWindow):
         :param silence: Perform action with silence
         """
         if self.cb_bios_live.isChecked():
-            clone_worker = GitCloneWorker(git_ref=self.le_bios_live.text(), bios_path=self.bios_path, to_path=self.bios_repo_path,
-                                          repo=BIOS_REPO_NAME, silence=silence)
+            clone_worker: QRunnable | WorkerSignalsMixIn = GitCloneWorker(git_ref=self.le_bios_live.text(), bios_path=self.bios_path,
+                                                                          to_path=self.bios_repo_path, repo=BIOS_REPO_NAME, silence=silence)
             signal_handlers = {
                 'progress': self._progress_by_abs_value,
                 'stage': self.statusbar.showMessage,
@@ -1031,7 +1071,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _error_during_bios_update(self, exc_tuple) -> None:
         """
-        Show message box with error details.
+        Show a message box with error details.
 
         :param exc_tuple: Exception tuple
         """
@@ -1043,7 +1083,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _clone_bios_completed(self, result) -> None:
         """
-        Show message box with installation details.
+        Show a message box with installation details.
 
         :param result:
         """
@@ -1125,7 +1165,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _ask_to_update(self, rel_info: Release) -> None:
         """
-        Ask user if update BIOS or not.
+        Ask a user if update BIOS or not.
 
         :param rel_info: Remote release information
         """
@@ -1178,9 +1218,9 @@ class DcsPyQtGui(QMainWindow):
 
     def _handling_export_lua(self, temp_dir: Path) -> str:
         """
-        Check if Export.lua file exists and check its content.
+        Check if the Export.lua file exists and check its content.
 
-        If not, copy Export.lua from DCS-BIOS installation archive.
+        If not, copy Export.lua from the DCS-BIOS installation archive.
 
         :param temp_dir: Directory with DCS-BIOS archive
         :return: Result of checks
@@ -1205,11 +1245,11 @@ class DcsPyQtGui(QMainWindow):
         Repair DCS-BIOS installation.
 
         Procedure:
-        1. Show message box with warning
-        2. Show if DCS us running
-        3. Remove Git repo from temporary directory (optionally)
-        4. Remove DCS-BIOS from Saved Games directory
-        5. Install DCS-BIOS
+        * Show a message box with warning
+        * Show if DCS is running
+        * Remove Git repo from a temporary directory (optionally)
+        * Remove DCS-BIOS from the Saved Games directory
+        * Install DCS-BIOS
         """
         dcs_runs = proc_is_running(name='DCS.exe')
         message = f'Are you sure to remove content of:\n\n{self.bios_path}'
@@ -1232,7 +1272,7 @@ class DcsPyQtGui(QMainWindow):
         rmtree(path=self.bios_path, ignore_errors=True)
 
     def _remove_dcs_bios_repo_dir(self) -> None:
-        """Remove DCS-BIOS repository directory."""
+        """Remove the DCS-BIOS repository directory."""
         if self.cb_bios_live.isChecked():
             return_code = run_command(cmd=['attrib', '-R', '-H', '-S', fr'{self.bios_repo_path}\*.*', '/S', '/D'])
             try:
@@ -1272,7 +1312,7 @@ class DcsPyQtGui(QMainWindow):
         if self.device.lcd_info.type != LcdType.NONE:
             fonts_cfg = FontsConfig(name=self.le_font_name.text(), **getattr(self, f'{self.device.lcd_name}_font'))
             self.device.lcd_info.set_fonts(fonts_cfg)
-        self.event = Event()
+        self.event: Event = Event()
         app_params = {'model': self.device, 'event': self.event}
         app_thread = Thread(target=DCSpyStarter(**app_params))
         app_thread.name = 'dcspy-app'
@@ -1319,6 +1359,12 @@ class DcsPyQtGui(QMainWindow):
             self.dw_gkeys.setFloating(bool(cfg['gkeys_float']))
             self.addToolBar(Qt.ToolBarArea(int(cfg['toolbar_area'])), self.toolbar)
             getattr(self, icon_map.get(cfg['toolbar_style'], 'a_icons_only')).setChecked(True)
+            color_mode: QAction = getattr(self, f'a_mode_{cfg["color_mode"]}')
+            color_mode.setChecked(True)
+            self._switch_color_mode(color_mode)
+            self.tw_main.setTabEnabled(GuiTab.debug, cfg['gui_debug'])
+            self.cb_debug_enable.setChecked(cfg['gui_debug'])
+            self.hs_debug_font_size.setValue(cfg['debug_font_size'])
         except (TypeError, AttributeError, ValueError) as exc:
             LOG.warning(exc, exc_info=True)
             self._reset_defaults_cfg()
@@ -1352,6 +1398,8 @@ class DcsPyQtGui(QMainWindow):
             'gkeys_float': self.dw_gkeys.isFloating(),
             'toolbar_area': self.toolBarArea(self.toolbar).value,
             'toolbar_style': self.toolbar.toolButtonStyle().value,
+            'gui_debug': self.cb_debug_enable.isChecked(),
+            'debug_font_size': self.hs_debug_font_size.value(),
         }
         if self.device.lcd_info.type == LcdType.COLOR:
             font_cfg = {'font_color_l': self.hs_large_font.value(),
@@ -1361,11 +1409,20 @@ class DcsPyQtGui(QMainWindow):
             font_cfg = {'font_mono_l': self.hs_large_font.value(),
                         'font_mono_m': self.hs_medium_font.value(),
                         'font_mono_s': self.hs_small_font.value()}
+
+        for mode_menu in [self.a_mode_system, self.a_mode_dark, self.a_mode_light]:
+            if mode_menu.isChecked():
+                color_mode = mode_menu.text().lower()
+                break
+        else:
+            color_mode = 'system'
+
         cfg.update(font_cfg)
+        cfg.update({'color_mode': color_mode})
         save_yaml(data=cfg, full_path=default_yaml)
 
     def _reset_defaults_cfg(self) -> None:
-        """Set defaults and stop application."""
+        """Set defaults and stop the application."""
         save_yaml(data=defaults_cfg, full_path=default_yaml)
         self.config = load_yaml(full_path=default_yaml)
         self.apply_configuration(self.config)
@@ -1388,7 +1445,7 @@ class DcsPyQtGui(QMainWindow):
     @property
     def bios_path(self) -> Path:
         """
-        Get the path to DCS-BIOS directory.
+        Get the path to the DCS-BIOS directory.
 
         :return: Full path as Path
         """
@@ -1406,7 +1463,7 @@ class DcsPyQtGui(QMainWindow):
     @property
     def dcs_path(self) -> Path:
         """
-        Get a path to DCS World directory.
+        Get a path to the DCS World directory.
 
         :return: Full path as Path
         """
@@ -1419,13 +1476,13 @@ class DcsPyQtGui(QMainWindow):
 
         Parameter `signal_handlers` is a dict with signals from WorkerSignals.
         Possible signals are: `finished`, `error`, `result`, `progress`.
-        Values in dict are methods/callables as handlers/callbacks for particular signal.
+        Values in dict are methods/callables as handlers/callbacks for a particular signal.
 
         :param job: GUI method or function to run in background
         :param signal_handlers: Signals as keys: finished, error, result, progress and values as callable
         """
         progress = True if 'progress' in signal_handlers.keys() else False
-        worker = Worker(func=job, with_progress=progress)
+        worker: QRunnable | WorkerSignalsMixIn = Worker(func=job, with_progress=progress)
         worker.setup_signal_handlers(signal_handlers=signal_handlers)
         if isinstance(job, partial):
             job_name = job.func.__name__
@@ -1440,10 +1497,10 @@ class DcsPyQtGui(QMainWindow):
         self.threadpool.start(worker)
 
     @staticmethod
-    def _fake_progress(progress_callback: SignalInstance, total_time: int, steps: int = 100,
+    def _fake_progress(progress_callback: SignalInstance, total_time: float, steps: int = 100,
                        clean_after: bool = True, **kwargs) -> None:
         """
-        Make fake progress for progressbar.
+        Make fake progress for the progressbar.
 
         :param progress_callback: Signal to update progress bar
         :param total_time: Time for fill-up whole bar (in seconds)
@@ -1471,7 +1528,7 @@ class DcsPyQtGui(QMainWindow):
 
     def fetch_system_data(self, silence: bool = False) -> SystemData:
         """
-        Fetch various system related data.
+        Fetch various system-related data.
 
         :param silence: Perform action with silence
         :return: SystemData named tuple with all data
@@ -1490,10 +1547,10 @@ class DcsPyQtGui(QMainWindow):
 
     def _run_file_dialog(self, last_dir: Callable[..., str], widget_name: str | None = None) -> str:
         """
-        Open/save dialog to select file or folder.
+        Open/save dialog to select a file or a folder.
 
-        :param last_dir: Function return last selected dir
-        :param widget_name: Update text for a widget
+        :param last_dir: Function which returns the last selected directory
+        :param widget_name: widget name which should be updated
         :return: Full path to directory
         """
         result_path = QFileDialog.getExistingDirectory(self, caption='Open Directory', dir=last_dir(), options=QFileDialog.Option.ShowDirsOnly)
@@ -1530,7 +1587,7 @@ class DcsPyQtGui(QMainWindow):
 
         :param kind_of: One of MsgBoxTypes: `information`, `question`, `warning`, `critical`, `about` or `aboutQt`
         :param title: Title of modal window
-        :param message: A text of message, default is empty
+        :param message: A text of a message, default is empty
         :param kwargs: Additional keyword arguments for customizing the message box
         :return: The standard button clicked by the user
         """
@@ -1544,9 +1601,9 @@ class DcsPyQtGui(QMainWindow):
         return result
 
     def _show_custom_msg_box(self, kind_of: QMessageBox.Icon, title: str, text: str, info_txt: str, detail_txt: str | None = None,
-                             buttons: QMessageBox.StandardButton | None = None) -> int:
+                             buttons: QMessageBox.StandardButton | None = None) -> int | None:
         """
-        Show custom message box with hidden text.
+        Show a custom message box with hidden text.
 
         :param title: Title
         :param text: First section
@@ -1566,9 +1623,10 @@ class DcsPyQtGui(QMainWindow):
             if buttons:
                 msg.setStandardButtons(buttons)
             return msg.exec()
+        return None
 
     def event_set(self) -> None:
-        """Set event to close running thread."""
+        """Set event to close the running thread."""
         self.event.set()
 
     def activated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
@@ -1584,21 +1642,21 @@ class DcsPyQtGui(QMainWindow):
                 self.show()
 
     def _show_toolbar(self) -> None:
-        """Toggle show and hide toolbar."""
+        """Toggles show and hide the toolbar."""
         if self.a_show_toolbar.isChecked():
             self.toolbar.show()
         else:
             self.toolbar.hide()
 
     def _show_gkeys_dock(self) -> None:
-        """Toggle show and hide G-Keys dock."""
+        """Toggles show and hide G-Keys dock."""
         if self.a_show_gkeys.isChecked():
             self.dw_gkeys.show()
         else:
             self.dw_gkeys.hide()
 
     def _show_device_dock(self) -> None:
-        """Toggle between show and hide a device dock."""
+        """Toggles between show and hide a device dock."""
         if self.a_show_device.isChecked():
             self.dw_device.show()
         else:
@@ -1618,119 +1676,136 @@ class DcsPyQtGui(QMainWindow):
         else:
             action.setChecked(True)
 
+    @staticmethod
+    def _switch_color_mode(action: QAction) -> None:
+        """
+        Switch between light and dark color mode.
+
+        :param action: Action from the menu
+        """
+        mode = action.text()
+        style_hints: QStyleHints = QGuiApplication.styleHints()
+        if mode == 'System':
+            mode = detect_system_color_mode()
+        style_hints.setColorScheme(getattr(Qt.ColorScheme, mode))
+
     def _find_children(self) -> None:
-        """Find all widgets of main window."""
-        self.statusbar: object | QStatusBar = self.findChild(QStatusBar, 'statusbar')
-        self.systray: object | QSystemTrayIcon = self.findChild(QSystemTrayIcon, 'systray')
-        self.traymenu: object | QMenu = self.findChild(QMenu, 'traymenu')
-        self.progressbar: object | QProgressBar = self.findChild(QProgressBar, 'progressbar')
-        self.toolbar: object | QToolBar = self.findChild(QToolBar, 'toolbar')
-        self.tw_gkeys: object | QTableWidget = self.findChild(QTableWidget, 'tw_gkeys')
-        self.sp_completer: object | QSpinBox = self.findChild(QSpinBox, 'sp_completer')
-        self.tw_main: object | QTabWidget = self.findChild(QTabWidget, 'tw_main')
-        self.gb_fonts: object | QGroupBox = self.findChild(QGroupBox, 'gb_fonts')
-        self.toolBox: object | QToolBox = self.findChild(QToolBox, 'toolBox')
+        """Find all widgets for the main window."""
+        self.statusbar: QStatusBar = self.findChild(QStatusBar, 'statusbar')  # type: ignore[assignment]
+        self.progressbar: QProgressBar = self.findChild(QProgressBar, 'progressbar')  # type: ignore[assignment]
+        self.toolbar: QToolBar = self.findChild(QToolBar, 'toolbar')  # type: ignore[assignment]
+        self.tw_gkeys: QTableWidget = self.findChild(QTableWidget, 'tw_gkeys')  # type: ignore[assignment]
+        self.sp_completer: QSpinBox = self.findChild(QSpinBox, 'sp_completer')  # type: ignore[assignment]
+        self.tw_main: QTabWidget = self.findChild(QTabWidget, 'tw_main')  # type: ignore[assignment]
+        self.gb_fonts: QGroupBox = self.findChild(QGroupBox, 'gb_fonts')  # type: ignore[assignment]
+        self.toolBox: QToolBox = self.findChild(QToolBox, 'toolBox')  # type: ignore[assignment]
+        self.te_debug: QTextEdit = self.findChild(QTextEdit, 'te_debug')  # type: ignore[assignment]
 
-        self.combo_planes: object | QComboBox = self.findChild(QComboBox, 'combo_planes')
-        self.combo_search: object | QComboBox = self.findChild(QComboBox, 'combo_search')
+        self.combo_planes: QComboBox = self.findChild(QComboBox, 'combo_planes')  # type: ignore[assignment]
+        self.combo_search: QComboBox = self.findChild(QComboBox, 'combo_search')  # type: ignore[assignment]
 
-        self.dw_gkeys: object | QDockWidget = self.findChild(QDockWidget, 'dw_gkeys')
-        self.dw_device: object | QDockWidget = self.findChild(QDockWidget, 'dw_device')
+        self.dw_gkeys: QDockWidget = self.findChild(QDockWidget, 'dw_gkeys')  # type: ignore[assignment]
+        self.dw_device: QDockWidget = self.findChild(QDockWidget, 'dw_device')  # type: ignore[assignment]
 
-        self.l_keyboard: object | QLabel = self.findChild(QLabel, 'l_keyboard')
-        self.l_large: object | QLabel = self.findChild(QLabel, 'l_large')
-        self.l_medium: object | QLabel = self.findChild(QLabel, 'l_medium')
-        self.l_small: object | QLabel = self.findChild(QLabel, 'l_small')
-        self.l_category: object | QLabel = self.findChild(QLabel, 'l_category')
-        self.l_description: object | QLabel = self.findChild(QLabel, 'l_description')
-        self.l_identifier: object | QLabel = self.findChild(QLabel, 'l_identifier')
-        self.l_range: object | QLabel = self.findChild(QLabel, 'l_range')
+        self.l_keyboard: QLabel = self.findChild(QLabel, 'l_keyboard')  # type: ignore[assignment]
+        self.l_large: QLabel = self.findChild(QLabel, 'l_large')  # type: ignore[assignment]
+        self.l_medium: QLabel = self.findChild(QLabel, 'l_medium')  # type: ignore[assignment]
+        self.l_small: QLabel = self.findChild(QLabel, 'l_small')  # type: ignore[assignment]
+        self.l_category: QLabel = self.findChild(QLabel, 'l_category')  # type: ignore[assignment]
+        self.l_description: QLabel = self.findChild(QLabel, 'l_description')  # type: ignore[assignment]
+        self.l_identifier: QLabel = self.findChild(QLabel, 'l_identifier')  # type: ignore[assignment]
+        self.l_range: QLabel = self.findChild(QLabel, 'l_range')  # type: ignore[assignment]
 
-        self.a_start: object | QAction = self.findChild(QAction, 'a_start')
-        self.a_stop: object | QAction = self.findChild(QAction, 'a_stop')
-        self.a_quit: object | QAction = self.findChild(QAction, 'a_quit')
-        self.a_save_plane: object | QAction = self.findChild(QAction, 'a_save_plane')
-        self.a_reset_defaults: object | QAction = self.findChild(QAction, 'a_reset_defaults')
-        self.a_show_toolbar: object | QAction = self.findChild(QAction, 'a_show_toolbar')
-        self.a_show_gkeys: object | QAction = self.findChild(QAction, 'a_show_gkeys')
-        self.a_show_device: object | QAction = self.findChild(QAction, 'a_show_device')
-        self.a_about_dcspy: object | QAction = self.findChild(QAction, 'a_about_dcspy')
-        self.a_about_qt: object | QAction = self.findChild(QAction, 'a_about_qt')
-        self.a_report_issue: object | QAction = self.findChild(QAction, 'a_report_issue')
-        self.a_dcspy_updates: object | QAction = self.findChild(QAction, 'a_dcspy_updates')
-        self.a_bios_updates: object | QAction = self.findChild(QAction, 'a_bios_updates')
-        self.a_donate: object | QAction = self.findChild(QAction, 'a_donate')
-        self.a_discord: object | QAction = self.findChild(QAction, 'a_discord')
-        self.a_icons_only: object | QAction = self.findChild(QAction, 'a_icons_only')
-        self.a_text_only: object | QAction = self.findChild(QAction, 'a_text_only')
-        self.a_text_beside: object | QAction = self.findChild(QAction, 'a_text_beside')
-        self.a_text_under: object | QAction = self.findChild(QAction, 'a_text_under')
+        self.a_start: QAction = self.findChild(QAction, 'a_start')  # type: ignore[assignment]
+        self.a_stop: QAction = self.findChild(QAction, 'a_stop')  # type: ignore[assignment]
+        self.a_quit: QAction = self.findChild(QAction, 'a_quit')  # type: ignore[assignment]
+        self.a_save_plane: QAction = self.findChild(QAction, 'a_save_plane')  # type: ignore[assignment]
+        self.a_reset_defaults: QAction = self.findChild(QAction, 'a_reset_defaults')  # type: ignore[assignment]
+        self.a_show_toolbar: QAction = self.findChild(QAction, 'a_show_toolbar')  # type: ignore[assignment]
+        self.a_show_gkeys: QAction = self.findChild(QAction, 'a_show_gkeys')  # type: ignore[assignment]
+        self.a_show_device: QAction = self.findChild(QAction, 'a_show_device')  # type: ignore[assignment]
+        self.a_about_dcspy: QAction = self.findChild(QAction, 'a_about_dcspy')  # type: ignore[assignment]
+        self.a_about_qt: QAction = self.findChild(QAction, 'a_about_qt')  # type: ignore[assignment]
+        self.a_report_issue: QAction = self.findChild(QAction, 'a_report_issue')  # type: ignore[assignment]
+        self.a_dcspy_updates: QAction = self.findChild(QAction, 'a_dcspy_updates')  # type: ignore[assignment]
+        self.a_bios_updates: QAction = self.findChild(QAction, 'a_bios_updates')  # type: ignore[assignment]
+        self.a_donate: QAction = self.findChild(QAction, 'a_donate')  # type: ignore[assignment]
+        self.a_discord: QAction = self.findChild(QAction, 'a_discord')  # type: ignore[assignment]
+        self.a_icons_only: QAction = self.findChild(QAction, 'a_icons_only')  # type: ignore[assignment]
+        self.a_text_only: QAction = self.findChild(QAction, 'a_text_only')  # type: ignore[assignment]
+        self.a_text_beside: QAction = self.findChild(QAction, 'a_text_beside')  # type: ignore[assignment]
+        self.a_text_under: QAction = self.findChild(QAction, 'a_text_under')  # type: ignore[assignment]
+        self.a_mode_light: QAction = self.findChild(QAction, 'a_mode_light')  # type: ignore[assignment]
+        self.a_mode_dark: QAction = self.findChild(QAction, 'a_mode_dark')  # type: ignore[assignment]
+        self.a_mode_system: QAction = self.findChild(QAction, 'a_mode_system')  # type: ignore[assignment]
 
-        self.pb_start: object | QPushButton = self.findChild(QPushButton, 'pb_start')
-        self.pb_stop: object | QPushButton = self.findChild(QPushButton, 'pb_stop')
-        self.pb_close: object | QPushButton = self.findChild(QPushButton, 'pb_close')
-        self.pb_dcsdir: object | QPushButton = self.findChild(QPushButton, 'pb_dcsdir')
-        self.pb_biosdir: object | QPushButton = self.findChild(QPushButton, 'pb_biosdir')
-        self.pb_collect_data: object | QPushButton = self.findChild(QPushButton, 'pb_collect_data')
-        self.pb_copy: object | QPushButton = self.findChild(QPushButton, 'pb_copy')
-        self.pb_save: object | QPushButton = self.findChild(QPushButton, 'pb_save')
-        self.pb_dcspy_check: object | QPushButton = self.findChild(QPushButton, 'pb_dcspy_check')
-        self.pb_bios_check: object | QPushButton = self.findChild(QPushButton, 'pb_bios_check')
-        self.pb_bios_repair: object | QPushButton = self.findChild(QPushButton, 'pb_bios_repair')
+        self.pb_start: QPushButton = self.findChild(QPushButton, 'pb_start')  # type: ignore[assignment]
+        self.pb_stop: QPushButton = self.findChild(QPushButton, 'pb_stop')  # type: ignore[assignment]
+        self.pb_close: QPushButton = self.findChild(QPushButton, 'pb_close')  # type: ignore[assignment]
+        self.pb_dcsdir: QPushButton = self.findChild(QPushButton, 'pb_dcsdir')  # type: ignore[assignment]
+        self.pb_biosdir: QPushButton = self.findChild(QPushButton, 'pb_biosdir')  # type: ignore[assignment]
+        self.pb_collect_data: QPushButton = self.findChild(QPushButton, 'pb_collect_data')  # type: ignore[assignment]
+        self.pb_copy: QPushButton = self.findChild(QPushButton, 'pb_copy')  # type: ignore[assignment]
+        self.pb_save: QPushButton = self.findChild(QPushButton, 'pb_save')  # type: ignore[assignment]
+        self.pb_dcspy_check: QPushButton = self.findChild(QPushButton, 'pb_dcspy_check')  # type: ignore[assignment]
+        self.pb_bios_check: QPushButton = self.findChild(QPushButton, 'pb_bios_check')  # type: ignore[assignment]
+        self.pb_bios_repair: QPushButton = self.findChild(QPushButton, 'pb_bios_repair')  # type: ignore[assignment]
 
-        self.cb_autostart: object | QCheckBox = self.findChild(QCheckBox, 'cb_autostart')
-        self.cb_show_gui: object | QCheckBox = self.findChild(QCheckBox, 'cb_show_gui')
-        self.cb_check_ver: object | QCheckBox = self.findChild(QCheckBox, 'cb_check_ver')
-        self.cb_ded_font: object | QCheckBox = self.findChild(QCheckBox, 'cb_ded_font')
-        self.cb_lcd_screenshot: object | QCheckBox = self.findChild(QCheckBox, 'cb_lcd_screenshot')
-        self.cb_verbose: object | QCheckBox = self.findChild(QCheckBox, 'cb_verbose')
-        self.cb_autoupdate_bios: object | QCheckBox = self.findChild(QCheckBox, 'cb_autoupdate_bios')
-        self.cb_bios_live: object | QCheckBox = self.findChild(QCheckBox, 'cb_bios_live')
+        self.cb_autostart: QCheckBox = self.findChild(QCheckBox, 'cb_autostart')  # type: ignore[assignment]
+        self.cb_show_gui: QCheckBox = self.findChild(QCheckBox, 'cb_show_gui')  # type: ignore[assignment]
+        self.cb_check_ver: QCheckBox = self.findChild(QCheckBox, 'cb_check_ver')  # type: ignore[assignment]
+        self.cb_ded_font: QCheckBox = self.findChild(QCheckBox, 'cb_ded_font')  # type: ignore[assignment]
+        self.cb_lcd_screenshot: QCheckBox = self.findChild(QCheckBox, 'cb_lcd_screenshot')  # type: ignore[assignment]
+        self.cb_verbose: QCheckBox = self.findChild(QCheckBox, 'cb_verbose')  # type: ignore[assignment]
+        self.cb_autoupdate_bios: QCheckBox = self.findChild(QCheckBox, 'cb_autoupdate_bios')  # type: ignore[assignment]
+        self.cb_bios_live: QCheckBox = self.findChild(QCheckBox, 'cb_bios_live')  # type: ignore[assignment]
+        self.cb_debug_enable: QCheckBox = self.findChild(QCheckBox, 'cb_debug_enable')  # type: ignore[assignment]
 
-        self.le_dcsdir: object | QLineEdit = self.findChild(QLineEdit, 'le_dcsdir')
-        self.le_biosdir: object | QLineEdit = self.findChild(QLineEdit, 'le_biosdir')
-        self.le_font_name: object | QLineEdit = self.findChild(QLineEdit, 'le_font_name')
-        self.le_bios_live: object | QLineEdit = self.findChild(QLineEdit, 'le_bios_live')
-        self.le_custom: object | QLineEdit = self.findChild(QLineEdit, 'le_custom')
+        self.le_dcsdir: QLineEdit = self.findChild(QLineEdit, 'le_dcsdir')  # type: ignore[assignment]
+        self.le_biosdir: QLineEdit = self.findChild(QLineEdit, 'le_biosdir')  # type: ignore[assignment]
+        self.le_font_name: QLineEdit = self.findChild(QLineEdit, 'le_font_name')  # type: ignore[assignment]
+        self.le_bios_live: QLineEdit = self.findChild(QLineEdit, 'le_bios_live')  # type: ignore[assignment]
+        self.le_custom: QLineEdit = self.findChild(QLineEdit, 'le_custom')  # type: ignore[assignment]
 
-        self.rb_g19: object | QRadioButton = self.findChild(QRadioButton, 'rb_g19')
-        self.rb_g13: object | QRadioButton = self.findChild(QRadioButton, 'rb_g13')
-        self.rb_g15v1: object | QRadioButton = self.findChild(QRadioButton, 'rb_g15v1')
-        self.rb_g15v2: object | QRadioButton = self.findChild(QRadioButton, 'rb_g15v2')
-        self.rb_g510: object | QRadioButton = self.findChild(QRadioButton, 'rb_g510')
-        self.rb_rb_g910: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g910')
-        self.rb_rb_g710: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g710')
-        self.rb_rb_g110: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g110')
-        self.rb_rb_g103: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g103')
-        self.rb_rb_g105: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g105')
-        self.rb_rb_g11: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g11')
-        self.rb_rb_g633: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g633')
-        self.rb_rb_g35: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g35')
-        self.rb_rb_g930: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g930')
-        self.rb_rb_g933: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g933')
-        self.rb_rb_g600: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g600')
-        self.rb_rb_g300: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g300')
-        self.rb_rb_g400: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g400')
-        self.rb_rb_g700: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g700')
-        self.rb_rb_g9: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g9')
-        self.rb_rb_mx518: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_mx518')
-        self.rb_rb_g402: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g402')
-        self.rb_rb_g502: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g502')
-        self.rb_rb_g602: object | QRadioButton = self.findChild(QRadioButton, 'rb_rb_g602')
-        self.rb_action: object | QRadioButton = self.findChild(QRadioButton, 'rb_action')
-        self.rb_fixed_step_inc: object | QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_inc')
-        self.rb_fixed_step_dec: object | QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_dec')
-        self.rb_set_state: object | QRadioButton = self.findChild(QRadioButton, 'rb_set_state')
-        self.rb_cycle: object | QRadioButton = self.findChild(QRadioButton, 'rb_cycle')
-        self.rb_variable_step_plus: object | QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_plus')
-        self.rb_variable_step_minus: object | QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_minus')
-        self.rb_push_button: object | QRadioButton = self.findChild(QRadioButton, 'rb_push_button')
-        self.rb_custom: object | QRadioButton = self.findChild(QRadioButton, 'rb_custom')
+        self.rb_g19: QRadioButton = self.findChild(QRadioButton, 'rb_g19')  # type: ignore[assignment]
+        self.rb_g13: QRadioButton = self.findChild(QRadioButton, 'rb_g13')  # type: ignore[assignment]
+        self.rb_g15v1: QRadioButton = self.findChild(QRadioButton, 'rb_g15v1')  # type: ignore[assignment]
+        self.rb_g15v2: QRadioButton = self.findChild(QRadioButton, 'rb_g15v2')  # type: ignore[assignment]
+        self.rb_g510: QRadioButton = self.findChild(QRadioButton, 'rb_g510')  # type: ignore[assignment]
+        self.rb_rb_g910: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g910')  # type: ignore[assignment]
+        self.rb_rb_g710: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g710')  # type: ignore[assignment]
+        self.rb_rb_g110: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g110')  # type: ignore[assignment]
+        self.rb_rb_g103: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g103')  # type: ignore[assignment]
+        self.rb_rb_g105: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g105')  # type: ignore[assignment]
+        self.rb_rb_g11: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g11')  # type: ignore[assignment]
+        self.rb_rb_g633: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g633')  # type: ignore[assignment]
+        self.rb_rb_g35: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g35')  # type: ignore[assignment]
+        self.rb_rb_g930: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g930')  # type: ignore[assignment]
+        self.rb_rb_g933: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g933')  # type: ignore[assignment]
+        self.rb_rb_g600: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g600')  # type: ignore[assignment]
+        self.rb_rb_g300: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g300')  # type: ignore[assignment]
+        self.rb_rb_g400: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g400')  # type: ignore[assignment]
+        self.rb_rb_g700: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g700')  # type: ignore[assignment]
+        self.rb_rb_g9: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g9')  # type: ignore[assignment]
+        self.rb_rb_mx518: QRadioButton = self.findChild(QRadioButton, 'rb_rb_mx518')  # type: ignore[assignment]
+        self.rb_rb_g402: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g402')  # type: ignore[assignment]
+        self.rb_rb_g502: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g502')  # type: ignore[assignment]
+        self.rb_rb_g602: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g602')  # type: ignore[assignment]
+        self.rb_action: QRadioButton = self.findChild(QRadioButton, 'rb_action')  # type: ignore[assignment]
+        self.rb_fixed_step_inc: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_inc')  # type: ignore[assignment]
+        self.rb_fixed_step_dec: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_dec')  # type: ignore[assignment]
+        self.rb_set_state: QRadioButton = self.findChild(QRadioButton, 'rb_set_state')  # type: ignore[assignment]
+        self.rb_cycle: QRadioButton = self.findChild(QRadioButton, 'rb_cycle')  # type: ignore[assignment]
+        self.rb_variable_step_plus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_plus')  # type: ignore[assignment]
+        self.rb_variable_step_minus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_minus')  # type: ignore[assignment]
+        self.rb_push_button: QRadioButton = self.findChild(QRadioButton, 'rb_push_button')  # type: ignore[assignment]
+        self.rb_custom: QRadioButton = self.findChild(QRadioButton, 'rb_custom')  # type: ignore[assignment]
 
-        self.hs_large_font: object | QSlider = self.findChild(QSlider, 'hs_large_font')
-        self.hs_medium_font: object | QSlider = self.findChild(QSlider, 'hs_medium_font')
-        self.hs_small_font: object | QSlider = self.findChild(QSlider, 'hs_small_font')
-        self.hs_set_state: object | QSlider = self.findChild(QSlider, 'hs_set_state')
+        self.hs_large_font: QSlider = self.findChild(QSlider, 'hs_large_font')  # type: ignore[assignment]
+        self.hs_medium_font: QSlider = self.findChild(QSlider, 'hs_medium_font')  # type: ignore[assignment]
+        self.hs_small_font: QSlider = self.findChild(QSlider, 'hs_small_font')  # type: ignore[assignment]
+        self.hs_set_state: QSlider = self.findChild(QSlider, 'hs_set_state')  # type: ignore[assignment]
+        self.hs_debug_font_size: QSlider = self.findChild(QSlider, 'hs_debug_font_size')  # type: ignore[assignment]
 
 
 class AboutDialog(QDialog):
@@ -1739,8 +1814,8 @@ class AboutDialog(QDialog):
         """Dcspy about dialog window."""
         super().__init__(parent)
         self.parent: DcsPyQtGui | QWidget = parent
-        UiLoader().loadUi(':/ui/ui/about.ui', self)
-        self.l_info: object | QLabel = self.findChild(QLabel, 'l_info')
+        UiLoader().load_ui(':/ui/ui/about.ui', self)
+        self.l_info: QLabel = self.findChild(QLabel, 'l_info')
 
     def showEvent(self, event: QShowEvent) -> None:
         """Prepare text information about DCSpy application."""
@@ -1813,7 +1888,7 @@ class Worker(QRunnable, WorkerSignalsMixIn):
         Worker thread.
 
         Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-        :param func: The function callback to run on worker thread
+        :param func: The function callback to run on a worker thread
         """
         super().__init__()
         self.func = func
@@ -1822,7 +1897,7 @@ class Worker(QRunnable, WorkerSignalsMixIn):
 
     @Slot()
     def run(self) -> None:
-        """Initialise the runner function with passed additional kwargs."""
+        """Run the worker function."""
         try:
             result = self.func()
         except Exception:
@@ -1856,7 +1931,7 @@ class GitCloneWorker(QRunnable, WorkerSignalsMixIn):
 
     @Slot()
     def run(self) -> None:
-        """Clone repository and report progress using special object CloneProgress."""
+        """Clone the repository and report progress using a special object CloneProgress."""
         try:
             sha = check_github_repo(git_ref=self.git_ref, update=True, repo=self.repo, repo_dir=self.to_path,
                                     progress=CloneProgress(self.signals.progress, self.signals.stage))
@@ -1879,34 +1954,34 @@ class GitCloneWorker(QRunnable, WorkerSignalsMixIn):
 
 class UiLoader(QUiLoader):
     """UI file loader."""
-    _baseinstance = None
+    _base_instance = None
 
     def createWidget(self, classname: str, parent: QWidget | None = None, name='') -> QWidget:
         """
-        Create widget.
+        Create a widget.
 
         :param classname: Class name
         :param parent: Parent
         :param name: Name
         :return: QWidget
         """
-        if parent is None and self._baseinstance is not None:
-            widget = self._baseinstance
+        if parent is None and self._base_instance is not None:
+            widget = self._base_instance
         else:
             widget = super().createWidget(classname, parent, name)
-            if self._baseinstance is not None:
-                setattr(self._baseinstance, name, widget)
+            if self._base_instance is not None:
+                setattr(self._base_instance, name, widget)
         return widget
 
-    def loadUi(self, ui_path: str | bytes | Path, baseinstance=None) -> QWidget:
+    def load_ui(self, ui_path: str | bytes | Path, base_instance=None) -> QWidget:
         """
         Load a UI file.
 
         :param ui_path: Path to a UI file
-        :param baseinstance:
+        :param base_instance:
         :return: QWidget
         """
-        self._baseinstance = baseinstance
+        self._base_instance = base_instance
         ui_file = QFile(ui_path)
         ui_file.open(QIODevice.OpenModeFlag.ReadOnly)
         try:
@@ -1915,3 +1990,47 @@ class UiLoader(QUiLoader):
             return widget
         finally:
             ui_file.close()
+
+
+class QTextEditLogHandler(Handler):
+    """GUI log handler."""
+    colors: ClassVar[dict[str, QColor]] = {
+        'DEBUG': QColorConstants.Svg.black,
+        'INFO': QColorConstants.Svg.green,
+        'WARNING': QColorConstants.Svg.darkorange,
+        'ERROR': QColorConstants.Svg.red,
+        'CRITICAL': QColorConstants.Svg.blue
+    }
+
+    def __init__(self, text_widget: QTextEdit) -> None:
+        """
+        Log handler for GUI application.
+
+        :param text_widget: widget to emit logs to.
+        """
+        super().__init__()
+        self.text_widget = text_widget
+        self.paused = False
+
+    def emit(self, record: LogRecord) -> None:
+        """
+        Emit a log record.
+
+        :param record: LogRecord instance.
+        """
+        if self.paused:
+            return
+        cursor = self.text_widget.textCursor()
+        text_format = QTextCharFormat()
+        text_format.setForeground(self.colors.get(record.levelname, QColorConstants.Svg.black))
+        cursor.movePosition(cursor.MoveOperation.End)
+        cursor.insertText(f'{self.format(record)}\n', text_format)
+        self.text_widget.setTextCursor(cursor)
+
+    def toggle_logging(self, state: bool) -> None:
+        """
+        Toggle a logging state on and off.
+
+        :param state: State of logging
+        """
+        self.paused = not state

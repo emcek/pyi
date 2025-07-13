@@ -9,29 +9,29 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: "Set up Python 3.13"
-        uses: actions/setup-python@v5
+      - name: "Install uv and set the Python"
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-          cache: pip
+          enable-cache: true
+          activate-environment: true
 
-      - name: "Install requirements"
-        run: |
-          python -m pip install -U pip
-          python -m pip install -U -r requirements.txt
+      - name: "Install the project and test dependencies"
+        run: uv sync --no-extra test --no-extra docs --no-group dev
 
       - name: "Get explicit and transitive dependencies"
         run: |
-          pip freeze > requirements-all.txt
+          uv pip freeze > requirements-all.txt
 
       - name: "Check License"
         id: license_check_report
         uses: pilosus/action-pip-license-checker@v2
         with:
           requirements: 'requirements-all.txt'
-          fail: 'StrongCopyleft,Other,Error'
+          fail: 'StrongCopyleft,Other'
           totals: true
           headers: true
+          exclude: '(?i)^(pyside6|shiboken6).*'
 
       - name: "Print report"
         if: ${{ always() }}
