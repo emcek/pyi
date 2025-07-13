@@ -1,4 +1,4 @@
-## 3.7.0
+## 3.11.0
 * DCS-BIOS change default branch to `main` - @emcek
 * Add debug tab to main window #463 @emcek
 * Add Dark MOde #479 @emcek
