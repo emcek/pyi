@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        nuitka_type: [ dcspy, dcspy_cli ]
+        nuitka_type: [ setup, standalone ]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -31,17 +31,17 @@ jobs:
           Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
 
       - uses: Nuitka/Nuitka-Action@main
-        if: ${{ endsWith( matrix.nuitka_type, 'dcspy') }}
+        if: ${{ endsWith( matrix.nuitka_type, 'setup') }}
         with:
           nuitka-version: 2.7.12
           script-name: src/dcs_py.py
           mode: standalone
-          windows-console-mode: disable
+          windows-console-mode: force
           prefer-source-code: true
           enable-plugins: pyside6
           include-package-data: dcspy
           assume-yes-for-downloads: true
-          output-file: ${{ matrix.nuitka_type }}
+          output-file: dcspy
           output-dir: dist
           windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
           product-name: DCSpy
@@ -51,7 +51,7 @@ jobs:
           copyright: (c) 2025 Michal Plichta. All rights reserved.
 
       - uses: Nuitka/Nuitka-Action@main
-        if: ${{ endsWith( matrix.nuitka_type, '_cli') }}
+        if: ${{ endsWith( matrix.nuitka_type, 'standalone') }}
         with:
           nuitka-version: 2.7.12
           script-name: src/dcs_py.py
@@ -62,7 +62,7 @@ jobs:
           include-package-data: dcspy
           assume-yes-for-downloads: true
           onefile-windows-splash-screen-image: src/dcspy/img/splash.png
-          output-file: ${{ matrix.nuitka_type }}
+          output-file: dcspy
           output-dir: dist
           windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
           product-name: DCSpy
@@ -71,16 +71,19 @@ jobs:
           file-description: Integrating DCS Planes with Logitech keyboards with LCD
           copyright: (c) 2025 Michal Plichta. All rights reserved.
 
-      - name: "Upload dcspy standalone binaries"
-        if: ${{ endsWith( matrix.nuitka_type, 'dcspy') }}
+      - name: "Upload dcspy setup installer"
+        if: ${{ endsWith( matrix.nuitka_type, 'setup') }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.nuitka_type }}_standalone
-          path: dist/*
+          name: dcspy_${{ matrix.nuitka_type }}
+          path: |
+            dist/*
+            !dist/dcs_py.build
+            !dist/dcspy.exe
 
-      - name: "Upload dcspy cli binaries"
-        if: ${{ endsWith( matrix.nuitka_type, '_cli') }}
+      - name: "Upload dcspy standalone binaries"
+        if: ${{ endsWith( matrix.nuitka_type, 'standalone') }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.nuitka_type }}_nuitka
-          path: dist/${{ matrix.nuitka_type }}.exe
+          name: dcspy_${{ matrix.nuitka_type }}
+          path: dist/dcspy.exe

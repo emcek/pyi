@@ -180,7 +180,6 @@ PySide6-stubs = { git = 'https://github.com/python-qt-tools/PySide6-stubs.git' }
 
 [dependency-groups]
 dev = [
-    'build',
     'dcspy[docs,test]',
     'detect-test-pollution',
     'nuitka',
