@@ -19,13 +19,9 @@ jobs:
         shell: pwsh
         id: nuitka_data
         run: |
-          uv pip install -U pyinstaller
-          $output = & python scripts/generate_ver_file.py
-          $output = $output -replace "[\(\)\s\']", ""
-          $values = $output.Split(',')
-          $ref_name = $values[0].Trim()
-          $run_number = $values[1].Trim()
-          $sha = $values[2].Trim()
+          $ref_name = $env:GITHUB_REF_NAME -replace '^v', ''
+          $run_number = $env:GITHUB_RUN_NUMBER
+          $sha = $env:GITHUB_REF_NAME.Substring(0, 5)
           Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT
           Write-Output "git_run_number=$run_number" >> $env:GITHUB_OUTPUT
           Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT

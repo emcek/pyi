@@ -12,10 +12,6 @@ jobs:
     needs: [ style ]
     uses: ./.github/workflows/test.yml
 
-  pyinstaller:
-    needs: [ test ]
-    uses: ./.github/workflows/pyinstaller.yml
-
   nuitka:
     needs: [ test ]
     uses: ./.github/workflows/nuitka.yml
@@ -25,7 +21,7 @@ jobs:
     uses: ./.github/workflows/wheel.yml
 
   github:
-    needs: [ pyinstaller, nuitka, wheel ]
+    needs: [ nuitka, wheel ]
     runs-on: windows-latest
     steps:
       - name: "Checkout"
@@ -70,14 +66,12 @@ jobs:
           prerelease: false
           files: |
             dcspy.exe
-            dcspy_pyinstaller.exe
-            dcspy_cli_pyinstaller.exe
             inno/dcspy_3.11.13_setup.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
 
   pypi:
-    needs: [ pyinstaller, nuitka, wheel ]
+    needs: [ nuitka, wheel ]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
