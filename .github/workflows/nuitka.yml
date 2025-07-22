@@ -46,9 +46,10 @@ jobs:
           output-file: dcspy
           output-dir: dist
           windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
+          company-name: Michal Plichta
           product-name: DCSpy
           file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
-          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_sha }}
+          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           file-description: Integrating DCS Planes with Logitech keyboards with LCD
           copyright: (c) 2025 Michal Plichta. All rights reserved.
 
@@ -67,9 +68,10 @@ jobs:
           output-file: dcspy
           output-dir: dist
           windows-icon-from-ico: src/dcspy/img/dcspy_white.ico
+          company-name: Michal Plichta
           product-name: DCSpy
           file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
-          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_sha }}
+          product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           file-description: Integrating DCS Planes with Logitech keyboards with LCD
           copyright: (c) 2025 Michal Plichta. All rights reserved.
 
