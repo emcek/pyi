@@ -123,13 +123,6 @@ NewFolderName=Nuova cartella
 WelcomeLabel1=Installazione di [name]
 WelcomeLabel2=[name/ver] sarà installato sul computer.%n%nPrima di procedere chiudi tutte le applicazioni attive.
 
-; *** "Password" wizard page
-WizardPassword=Password
-PasswordLabel1=Questa installazione è protetta da password.
-PasswordLabel3=Inserisci la password, quindi per continuare seleziona "Avanti".%nLe password sono sensibili alle maiuscole/minuscole.
-PasswordEditLabel=&Password:
-IncorrectPassword=La password inserita non è corretta. Riprova.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Contratto di licenza
 LicenseLabel=Prima di procedere leggi con attenzione le informazioni che seguono.

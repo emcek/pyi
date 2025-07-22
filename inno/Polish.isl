@@ -110,13 +110,6 @@ NewFolderName=Nowy folder
 WelcomeLabel1=Witamy w instalatorze aplikacji [name]
 WelcomeLabel2=Aplikacja [name/ver] zostanie teraz zainstalowana na komputerze.%n%nZalecane jest zamknięcie wszystkich innych uruchomionych programów przed rozpoczęciem procesu instalacji.
 
-; *** "Password" wizard page
-WizardPassword=Hasło
-PasswordLabel1=Ta instalacja jest zabezpieczona hasłem.
-PasswordLabel3=Podaj hasło, a następnie kliknij przycisk Dalej, aby kontynuować. W hasłach rozróżniane są wielkie i małe litery.
-PasswordEditLabel=&Hasło:
-IncorrectPassword=Wprowadzone hasło jest nieprawidłowe. Spróbuj ponownie.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Umowa Licencyjna
 LicenseLabel=Przed kontynuacją należy zapoznać się z poniższą ważną informacją.

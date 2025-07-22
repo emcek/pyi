@@ -133,13 +133,6 @@ NewFolderName=Novu cartulare
 WelcomeLabel1=Benvenuta in l’assistente d’installazione di [name]
 WelcomeLabel2=Quessu installerà [name/ver] nant’à l’urdinatore.%n%nHè ricumandatu di chjode tutte l’altre appiecazioni nanzu di cuntinuà.
 
-; *** "Password" wizard page
-WizardPassword=Parolla d’intesa
-PasswordLabel1=L’installazione hè prutetta da una parolla d’intesa.
-PasswordLabel3=Ci vole à pruvede a parolla d’intesa, eppò sceglie Seguente per cuntinuà. E parolle d’intesa ponu cuntene maiuscule è minuscule.
-PasswordEditLabel=&Parolla d’intesa :
-IncorrectPassword=A parolla d’intesa stampittata ùn hè micca curretta. Ci vole à pruvà torna.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Cuntrattu di licenza
 LicenseLabel=Ci vole à leghje l’infurmazione impurtante chì seguiteghja nanzu di cuntinuà.

@@ -118,13 +118,6 @@ NewFolderName=Új könyvtár
 WelcomeLabel1=Üdvözli a(z) [name] Telepítővarázslója.
 WelcomeLabel2=A(z) [name/ver] telepítésre kerül a számítógépén.%n%nAjánlott minden, egyéb futó alkalmazás bezárása a folytatás előtt.
 
-; *** "Password" wizard page
-WizardPassword=Jelszó
-PasswordLabel1=Ez a telepítés jelszóval védett.
-PasswordLabel3=Kérem adja meg a jelszót, majd kattintson a 'Tovább'-ra. A jelszavak kis- és nagy betű érzékenyek lehetnek.
-PasswordEditLabel=&Jelszó:
-IncorrectPassword=Az ön által megadott jelszó helytelen. Próbálja újra.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Licencszerződés
 LicenseLabel=Olvassa el figyelmesen az információkat folytatás előtt.

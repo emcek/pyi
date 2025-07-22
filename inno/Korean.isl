@@ -123,13 +123,6 @@ NewFolderName=새 폴더
 WelcomeLabel1=[name] 설치 마법사에 오신 것을 환영합니다
 WelcomeLabel2=컴퓨터에 [name/ver]이(가) 설치됩니다.%n%n계속하기 전에 다른 모든 응용 프로그램을 닫는 것이 좋습니다.
 
-; *** "Password" wizard page
-WizardPassword=암호
-PasswordLabel1=이 설치는 암호로 보호됩니다.
-PasswordLabel3=암호를 입력한 후 다음을 클릭하여 계속하십시오. 암호는 대소문자를 구분합니다.
-PasswordEditLabel=암호(&P):
-IncorrectPassword=입력한 암호가 올바르지 않습니다. 다시 시도하십시오.
-
 ; *** "License Agreement" wizard page
 WizardLicense=사용권 계약
 LicenseLabel=계속하기 전에 다음 중요한 정보를 읽어보십시오.

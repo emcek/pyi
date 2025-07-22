@@ -99,13 +99,6 @@ NewFolderName=Nieuwe map
 WelcomeLabel1=Welkom bij het installatieprogramma van [name].
 WelcomeLabel2=Hiermee wordt [name/ver] geïnstalleerd op deze computer.%n%nU wordt aanbevolen alle actieve programma's af te sluiten voordat u verder gaat.
 
-; *** "Password" wizard page
-WizardPassword=Wachtwoord
-PasswordLabel1=Deze installatie is beveiligd met een wachtwoord.
-PasswordLabel3=Voer het wachtwoord in en klik op Volgende om verder te gaan. Wachtwoorden zijn hoofdlettergevoelig.
-PasswordEditLabel=&Wachtwoord:
-IncorrectPassword=Het ingevoerde wachtwoord is niet correct. Probeer het opnieuw.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Licentieovereenkomst
 LicenseLabel=Lees de volgende belangrijke informatie voordat u verder gaat.

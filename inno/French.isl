@@ -136,13 +136,6 @@ NewFolderName=Nouveau dossier
 WelcomeLabel1=Bienvenue dans l'assistant d'installation de [name]
 WelcomeLabel2=Cet assistant va vous guider dans l'installation de [name/ver] sur votre ordinateur.%n%nIl est recommandé de fermer toutes les applications actives avant de continuer.
 
-; *** "Password" wizard page
-WizardPassword=Mot de passe
-PasswordLabel1=Cette installation est protégée par un mot de passe.
-PasswordLabel3=Veuillez saisir le mot de passe (attention à la distinction entre majuscules et minuscules) puis cliquez sur Suivant pour continuer.
-PasswordEditLabel=&Mot de passe :
-IncorrectPassword=Le mot de passe saisi n'est pas valide. Veuillez essayer à nouveau.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Accord de licence
 LicenseLabel=Les informations suivantes sont importantes. Veuillez les lire avant de continuer.

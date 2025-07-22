@@ -116,13 +116,6 @@ NewFolderName=Nový adresár
 WelcomeLabel1=Víta Vás Sprievodca inštaláciou produktu [name].
 WelcomeLabel2=Produkt [name/ver] sa nainštaluje do tohto počítača.%n%nSkôr, ako budete pokračovať, odporúčame ukončiť všetky spustené aplikácie.
 
-; *** "Password" wizard page
-WizardPassword=Heslo
-PasswordLabel1=Táto inštalácia je chránená heslom.
-PasswordLabel3=Zadajte heslo a pokračujte kliknutím na tlačidlo "Ďalej". Pri zadávaní hesla rozlišujte malé a veľké písmená.
-PasswordEditLabel=&Heslo:
-IncorrectPassword=Zadané heslo nie je správne. Skúste to ešte raz prosím.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Licenčná zmluva
 LicenseLabel=Skôr, ako budete pokračovať, prečítajte si tieto dôležité informácie, prosím.

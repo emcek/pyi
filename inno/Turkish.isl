@@ -116,13 +116,6 @@ NewFolderName=Yeni klasör
 WelcomeLabel1=[name] Kurulum yardımcısına hoş geldiniz.
 WelcomeLabel2=Bilgisayarınıza [name/ver] uygulaması kurulacak.%n%nİlerlemeden önce çalışan diğer tüm uygulamaları kapatmanız önerilir.
 
-; *** "Parola" sayfası
-WizardPassword=Parola
-PasswordLabel1=Bu kurulum parola korumalıdır.
-PasswordLabel3=Lütfen parolayı yazın ve ilerlemek için Sonraki üzerine tıklayın. Parolalar büyük küçük harflere duyarlıdır.
-PasswordEditLabel=&Parola:
-IncorrectPassword=Yazdığınız parola doğru değil. Lütfen yeniden deneyin.
-
 ; *** "Lisans anlaşması" sayfası
 WizardLicense=Lisans anlaşması
 LicenseLabel=Lütfen ilerlemeden önce aşağıdaki önemli bilgileri okuyun.

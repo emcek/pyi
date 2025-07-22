@@ -101,13 +101,6 @@ NewFolderName=Ný mappa
 WelcomeLabel1=Velkomin(n) í [name]-uppsetningaraðstoðarann
 WelcomeLabel2=Þetta mun uppsetja [name/ver] á þína tölvu.%n%nÞað er ráðlagt að þú lokir öllum öðrum hugbúnaði áður en haldið er áfram.
 
-; *** "Password" wizard page
-WizardPassword=Aðgangsorð
-PasswordLabel1=Þessi uppsetning er aðgangsorðsvarin.
-PasswordLabel3=Vinsamlega veitu aðgangsorðið, smelltu síðan á Næst til að halda áfram. Aðgangsorð eru hástafanæm.
-PasswordEditLabel=&Aðgangsorð:
-IncorrectPassword=Aðgangsorðið sem þú innslóst er ekki rétt. Vinsamlega reyndu aftur.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Leyfissamningur
 LicenseLabel=Vinsamlega lestu hinar eftirfarandi mikilvægu upplýsingar áður en haldið er áfram.

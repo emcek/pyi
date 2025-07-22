@@ -37,66 +37,66 @@ LanguageCodePage=1252
 
 [Messages]
 SetupAppTitle=Installationsprogram
-SetupWindowTitle=Installationsprogram för %1
+SetupWindowTitle=Installationsprogram fï¿½r %1
 UninstallAppTitle=Avinstallation
 UninstallAppFullTitle=%1 Avinstallation
 
 ; *** Misc. common
 InformationTitle=Information
-ConfirmTitle=Bekräfta
+ConfirmTitle=Bekrï¿½fta
 ErrorTitle=Fel
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=%1 kommer att installeras. Vill du fortsätta?
-LdrCannotCreateTemp=Kan inte skapa en temporärfil. Installationen avbryts
-LdrCannotExecTemp=Kan inte köra fil i temporärkatalogen. Installationen avbryts
+SetupLdrStartupMessage=%1 kommer att installeras. Vill du fortsï¿½tta?
+LdrCannotCreateTemp=Kan inte skapa en temporï¿½rfil. Installationen avbryts
+LdrCannotExecTemp=Kan inte kï¿½ra fil i temporï¿½rkatalogen. Installationen avbryts
 HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFel %2: %3
-SetupFileMissing=Filen %1 saknas i installationskatalogen. Rätta till problemet eller hämta en ny kopia av programmet.
-SetupFileCorrupt=Installationsfilerna är skadade. Hämta en ny kopia av programmet.
-SetupFileCorruptOrWrongVer=Installationsfilerna är skadade, eller stämmer inte överens med denna version av installationsprogrammet. Rätta till felet eller hämta en ny programkopia.
-InvalidParameter=En ogiltig parameter angavs på kommandoraden:%n%n%1
-SetupAlreadyRunning=Installationsprogrammet körs redan.
-WindowsVersionNotSupported=Detta program saknar stöd för den version av Windows som körs på datorn.
-WindowsServicePackRequired=Detta program kräver %1 Service Pack %2 eller senare.
-NotOnThisPlatform=Detta program kan inte köras på %1.
-OnlyOnThisPlatform=Detta program måste köras på %1.
-OnlyOnTheseArchitectures=Detta program kan bara installeras på Windows-versioner med följande processorarkitekturer:%n%n%1
-WinVersionTooLowError=Detta program kräver %1 version %2 eller senare.
-WinVersionTooHighError=Detta program kan inte installeras på %1 version %2 eller senare.
-AdminPrivilegesRequired=Du måste vara inloggad som administratör när du installerar detta program.
-PowerUserPrivilegesRequired=Du måste vara inloggad som administratör eller medlem av gruppen Privilegierade användare (Power Users) när du installerar detta program.
-SetupAppRunningError=Installationsprogrammet har upptäckt att %1 är igång.%n%nAvsluta det angivna programmet nu. Klicka sedan på OK för att gå vidare eller på Avbryt för att avsluta.
-UninstallAppRunningError=Avinstalleraren har upptäckt att %1 körs för tillfället.%n%nStäng all öppna instanser av det nu, klicka sedan på OK för att gå vidare eller på Avbryt för att avsluta.
+SetupFileMissing=Filen %1 saknas i installationskatalogen. Rï¿½tta till problemet eller hï¿½mta en ny kopia av programmet.
+SetupFileCorrupt=Installationsfilerna ï¿½r skadade. Hï¿½mta en ny kopia av programmet.
+SetupFileCorruptOrWrongVer=Installationsfilerna ï¿½r skadade, eller stï¿½mmer inte ï¿½verens med denna version av installationsprogrammet. Rï¿½tta till felet eller hï¿½mta en ny programkopia.
+InvalidParameter=En ogiltig parameter angavs pï¿½ kommandoraden:%n%n%1
+SetupAlreadyRunning=Installationsprogrammet kï¿½rs redan.
+WindowsVersionNotSupported=Detta program saknar stï¿½d fï¿½r den version av Windows som kï¿½rs pï¿½ datorn.
+WindowsServicePackRequired=Detta program krï¿½ver %1 Service Pack %2 eller senare.
+NotOnThisPlatform=Detta program kan inte kï¿½ras pï¿½ %1.
+OnlyOnThisPlatform=Detta program mï¿½ste kï¿½ras pï¿½ %1.
+OnlyOnTheseArchitectures=Detta program kan bara installeras pï¿½ Windows-versioner med fï¿½ljande processorarkitekturer:%n%n%1
+WinVersionTooLowError=Detta program krï¿½ver %1 version %2 eller senare.
+WinVersionTooHighError=Detta program kan inte installeras pï¿½ %1 version %2 eller senare.
+AdminPrivilegesRequired=Du mï¿½ste vara inloggad som administratï¿½r nï¿½r du installerar detta program.
+PowerUserPrivilegesRequired=Du mï¿½ste vara inloggad som administratï¿½r eller medlem av gruppen Privilegierade anvï¿½ndare (Power Users) nï¿½r du installerar detta program.
+SetupAppRunningError=Installationsprogrammet har upptï¿½ckt att %1 ï¿½r igï¿½ng.%n%nAvsluta det angivna programmet nu. Klicka sedan pï¿½ OK fï¿½r att gï¿½ vidare eller pï¿½ Avbryt fï¿½r att avsluta.
+UninstallAppRunningError=Avinstalleraren har upptï¿½ckt att %1 kï¿½rs fï¿½r tillfï¿½llet.%n%nStï¿½ng all ï¿½ppna instanser av det nu, klicka sedan pï¿½ OK fï¿½r att gï¿½ vidare eller pï¿½ Avbryt fï¿½r att avsluta.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Välj installationstyp
-PrivilegesRequiredOverrideInstruction=Välj installationstyp
-PrivilegesRequiredOverrideText1=%1 kan installeras för alla användare (kräver administratörsbehörighet) eller bara för dig.
-PrivilegesRequiredOverrideText2=%1 kan installeras bara för dig eller för alla användare (kräver administratörsbehörighet).
-PrivilegesRequiredOverrideAllUsers=Installera för &alla användare
-PrivilegesRequiredOverrideAllUsersRecommended=Installera för &alla användare (rekommenderas)
-PrivilegesRequiredOverrideCurrentUser=Installera för &mig enbart
-PrivilegesRequiredOverrideCurrentUserRecommended=Installera för &mig enbart (rekommenderas)
+PrivilegesRequiredOverrideTitle=Vï¿½lj installationstyp
+PrivilegesRequiredOverrideInstruction=Vï¿½lj installationstyp
+PrivilegesRequiredOverrideText1=%1 kan installeras fï¿½r alla anvï¿½ndare (krï¿½ver administratï¿½rsbehï¿½righet) eller bara fï¿½r dig.
+PrivilegesRequiredOverrideText2=%1 kan installeras bara fï¿½r dig eller fï¿½r alla anvï¿½ndare (krï¿½ver administratï¿½rsbehï¿½righet).
+PrivilegesRequiredOverrideAllUsers=Installera fï¿½r &alla anvï¿½ndare
+PrivilegesRequiredOverrideAllUsersRecommended=Installera fï¿½r &alla anvï¿½ndare (rekommenderas)
+PrivilegesRequiredOverrideCurrentUser=Installera fï¿½r &mig enbart
+PrivilegesRequiredOverrideCurrentUserRecommended=Installera fï¿½r &mig enbart (rekommenderas)
 
 ; *** Misc. errors
 ErrorCreatingDir=Installationsprogrammet kunde inte skapa katalogen "%1"
-ErrorTooManyFilesInDir=Kunde inte skapa en fil i katalogen "%1" därför att den innehåller för många filer
+ErrorTooManyFilesInDir=Kunde inte skapa en fil i katalogen "%1" dï¿½rfï¿½r att den innehï¿½ller fï¿½r mï¿½nga filer
 
 ; *** Setup common messages
 ExitSetupTitle=Avsluta installationen
-ExitSetupMessage=Installationen är inte färdig. Om du avslutar nu så kommer programmet inte att installeras.%n%nDu kan köra installationsprogrammet vid ett senare tillfälle för att slutföra installationen.%n%nVill du avbryta installationen?
+ExitSetupMessage=Installationen ï¿½r inte fï¿½rdig. Om du avslutar nu sï¿½ kommer programmet inte att installeras.%n%nDu kan kï¿½ra installationsprogrammet vid ett senare tillfï¿½lle fï¿½r att slutfï¿½ra installationen.%n%nVill du avbryta installationen?
 AboutSetupMenuItem=&Om installationsprogrammet...
 AboutSetupTitle=Om installationsprogrammet
 AboutSetupMessage=%1 version %2%n%3%n%n%1 webbsida:%n%4
-AboutSetupNote=Svensk översättning är gjord av dickg@go.to 1999, 2002%n%nUppdatering till 3.0.2+ av peter@peterandlinda.com, 4.+ av stefan@bodingh.se, 6.4+ info@danielnylander.se
+AboutSetupNote=Svensk ï¿½versï¿½ttning ï¿½r gjord av dickg@go.to 1999, 2002%n%nUppdatering till 3.0.2+ av peter@peterandlinda.com, 4.+ av stefan@bodingh.se, 6.4+ info@danielnylander.se
 TranslatorNote=
 
 ; *** Buttons
 ButtonBack=< &Tillbaka
-ButtonNext=&Nästa >
+ButtonNext=&Nï¿½sta >
 ButtonInstall=&Installera
 ButtonOK=Ok
 ButtonCancel=Avbryt
@@ -104,114 +104,107 @@ ButtonYes=&Ja
 ButtonYesToAll=Ja till &allt
 ButtonNo=&Nej
 ButtonNoToAll=N&ej till allt
-ButtonFinish=&Slutför
-ButtonBrowse=&Bläddra...
-ButtonWizardBrowse=Blä&ddra...
+ButtonFinish=&Slutfï¿½r
+ButtonBrowse=&Blï¿½ddra...
+ButtonWizardBrowse=Blï¿½&ddra...
 ButtonNewFolder=Skapa ny mapp
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Välj språk för installationen
-SelectLanguageLabel=Välj det språk som skall användas under installationen.
+SelectLanguageTitle=Vï¿½lj sprï¿½k fï¿½r installationen
+SelectLanguageLabel=Vï¿½lj det sprï¿½k som skall anvï¿½ndas under installationen.
 
 ; *** Common wizard text
-ClickNext=Klicka på Nästa för att fortsätta eller på Avbryt för att avsluta installationen.
+ClickNext=Klicka pï¿½ Nï¿½sta fï¿½r att fortsï¿½tta eller pï¿½ Avbryt fï¿½r att avsluta installationen.
 BeveledLabel=
-BrowseDialogTitle=Välj mapp
-BrowseDialogLabel=Välj en mapp i listan nedan, klicka sedan på OK.
+BrowseDialogTitle=Vï¿½lj mapp
+BrowseDialogLabel=Vï¿½lj en mapp i listan nedan, klicka sedan pï¿½ OK.
 NewFolderName=Ny mapp
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Välkommen till installationsprogrammet för [name].
-WelcomeLabel2=Detta kommer att installera [name/ver] på din dator.%n%nDet rekommenderas att du avslutar alla andra program innan du fortsätter.
-
-; *** "Password" wizard page
-WizardPassword=Lösenord
-PasswordLabel1=Denna installation är lösenordsskyddad.
-PasswordLabel3=Ange lösenordet och klicka sedan på Nästa för att fortsätta. Lösenordet är skiftlägeskänsligt.
-PasswordEditLabel=&Lösenord:
-IncorrectPassword=Lösenordet som du angav är felaktigt. Försök igen.
+WelcomeLabel1=Vï¿½lkommen till installationsprogrammet fï¿½r [name].
+WelcomeLabel2=Detta kommer att installera [name/ver] pï¿½ din dator.%n%nDet rekommenderas att du avslutar alla andra program innan du fortsï¿½tter.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Licensavtal
-LicenseLabel=Läs igenom följande viktiga information innan du fortsätter.
-LicenseLabel3=Läs igenom följande licensavtal. Du måste acceptera villkoren i avtalet innan du kan fortsätta med installationen.
+LicenseLabel=Lï¿½s igenom fï¿½ljande viktiga information innan du fortsï¿½tter.
+LicenseLabel3=Lï¿½s igenom fï¿½ljande licensavtal. Du mï¿½ste acceptera villkoren i avtalet innan du kan fortsï¿½tta med installationen.
 LicenseAccepted=Jag &accepterar avtalet
 LicenseNotAccepted=Jag accepterar &inte avtalet
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Information
-InfoBeforeLabel=Läs igenom följande viktiga information innan du fortsätter.
-InfoBeforeClickLabel=Klicka på Nästa när du är klar att fortsätta med installationen.
+InfoBeforeLabel=Lï¿½s igenom fï¿½ljande viktiga information innan du fortsï¿½tter.
+InfoBeforeClickLabel=Klicka pï¿½ Nï¿½sta nï¿½r du ï¿½r klar att fortsï¿½tta med installationen.
 WizardInfoAfter=Information
-InfoAfterLabel=Läs igenom följande viktiga information innan du fortsätter.
-InfoAfterClickLabel=Klicka på Nästa när du är klar att fortsätta med installationen.
+InfoAfterLabel=Lï¿½s igenom fï¿½ljande viktiga information innan du fortsï¿½tter.
+InfoAfterClickLabel=Klicka pï¿½ Nï¿½sta nï¿½r du ï¿½r klar att fortsï¿½tta med installationen.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Användarinformation
-UserInfoDesc=Fyll i följande uppgifter.
+WizardUserInfo=Anvï¿½ndarinformation
+UserInfoDesc=Fyll i fï¿½ljande uppgifter.
 UserInfoName=&Namn:
 UserInfoOrg=&Organisation:
 UserInfoSerial=&Serienummer:
-UserInfoNameRequired=Du måste fylla i ett namn.
+UserInfoNameRequired=Du mï¿½ste fylla i ett namn.
 
 ; *** "Select Destination Directory" wizard page
-WizardSelectDir=Välj installationsplats
+WizardSelectDir=Vï¿½lj installationsplats
 SelectDirDesc=Var skall [name] installeras?
-SelectDirLabel3=Installationsprogrammet kommer att installera [name] i följande mapp
-SelectDirBrowseLabel=För att fortsätta klickar du på Nästa. Om du vill välja en annan mapp så klickar du på Bläddra.
-DiskSpaceGBLabel=Programmet kräver minst [gb] GB hårddiskutrymme.
-DiskSpaceMBLabel=Programmet kräver minst [mb] MB hårddiskutrymme.
-CannotInstallToNetworkDrive=Installationsprogrammet kan inte installeras på nätverksdisk.
-CannotInstallToUNCPath=Installationsprogrammet kan inte installeras på UNC-sökväg.
-InvalidPath=Du måste ange en fullständig sökväg med enhetsbeteckning; till exempel:%n%nC:\Program%n%neller en UNC-sökväg i formatet:%n%n\\server\resurs
-InvalidDrive=Enheten som du har valt finns inte eller är inte tillgänglig. Välj en annan.
-DiskSpaceWarningTitle=Inte tillräckligt med diskutrymme
-DiskSpaceWarning=Installationsprogrammet behöver minst %1 KB ledigt diskutrymme för installationen men den valda enheten har bara %2 KB tillgängligt.%n%nVill du fortsätta ändå?
-DirNameTooLong=Katalogens namn eller sökväg är för lång.
-InvalidDirName=Katalogens namn är inte giltigt.
-BadDirName32=Katalogens namn får inte innehålla något av följande tecken:%n%n%1
+SelectDirLabel3=Installationsprogrammet kommer att installera [name] i fï¿½ljande mapp
+SelectDirBrowseLabel=Fï¿½r att fortsï¿½tta klickar du pï¿½ Nï¿½sta. Om du vill vï¿½lja en annan mapp sï¿½ klickar du pï¿½ Blï¿½ddra.
+DiskSpaceGBLabel=Programmet krï¿½ver minst [gb] GB hï¿½rddiskutrymme.
+DiskSpaceMBLabel=Programmet krï¿½ver minst [mb] MB hï¿½rddiskutrymme.
+CannotInstallToNetworkDrive=Installationsprogrammet kan inte installeras pï¿½ nï¿½tverksdisk.
+CannotInstallToUNCPath=Installationsprogrammet kan inte installeras pï¿½ UNC-sï¿½kvï¿½g.
+InvalidPath=Du mï¿½ste ange en fullstï¿½ndig sï¿½kvï¿½g med enhetsbeteckning; till exempel:%n%nC:\Program%n%neller en UNC-sï¿½kvï¿½g i formatet:%n%n\\server\resurs
+InvalidDrive=Enheten som du har valt finns inte eller ï¿½r inte tillgï¿½nglig. Vï¿½lj en annan.
+DiskSpaceWarningTitle=Inte tillrï¿½ckligt med diskutrymme
+DiskSpaceWarning=Installationsprogrammet behï¿½ver minst %1 KB ledigt diskutrymme fï¿½r installationen men den valda enheten har bara %2 KB tillgï¿½ngligt.%n%nVill du fortsï¿½tta ï¿½ndï¿½?
+DirNameTooLong=Katalogens namn eller sï¿½kvï¿½g ï¿½r fï¿½r lï¿½ng.
+InvalidDirName=Katalogens namn ï¿½r inte giltigt.
+BadDirName32=Katalogens namn fï¿½r inte innehï¿½lla nï¿½got av fï¿½ljande tecken:%n%n%1
 DirExistsTitle=Katalogen finns
-DirExists=Katalogen:%n%n%1%n%nfinns redan. Vill du ändå fortsätta installationen till den valda katalogen?
+DirExists=Katalogen:%n%n%1%n%nfinns redan. Vill du ï¿½ndï¿½ fortsï¿½tta installationen till den valda katalogen?
 DirDoesntExistTitle=Katalogen finns inte
 DirDoesntExist=Katalogen:%n%n%1%n%nfinns inte. Vill du skapa den?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Välj komponenter
+WizardSelectComponents=Vï¿½lj komponenter
 SelectComponentsDesc=Vilka komponenter skall installeras?
-SelectComponentsLabel2=Välj de komponenter som du vill ska installeras; avmarkera de komponenter som du inte vill ha. Klicka sedan på Nästa när du är klar att fortsätta.
-FullInstallation=Fullständig installation
+SelectComponentsLabel2=Vï¿½lj de komponenter som du vill ska installeras; avmarkera de komponenter som du inte vill ha. Klicka sedan pï¿½ Nï¿½sta nï¿½r du ï¿½r klar att fortsï¿½tta.
+FullInstallation=Fullstï¿½ndig installation
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakt installation
 CustomInstallation=Anpassad installation
 NoUninstallWarningTitle=Komponenter finns
-NoUninstallWarning=Installationsprogrammet har upptäckt att följande komponenter redan finns installerade på din dator:%n%n%1%n%nAtt  avmarkera dessa komponenter kommer inte att avinstallera dom.%n%nVill du fortsätta ändå?
+NoUninstallWarning=Installationsprogrammet har upptï¿½ckt att fï¿½ljande komponenter redan finns installerade pï¿½ din dator:%n%n%1%n%nAtt  avmarkera dessa komponenter kommer inte att avinstallera dom.%n%nVill du fortsï¿½tta ï¿½ndï¿½?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Aktuella val kräver minst [gb] GB diskutrymme.
-ComponentsDiskSpaceMBLabel=Aktuella val kräver minst [mb] MB diskutrymme.
+ComponentsDiskSpaceGBLabel=Aktuella val krï¿½ver minst [gb] GB diskutrymme.
+ComponentsDiskSpaceMBLabel=Aktuella val krï¿½ver minst [mb] MB diskutrymme.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Välj extra uppgifter
-SelectTasksDesc=Vilka extra uppgifter skall utföras?
-SelectTasksLabel2=Markera ytterligare uppgifter att utföra vid installation av [name], tryck sedan på Nästa.
+WizardSelectTasks=Vï¿½lj extra uppgifter
+SelectTasksDesc=Vilka extra uppgifter skall utfï¿½ras?
+SelectTasksLabel2=Markera ytterligare uppgifter att utfï¿½ra vid installation av [name], tryck sedan pï¿½ Nï¿½sta.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Välj Startmenykatalogen
-SelectStartMenuFolderDesc=Var skall installationsprogrammet placera programmets genvägar?
-SelectStartMenuFolderLabel3=Installationsprogrammet kommer att skapa programmets genvägar i följande katalog.
-SelectStartMenuFolderBrowseLabel=För att fortsätta klickar du på Nästa. Om du vill välja en annan katalog, klickar du på Bläddra.
-MustEnterGroupName=Du måste ange ett katalognamn.
-GroupNameTooLong=Katalogens namn eller sökväg är för lång.
-InvalidGroupName=Katalogens namn är inte giltigt.
-BadGroupName=Katalognamnet kan inte innehålla någon av följande tecken:%n%n%1
+WizardSelectProgramGroup=Vï¿½lj Startmenykatalogen
+SelectStartMenuFolderDesc=Var skall installationsprogrammet placera programmets genvï¿½gar?
+SelectStartMenuFolderLabel3=Installationsprogrammet kommer att skapa programmets genvï¿½gar i fï¿½ljande katalog.
+SelectStartMenuFolderBrowseLabel=Fï¿½r att fortsï¿½tta klickar du pï¿½ Nï¿½sta. Om du vill vï¿½lja en annan katalog, klickar du pï¿½ Blï¿½ddra.
+MustEnterGroupName=Du mï¿½ste ange ett katalognamn.
+GroupNameTooLong=Katalogens namn eller sï¿½kvï¿½g ï¿½r fï¿½r lï¿½ng.
+InvalidGroupName=Katalogens namn ï¿½r inte giltigt.
+BadGroupName=Katalognamnet kan inte innehï¿½lla nï¿½gon av fï¿½ljande tecken:%n%n%1
 NoProgramGroupCheck2=&Skapa ingen Startmenykatalog
 
 ; *** "Ready to Install" wizard page
 WizardReady=Redo att installera
-ReadyLabel1=Installationsprogrammet är nu redo att installera [name] på din dator.
-ReadyLabel2a=Tryck på Installera om du vill fortsätta, eller på gå Tillbaka om du vill granska eller ändra på något.
-ReadyLabel2b=Välj Installera för att påbörja installationen.
-ReadyMemoUserInfo=Användarinformation:
+ReadyLabel1=Installationsprogrammet ï¿½r nu redo att installera [name] pï¿½ din dator.
+ReadyLabel2a=Tryck pï¿½ Installera om du vill fortsï¿½tta, eller pï¿½ gï¿½ Tillbaka om du vill granska eller ï¿½ndra pï¿½ nï¿½got.
+ReadyLabel2b=Vï¿½lj Installera fï¿½r att pï¿½bï¿½rja installationen.
+ReadyMemoUserInfo=Anvï¿½ndarinformation:
 ReadyMemoDir=Installationsplats:
 ReadyMemoType=Installationstyp:
 ReadyMemoComponents=Valda komponenter:
@@ -219,123 +212,123 @@ ReadyMemoGroup=Startmenykatalog:
 ReadyMemoTasks=Extra uppgifter:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Hämtar ner ytterligare filer...
-ButtonStopDownload=&Stoppa hämtningen
-StopDownload=Är du säker på att du vill stoppa hämtningen?
-ErrorDownloadAborted=Hämtningen avbruten
-ErrorDownloadFailed=Hämtningen misslyckades: %1 %2
-ErrorDownloadSizeFailed=Få storlek misslyckades: %1 %2
+DownloadingLabel=Hï¿½mtar ner ytterligare filer...
+ButtonStopDownload=&Stoppa hï¿½mtningen
+StopDownload=ï¿½r du sï¿½ker pï¿½ att du vill stoppa hï¿½mtningen?
+ErrorDownloadAborted=Hï¿½mtningen avbruten
+ErrorDownloadFailed=Hï¿½mtningen misslyckades: %1 %2
+ErrorDownloadSizeFailed=Fï¿½ storlek misslyckades: %1 %2
 ErrorFileHash1=Filhash misslyckades: %1
-ErrorFileHash2=Ogiltig filhash: förväntade %1, fick %2
-ErrorProgress=Ogiltigt förlopp: %1 av %2
-ErrorFileSize=Ogiltig filstorlek: förväntade %1, fick %2
+ErrorFileHash2=Ogiltig filhash: fï¿½rvï¿½ntade %1, fick %2
+ErrorProgress=Ogiltigt fï¿½rlopp: %1 av %2
+ErrorFileSize=Ogiltig filstorlek: fï¿½rvï¿½ntade %1, fick %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
 ExtractionLabel=Extraherar ytterligare filer...
 ButtonStopExtraction=&Stoppa extrahering
-StopExtraction=Är du säker på att du vill stoppa extraheringen?
-ErrorExtractionAborted=Extrahering avbröts
+StopExtraction=ï¿½r du sï¿½ker pï¿½ att du vill stoppa extraheringen?
+ErrorExtractionAborted=Extrahering avbrï¿½ts
 ErrorExtractionFailed=Extrahering misslyckades: %1
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Förbereder installationen
-PreparingDesc=Installationsprogrammet förbereder installationen av [name] på din dator.
-PreviousInstallNotCompleted=Installationen/avinstallationen av ett tidigare program har inte slutförts. Du måste starta om datorn för att avsluta den installationen.%n%nEfter att ha startat om datorn kör du installationsprogrammet igen för att slutföra installationen av [name].
-CannotContinue=Installationsprogrammet kan inte fortsätta. Klicka på Avbryt för att avsluta.
-ApplicationsFound=Följande program använder filer som måste uppdateras av installationsprogrammet. Vi rekommenderar att du låter installationsprogrammet automatiskt stänga dessa program.
-ApplicationsFound2=Följande program använder filer som måste uppdateras av installationsprogrammet. Vi rekommenderar att du låter installationsprogrammet automatiskt stänga dessa program. Efter installationen kommer Setup att försöka starta programmen igen.
-CloseApplications=S&täng programmen automatiskt
-DontCloseApplications=&Stäng inte programmen
-ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som installationsprogrammet behöver uppdatera.
-PrepareToInstallNeedsRestart=Installationen måste starta om din dator. När du har startat om datorn kör du installationsprogrammet igen för att slutföra installationen av [name].%n%nVill du starta om nu?
+WizardPreparing=Fï¿½rbereder installationen
+PreparingDesc=Installationsprogrammet fï¿½rbereder installationen av [name] pï¿½ din dator.
+PreviousInstallNotCompleted=Installationen/avinstallationen av ett tidigare program har inte slutfï¿½rts. Du mï¿½ste starta om datorn fï¿½r att avsluta den installationen.%n%nEfter att ha startat om datorn kï¿½r du installationsprogrammet igen fï¿½r att slutfï¿½ra installationen av [name].
+CannotContinue=Installationsprogrammet kan inte fortsï¿½tta. Klicka pï¿½ Avbryt fï¿½r att avsluta.
+ApplicationsFound=Fï¿½ljande program anvï¿½nder filer som mï¿½ste uppdateras av installationsprogrammet. Vi rekommenderar att du lï¿½ter installationsprogrammet automatiskt stï¿½nga dessa program.
+ApplicationsFound2=Fï¿½ljande program anvï¿½nder filer som mï¿½ste uppdateras av installationsprogrammet. Vi rekommenderar att du lï¿½ter installationsprogrammet automatiskt stï¿½nga dessa program. Efter installationen kommer Setup att fï¿½rsï¿½ka starta programmen igen.
+CloseApplications=S&tï¿½ng programmen automatiskt
+DontCloseApplications=&Stï¿½ng inte programmen
+ErrorCloseApplications=Installationsprogrammet kunde inte stï¿½nga alla program. Innan installationen fortsï¿½tter rekommenderar vi att du stï¿½nger alla program som anvï¿½nder filer som installationsprogrammet behï¿½ver uppdatera.
+PrepareToInstallNeedsRestart=Installationen mï¿½ste starta om din dator. Nï¿½r du har startat om datorn kï¿½r du installationsprogrammet igen fï¿½r att slutfï¿½ra installationen av [name].%n%nVill du starta om nu?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerar
-InstallingLabel=Vänta under tiden [name] installeras på din dator.
+InstallingLabel=Vï¿½nta under tiden [name] installeras pï¿½ din dator.
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Avslutar installationen av [name]
-FinishedLabelNoIcons=[name] har nu installerats på din dator.
-FinishedLabel=[name] har nu installerats på din dator. Programmet kan startas genom att välja någon av de installerade ikonerna.
-ClickFinish=Välj Slutför för att avsluta installationen.
-FinishedRestartLabel=För att slutföra installationen av [name] så måste datorn startas om. Vill du starta om nu?
-FinishedRestartMessage=För att slutföra installationen av [name] så måste datorn startas om.%n%nVill du starta om datorn nu?
-ShowReadmeCheck=Ja, jag vill se filen LÄSMIG
+FinishedLabelNoIcons=[name] har nu installerats pï¿½ din dator.
+FinishedLabel=[name] har nu installerats pï¿½ din dator. Programmet kan startas genom att vï¿½lja nï¿½gon av de installerade ikonerna.
+ClickFinish=Vï¿½lj Slutfï¿½r fï¿½r att avsluta installationen.
+FinishedRestartLabel=Fï¿½r att slutfï¿½ra installationen av [name] sï¿½ mï¿½ste datorn startas om. Vill du starta om nu?
+FinishedRestartMessage=Fï¿½r att slutfï¿½ra installationen av [name] sï¿½ mï¿½ste datorn startas om.%n%nVill du starta om datorn nu?
+ShowReadmeCheck=Ja, jag vill se filen Lï¿½SMIG
 YesRadio=&Ja, jag vill starta om datorn nu
-NoRadio=&Nej, jag startar själv om datorn senare
+NoRadio=&Nej, jag startar sjï¿½lv om datorn senare
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Kör %1
+RunEntryExec=Kï¿½r %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Visa %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Installationsprogrammet behöver nästa diskett
-SelectDiskLabel2=Mata in diskett %1 och tryck OK.%n%nOm filerna kan hittas i en annan katalog än den som visas nedan, skriv in rätt sökväg eller välj Bläddra.
-PathLabel=&Sökväg:
-FileNotInDir2=Kunde inte hitta filen "%1" i "%2". Var god sätt i korrekt diskett eller välj en annan katalog.
-SelectDirectoryLabel=Ange sökvägen för nästa diskett.
+ChangeDiskTitle=Installationsprogrammet behï¿½ver nï¿½sta diskett
+SelectDiskLabel2=Mata in diskett %1 och tryck OK.%n%nOm filerna kan hittas i en annan katalog ï¿½n den som visas nedan, skriv in rï¿½tt sï¿½kvï¿½g eller vï¿½lj Blï¿½ddra.
+PathLabel=&Sï¿½kvï¿½g:
+FileNotInDir2=Kunde inte hitta filen "%1" i "%2". Var god sï¿½tt i korrekt diskett eller vï¿½lj en annan katalog.
+SelectDirectoryLabel=Ange sï¿½kvï¿½gen fï¿½r nï¿½sta diskett.
 
 ; *** Installation phase messages
-SetupAborted=Installationen slutfördes inte.%n%nRätta till felet och kör installationen igen.
-AbortRetryIgnoreSelectAction=Välj åtgärd
-AbortRetryIgnoreRetry=&Försök igen
-AbortRetryIgnoreIgnore=&Ignorera felet och fortsätt
+SetupAborted=Installationen slutfï¿½rdes inte.%n%nRï¿½tta till felet och kï¿½r installationen igen.
+AbortRetryIgnoreSelectAction=Vï¿½lj ï¿½tgï¿½rd
+AbortRetryIgnoreRetry=&Fï¿½rsï¿½k igen
+AbortRetryIgnoreIgnore=&Ignorera felet och fortsï¿½tt
 AbortRetryIgnoreCancel=Avbryt installationen
 
 ; *** Installation status messages
-StatusClosingApplications=Stänger programmen...
+StatusClosingApplications=Stï¿½nger programmen...
 StatusCreateDirs=Skapar kataloger...
 StatusExtractFiles=Packar upp filer...
 StatusCreateIcons=Skapar programikoner...
-StatusCreateIniEntries=Skriver INI-värden...
-StatusCreateRegistryEntries=Skriver registervärden...
+StatusCreateIniEntries=Skriver INI-vï¿½rden...
+StatusCreateRegistryEntries=Skriver registervï¿½rden...
 StatusRegisterFiles=Registrerar filer...
-StatusSavingUninstall=Sparar information för avinstallation...
-StatusRunProgram=Slutför installationen...
+StatusSavingUninstall=Sparar information fï¿½r avinstallation...
+StatusRunProgram=Slutfï¿½r installationen...
 StatusRestartingApplications=Startar om programmen...
-StatusRollback=Återställer ändringar...
+StatusRollback=ï¿½terstï¿½ller ï¿½ndringar...
 
 ; *** Misc. errors
 ErrorInternal2=Internt fel: %1
 ErrorFunctionFailedNoCode=%1 misslyckades
 ErrorFunctionFailed=%1 misslyckades; kod %2
 ErrorFunctionFailedWithMessage=%1 misslyckades; kod %2.%n%3
-ErrorExecutingProgram=Kan inte köra filen:%n%1
+ErrorExecutingProgram=Kan inte kï¿½ra filen:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Fel vid öppning av registernyckel:%n%1\%2
+ErrorRegOpenKey=Fel vid ï¿½ppning av registernyckel:%n%1\%2
 ErrorRegCreateKey=Kan inte skapa registernyckel:%n%1\%2
 ErrorRegWriteKey=Kan inte skriva till registernyckel:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Kan inte skriva nytt INI-värde i filen "%1".
+ErrorIniEntry=Kan inte skriva nytt INI-vï¿½rde i filen "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=&Hoppa över den här filen (rekommenderas inte)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorera felet och fortsätt (rekommenderas inte)
-SourceIsCorrupted=Källfilen är skadad
-SourceDoesntExist=Källfilen "%1" finns inte
-ExistingFileReadOnly2=Den befintliga filen kunde inte bytas ut eftersom den är markerad som skrivskyddad.
-ExistingFileReadOnlyRetry=&Ta bort skrivskyddade attributet och försök igen
-ExistingFileReadOnlyKeepExisting=&Behåll den befintliga filen
-ErrorReadingExistingDest=Ett fel uppstod vid försök att läsa den befintliga filen:
-FileExistsSelectAction=Välj åtgärd
+FileAbortRetryIgnoreSkipNotRecommended=&Hoppa ï¿½ver den hï¿½r filen (rekommenderas inte)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorera felet och fortsï¿½tt (rekommenderas inte)
+SourceIsCorrupted=Kï¿½llfilen ï¿½r skadad
+SourceDoesntExist=Kï¿½llfilen "%1" finns inte
+ExistingFileReadOnly2=Den befintliga filen kunde inte bytas ut eftersom den ï¿½r markerad som skrivskyddad.
+ExistingFileReadOnlyRetry=&Ta bort skrivskyddade attributet och fï¿½rsï¿½k igen
+ExistingFileReadOnlyKeepExisting=&Behï¿½ll den befintliga filen
+ErrorReadingExistingDest=Ett fel uppstod vid fï¿½rsï¿½k att lï¿½sa den befintliga filen:
+FileExistsSelectAction=Vï¿½lj ï¿½tgï¿½rd
 FileExists2=Filen finns redan.
-FileExistsOverwriteExisting=&Skriv över den befintliga filen
-FileExistsKeepExisting=&Behåll befintlig fil
-FileExistsOverwriteOrKeepAll=&Gör detta för nästa konflikt
-ExistingFileNewerSelectAction=Välj åtgärd
-ExistingFileNewer2=Den befintliga filen är nyare än den som installationsprogrammet försöker installera.
-ExistingFileNewerOverwriteExisting=&Skriv över den befintliga filen
-ExistingFileNewerKeepExisting=&Behåll befintlig fil (rekommenderas)
-ExistingFileNewerOverwriteOrKeepAll=&Gör detta för nästa konflikt
-ErrorChangingAttr=Ett fel uppstod vid försök att ändra attribut på den befintliga filen:
-ErrorCreatingTemp=Ett fel uppstod vid ett försök att skapa installationskatalogen:
-ErrorReadingSource=Ett fel uppstod vid ett försök att läsa källfilen:
+FileExistsOverwriteExisting=&Skriv ï¿½ver den befintliga filen
+FileExistsKeepExisting=&Behï¿½ll befintlig fil
+FileExistsOverwriteOrKeepAll=&Gï¿½r detta fï¿½r nï¿½sta konflikt
+ExistingFileNewerSelectAction=Vï¿½lj ï¿½tgï¿½rd
+ExistingFileNewer2=Den befintliga filen ï¿½r nyare ï¿½n den som installationsprogrammet fï¿½rsï¿½ker installera.
+ExistingFileNewerOverwriteExisting=&Skriv ï¿½ver den befintliga filen
+ExistingFileNewerKeepExisting=&Behï¿½ll befintlig fil (rekommenderas)
+ExistingFileNewerOverwriteOrKeepAll=&Gï¿½r detta fï¿½r nï¿½sta konflikt
+ErrorChangingAttr=Ett fel uppstod vid fï¿½rsï¿½k att ï¿½ndra attribut pï¿½ den befintliga filen:
+ErrorCreatingTemp=Ett fel uppstod vid ett fï¿½rsï¿½k att skapa installationskatalogen:
+ErrorReadingSource=Ett fel uppstod vid ett fï¿½rsï¿½k att lï¿½sa kï¿½llfilen:
 ErrorCopying=Ett fel uppstod vid kopiering av filen:
-ErrorReplacingExistingFile=Ett fel uppstod vid ett försök att ersätta den befintliga filen:
-ErrorRestartReplace=ÅterstartaErsätt misslyckades:
-ErrorRenamingTemp=Ett fel uppstod vid ett försök att byta namn på en fil i installationskatalogen:
+ErrorReplacingExistingFile=Ett fel uppstod vid ett fï¿½rsï¿½k att ersï¿½tta den befintliga filen:
+ErrorRestartReplace=ï¿½terstartaErsï¿½tt misslyckades:
+ErrorRenamingTemp=Ett fel uppstod vid ett fï¿½rsï¿½k att byta namn pï¿½ en fil i installationskatalogen:
 ErrorRegisterServer=Kunde inte registrera DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 misslyckades med felkod %1
 ErrorRegisterTypeLib=Kunde inte registrera typbibliotek: %1
@@ -347,30 +340,30 @@ UninstallDisplayNameMark=%1 (%2)
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit
-UninstallDisplayNameMarkAllUsers=Alla användare
-UninstallDisplayNameMarkCurrentUser=Aktuell användare
+UninstallDisplayNameMarkAllUsers=Alla anvï¿½ndare
+UninstallDisplayNameMarkCurrentUser=Aktuell anvï¿½ndare
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Ett fel uppstod vid öppnandet av LÄSMIG-filen.
+ErrorOpeningReadme=Ett fel uppstod vid ï¿½ppnandet av Lï¿½SMIG-filen.
 ErrorRestartingComputer=Installationsprogrammet kunde inte starta om datorn. Starta om den manuellt.
 
 ; *** Uninstaller messages
 UninstallNotFound=Filen "%1" finns inte. Kan inte avinstallera.
-UninstallOpenError=Filen "%1" kan inte öppnas. Kan inte avinstallera
-UninstallUnsupportedVer=Avinstallationsloggen "%1" är i ett format som denna version inte känner igen. Kan inte avinstallera
-UninstallUnknownEntry=En okänd rad (%1) hittades i avinstallationsloggen
-ConfirmUninstall=Är du säker på att du vill ta bort %1 och alla tillhörande komponenter?
-UninstallOnlyOnWin64=Denna installation kan endast avinstalleras på en 64-bitarsversion av Windows.
-OnlyAdminCanUninstall=Denna installation kan endast avinstalleras av en användare med administrativa rättigheter.
-UninstallStatusLabel=Vänta under tiden %1 tas bort från din dator.
-UninstalledAll=%1 är nu borttaget från din dator.
-UninstalledMost=Avinstallationen av %1 är nu klar.%n%nEn del filer/kataloger gick inte att ta bort. Dessa kan tas bort manuellt.
-UninstalledAndNeedsRestart=För att slutföra avinstallationen av %1 måste datorn startas om.%n%nVill du starta om nu?
-UninstallDataCorrupted=Filen "%1" är skadad. Kan inte avinstallera
+UninstallOpenError=Filen "%1" kan inte ï¿½ppnas. Kan inte avinstallera
+UninstallUnsupportedVer=Avinstallationsloggen "%1" ï¿½r i ett format som denna version inte kï¿½nner igen. Kan inte avinstallera
+UninstallUnknownEntry=En okï¿½nd rad (%1) hittades i avinstallationsloggen
+ConfirmUninstall=ï¿½r du sï¿½ker pï¿½ att du vill ta bort %1 och alla tillhï¿½rande komponenter?
+UninstallOnlyOnWin64=Denna installation kan endast avinstalleras pï¿½ en 64-bitarsversion av Windows.
+OnlyAdminCanUninstall=Denna installation kan endast avinstalleras av en anvï¿½ndare med administrativa rï¿½ttigheter.
+UninstallStatusLabel=Vï¿½nta under tiden %1 tas bort frï¿½n din dator.
+UninstalledAll=%1 ï¿½r nu borttaget frï¿½n din dator.
+UninstalledMost=Avinstallationen av %1 ï¿½r nu klar.%n%nEn del filer/kataloger gick inte att ta bort. Dessa kan tas bort manuellt.
+UninstalledAndNeedsRestart=Fï¿½r att slutfï¿½ra avinstallationen av %1 mï¿½ste datorn startas om.%n%nVill du starta om nu?
+UninstallDataCorrupted=Filen "%1" ï¿½r skadad. Kan inte avinstallera
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ta bort delad fil?
-ConfirmDeleteSharedFile2=Systemet indikerar att följande delade fil inte längre används av några program. Vill du ta bort den delade filen?%n%n%1%n%nOm något program fortfarande använder denna fil och den raderas, kommer programmet kanske att sluta fungera. Om du är osäker, välj Nej. Att låta filen ligga kvar i systemet kommer inte att orsaka någon skada.
+ConfirmDeleteSharedFile2=Systemet indikerar att fï¿½ljande delade fil inte lï¿½ngre anvï¿½nds av nï¿½gra program. Vill du ta bort den delade filen?%n%n%1%n%nOm nï¿½got program fortfarande anvï¿½nder denna fil och den raderas, kommer programmet kanske att sluta fungera. Om du ï¿½r osï¿½ker, vï¿½lj Nej. Att lï¿½ta filen ligga kvar i systemet kommer inte att orsaka nï¿½gon skada.
 SharedFileNameLabel=Filnamn:
 SharedFileLocationLabel=Plats:
 WizardUninstalling=Avinstallationsstatus
@@ -385,14 +378,14 @@ ShutdownBlockReasonUninstallingApp=Avinstallerar %1.
 
 [CustomMessages]
 NameAndVersion=%1 version %2
-AdditionalIcons=Ytterligare genvägar:
-CreateDesktopIcon=Skapa en &genväg på skrivbordet
-CreateQuickLaunchIcon=Skapa &en genväg i Snabbstartfältet
-ProgramOnTheWeb=%1 på webben
+AdditionalIcons=Ytterligare genvï¿½gar:
+CreateDesktopIcon=Skapa en &genvï¿½g pï¿½ skrivbordet
+CreateQuickLaunchIcon=Skapa &en genvï¿½g i Snabbstartfï¿½ltet
+ProgramOnTheWeb=%1 pï¿½ webben
 UninstallProgram=Avinstallera %1
 LaunchProgram=Starta %1
-AssocFileExtension=Associera %1 med filnamnstillägget %2
-AssocingFileExtension=Associerar %1 med filnamnstillägget %2...
+AssocFileExtension=Associera %1 med filnamnstillï¿½gget %2
+AssocingFileExtension=Associerar %1 med filnamnstillï¿½gget %2...
 AutoStartProgramGroupDescription=Autostart:
 AutoStartProgram=Starta automatiskt %1
-AddonHostProgramNotFound=%1 kunde inte hittas i katalogen du valde.%n%nVill du fortsätta ändå?
+AddonHostProgramNotFound=%1 kunde inte hittas i katalogen du valde.%n%nVill du fortsï¿½tta ï¿½ndï¿½?

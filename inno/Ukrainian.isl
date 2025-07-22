@@ -108,13 +108,6 @@ NewFolderName=Нова папка
 WelcomeLabel1=Ласкаво просимо до програми встановлення [name]
 WelcomeLabel2=Ця програма встановить [name/ver] на ваш комп’ютер.%n%nРекомендується закрити всі інші програми перед продовженням.
 
-; *** "Password" wizard page
-WizardPassword=Пароль
-PasswordLabel1=Ця програма встановлення захищена паролем.
-PasswordLabel3=Будь ласка, введіть пароль та натисніть «Далі», щоб продовжити. Пароль чутливий до регістру.
-PasswordEditLabel=&Пароль:
-IncorrectPassword=Ви ввели неправильний пароль. Будь ласка, спробуйте ще раз.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Ліцензійна угода
 LicenseLabel=Будь ласка, прочитайте ліцензійну угоду.

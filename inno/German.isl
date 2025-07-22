@@ -137,13 +137,6 @@ NewFolderName=Neuer Ordner
 WelcomeLabel1=Willkommen zum [name] Setup-Assistenten
 WelcomeLabel2=Dieser Assistent wird jetzt [name/ver] auf Ihrem Computer installieren.%n%nSie sollten alle anderen Anwendungen beenden, bevor Sie mit dem Setup fortfahren.
 
-; *** "Password" wizard page
-WizardPassword=Passwort
-PasswordLabel1=Diese Installation wird durch ein Passwort geschützt.
-PasswordLabel3=Bitte geben Sie das Passwort ein und klicken Sie danach auf "Weiter". Achten Sie auf korrekte Groß-/Kleinschreibung.
-PasswordEditLabel=&Passwort:
-IncorrectPassword=Das eingegebene Passwort ist nicht korrekt. Bitte versuchen Sie es noch einmal.
-
 ; *** "License Agreement" wizard page
 WizardLicense=Lizenzvereinbarung
 LicenseLabel=Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren.
