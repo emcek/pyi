@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Armenian messages ***
+; *** Inno Setup version 6.4.0+ Armenian messages ***
 ;
 ; Armenian translation by Hrant Ohanyan
 ; E-mail: h.ohanyan@haysoft.org
@@ -108,7 +108,7 @@ NewFolderName=Նոր պանակ
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Ձեզ ողջունում է [name]-ի տեղակայման օգնականը
-WelcomeLabel2=Ծրագիրը կտեղադրի [name/ver]-ը Ձեր համակարգչում։%n%nՇարունակելուց առաջ խորհուրդ ենք տալիս փակել բոլոր աշխատող ծրագրերը։ 
+WelcomeLabel2=Ծրագիրը կտեղադրի [name/ver]-ը Ձեր համակարգչում։%n%nՇարունակելուց առաջ խորհուրդ ենք տալիս փակել բոլոր աշխատող ծրագրերը։
 
 ; *** "Password" wizard page
 WizardPassword=Գաղտնաբառ
@@ -379,4 +379,3 @@ AssocingFileExtension=%1-ը համակցվում է %2 ընդլայնումով 
 AutoStartProgramGroupDescription=Ինքնամեկնարկ.
 AutoStartProgram=Ինքնաբար մեկնարկել %1-ը
 AddonHostProgramNotFound=%1 չի կարող տեղադրվել Ձեր ընտրած պանակում։%n%nՇարունակե՞լ։
-

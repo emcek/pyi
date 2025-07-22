@@ -11,7 +11,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Magyar
 LanguageID=$040E
@@ -181,7 +181,7 @@ NoUninstallWarningTitle=Létező összetevő
 NoUninstallWarning=A telepítő úgy találta, hogy a következő összetevők már telepítve vannak a számítógépre:%n%n%1%n%nEzen összetevők kijelölésének törlése, nem távolítja el azokat a számítógépről.%n%nMindenképpen folytatja?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=A jelenlegi kijelölés legalább [gb] GB lemezterületet igényel.																					 
+ComponentsDiskSpaceGBLabel=A jelenlegi kijelölés legalább [gb] GB lemezterületet igényel.
 ComponentsDiskSpaceMBLabel=A jelenlegi kijelölés legalább [mb] MB lemezterületet igényel.
 
 ; *** "Select Additional Tasks" wizard page

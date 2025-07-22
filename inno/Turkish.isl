@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Turkish messages ***
+; *** Inno Setup version 6.4.0+ Turkish messages ***
 ; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren translator@zeron.net
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=T<00FC>rk<00E7>e
 LanguageID=$041f
@@ -110,7 +110,7 @@ ClickNext=İlerlemek için Sonraki, çıkmak için İptal üzerine tıklayın.
 BeveledLabel=
 BrowseDialogTitle=Klasöre göz at
 BrowseDialogLabel=Aşağıdaki listeden bir klasör seçip, Tamam üzerine tıklayın.
-NewFolderName=Yeni klasör 
+NewFolderName=Yeni klasör
 
 ; *** "Karşılama" sayfası
 WelcomeLabel1=[name] Kurulum yardımcısına hoş geldiniz.

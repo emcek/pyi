@@ -12,12 +12,12 @@
 ; Reviewed and updated by info@danielnylander.se (Daniel Nylander)
 ;
 
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 
 
 [LangOptions]
-LanguageName=Svenska	
+LanguageName=Svenska
 LanguageID=$041D
 LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
@@ -246,7 +246,7 @@ ApplicationsFound=Följande program använder filer som måste uppdateras av instal
 ApplicationsFound2=Följande program använder filer som måste uppdateras av installationsprogrammet. Vi rekommenderar att du låter installationsprogrammet automatiskt stänga dessa program. Efter installationen kommer Setup att försöka starta programmen igen.
 CloseApplications=S&täng programmen automatiskt
 DontCloseApplications=&Stäng inte programmen
-ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som installationsprogrammet behöver uppdatera. 
+ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som installationsprogrammet behöver uppdatera.
 PrepareToInstallNeedsRestart=Installationen måste starta om din dator. När du har startat om datorn kör du installationsprogrammet igen för att slutföra installationen av [name].%n%nVill du starta om nu?
 
 ; *** "Installing" wizard page
