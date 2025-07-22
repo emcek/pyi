@@ -21,7 +21,13 @@ jobs:
         run: |
           $ref_name = $env:GITHUB_REF_NAME -replace '^v', ''
           $run_number = $env:GITHUB_RUN_NUMBER
-          $sha = $env:GITHUB_REF_NAME.Substring(0, 5)
+          $sha = $env:GITHUB_SHA.Substring(0, 5)
+          $env:GITHUB_REF_NAME
+          $ref_name
+          $env:GITHUB_RUN_NUMBER
+          $run_number
+          $env:GITHUB_SHA
+          $sha
           Write-Output "git_ref_name=$ref_name" >> $env:GITHUB_OUTPUT
           Write-Output "git_run_number=$run_number" >> $env:GITHUB_OUTPUT
           Write-Output "git_sha=$sha" >> $env:GITHUB_OUTPUT
