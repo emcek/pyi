@@ -975,7 +975,7 @@ class DcsPyQtGui(QMainWindow):
         """Download and restart a new version of DCSpy when using an executable/nuitka version."""
         LOG.debug(f'Nuitka unpacked: {globals().get("__builtins__", {}).get("__nuitka_binary_exe", "")}')
         rel_info = check_ver_at_github(repo=DCSPY_REPO_NAME)
-        asset_file = rel_info.get_asset(extension="_setup.exe")
+        asset_file = rel_info.get_asset(extension='_setup.exe')
         reply = self._show_message_box(kind_of=MsgBoxTypes.QUESTION, title='Update DCSpy',
                                        message=f'Download new version {rel_info.version} ({asset_file.size / 1_048_576:.2f} MB) and shutdown DCSpy?',
                                        defaultButton=QMessageBox.StandardButton.Yes)
