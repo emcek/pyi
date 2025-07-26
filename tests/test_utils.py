@@ -94,7 +94,7 @@ def test_dummy_save_load_migrate(tmpdir):
     assert d_cfg == {'font_mono_s': 9}
     d_cfg = migrate(cfg=d_cfg)
     assert d_cfg == {
-        'api_ver': '3.11.21',
+        'api_ver': '3.11.22',
         'device': 'G13',
         'save_lcd': False,
         'show_gui': True,
