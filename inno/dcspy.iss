@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "dcspy"
-#define MyAppVersion "3.11.27"
+#define MyAppVersion "3.11.28"
 #define MyAppPublisher "Michał Plichta"
 #define MyAppURL "https://dcspy.readthedocs.io/en/latest/"
 #define MyAppExeName "dcspy.exe"
@@ -33,7 +33,7 @@ LicenseFile=D:\a\pyi\pyi\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=D:\a\pyi\pyi\inno
-OutputBaseFilename=dcspy_3.11.27_setup
+OutputBaseFilename=dcspy_3.11.28_setup
 SetupIconFile=D:\a\pyi\pyi\inno\SetupClassicIcon.ico
 SolidCompression=yes
 WizardStyle=modern
