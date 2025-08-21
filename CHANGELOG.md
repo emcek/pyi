@@ -1,4 +1,4 @@
-## 3.11.26
+## 3.11.27
 * DCS-BIOS change default branch to `main` - @emcek
 * Add debug tab to main window #463 @emcek
 * Add Dark MOde #479 @emcek
@@ -8,7 +8,7 @@
   * Refactor `starter` module and `ddl_load()` function
   * Introduce uv tool for CI process
 
-## 3.11.26
+## 3.11.27
 * Fix Windows toolbar icon @emcek
 * Show progress when downloading DCS-BIOS or new DCSpy release @emcek
 * Fix when LCD is not cleared - #442 (@emcek)
