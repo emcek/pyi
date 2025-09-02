@@ -152,30 +152,6 @@ def test_gkey_name():
 
 
 @mark.benchmark
-@mark.parametrize('key_name, klass', [
-    ('G12_M3', 'Gkey'),
-    ('G1_M2', 'Gkey'),
-    ('TWO', 'LcdButton'),
-    ('MENU', 'LcdButton'),
-    ('M_2', 'MouseButton'),
-    ('M_12', 'MouseButton'),
-])
-def test_get_key_instance(key_name, klass):
-    from dcspy.models import get_key_instance
-
-    assert get_key_instance(key_name).__class__.__name__ == klass
-
-
-@mark.benchmark
-@mark.parametrize('key_name', ['g12_M3', 'G1_m2', 'G1/M2', 'Two', 'ok', '', 'M_a3', 'm_2', 'M3'])
-def test_get_key_instance_error(key_name):
-    from dcspy.models import get_key_instance
-
-    with raises(AttributeError):
-        get_key_instance(key_name)
-
-
-@mark.benchmark
 @mark.parametrize('key, mode, result', [(0, 0, False), (1, 0, False), (0, 2, False), (2, 3, True)])
 def test_get_gkey_bool_test(key, mode, result):
     from dcspy.models import Gkey
@@ -408,16 +384,8 @@ def test_get_sha_of_system_data():
     (('A-10C', 'ADI_PITCH_TRIM'), 'rb_cycle', '', 'ADI_PITCH_TRIM CYCLE 3200 65535'),
     (('A-10C', 'AAP_CDUPWR'), 'rb_custom', 'AAP_CDUPWR 1|AAP_CDUPWR 0', 'AAP_CDUPWR CUSTOM AAP_CDUPWR 1|AAP_CDUPWR 0'),
     (('A-10C', 'AAP_CDUPWR'), 'rb_push_button', '', 'AAP_CDUPWR PUSH_BUTTON'),
-], ids=[
-    'AAP_PAGE INC',
-    'AAP_PAGE DEC',
-    'AAP_PAGE CYCLE 1 3',
-    'AAP_CDUPWR TOGGLE',
-    'ARC210_CHN_KNB +',
-    'ARC210_CHN_KNB -',
-    'ADI_PITCH_TRIM 3200 65535',
-    'AAP_CDUPWR CUSTOM 1 0',
-    'AAP_CDUPWR PUSH_BUTTON',
+], ids=['AAP_PAGE INC', 'AAP_PAGE DEC', 'AAP_PAGE CYCLE 1 3', 'AAP_CDUPWR TOGGLE', 'ARC210_CHN_KNB +',
+       'ARC210_CHN_KNB -', 'ADI_PITCH_TRIM 3200 65535', 'AAP_CDUPWR CUSTOM 1 0', 'AAP_CDUPWR PUSH_BUTTON',
 ], indirect=['get_ctrl_for_plane'])
 def test_plane_input_request_from_control_key(get_ctrl_for_plane, rb_iface, custom_value, req):
     from dcspy.models import GuiPlaneInputRequest
@@ -552,30 +520,14 @@ def test_release_model(resources):
     ('MASTER_ARM 2', 'M_2', KEY_DOWN, [False, False, False, [b'MASTER_ARM 2\n']]),
     ('MASTER_ARM 2', 'M_2', KEY_UP, [False, False, False, [b'']]),
     ('MASTER_ARM 2', 'RIGHT', KEY_DOWN, [False, False, False, [b'MASTER_ARM 2\n']]),
-], ids=[
-    'GKey CYCLE down',
-    'GKey CYCLE up',
-    'Mouse CYCLE down',
-    'Mouse CYCLE up',
-    'Lcd CYCLE',
-    'GKey CUSTOM down',
-    'GKey CUSTOM up',
-    'Mouse CUSTOM down',
-    'Mouse CUSTOM up',
-    'Lcd CUSTOM',
-    'GKey PUSH_BUTTON down',
-    'GKey PUSH_BUTTON up',
-    'Mouse PUSH_BUTTON down',
-    'Mouse PUSH_BUTTON up',
-    'Lcd PUSH_BUTTON',
-    'GKey REGULAR down',
-    'GKey REGULAR up',
-    'Mouse REGULAR down',
-    'Mouse REGULAR up',
-    'Lcd REGULAR',
+], ids=['GKey CYCLE down', 'GKey CYCLE up', 'Mouse CYCLE down', 'Mouse CYCLE up', 'Lcd CYCLE', 'GKey CUSTUSTOM up',
+        'Mouse CUSTOM down', 'Mouse CUSTOM up', 'Lcd CUSTOM', 'GKey PUSH_BUTTON down', 'GKey PUSH_BUTTON up',
+        'Mouse PUSH_BUTTON down', 'Mouse PUSH_BUTTON up', 'Lcd PUSH_BUTTON', 'GKey REGULAR down', 'GKey REGULAR up',
+        'Mouse REGULAR down', 'Mouse REGULAR up', 'Lcd REOM down', 'GKey CGULAR',
 ])
 def test_request_model_properties(str_req, key, key_down, result):
-    from dcspy.models import RequestModel, get_key_instance
+    from dcspy.models import RequestModel
+    from dcspy.utils import get_key_instance
 
     def get_bios_fn(val: str) -> int:
         return 2
@@ -597,7 +549,8 @@ def test_request_model_properties(str_req, key, key_down, result):
     ('M_1', KEY_UP, [b'']),
 ])
 def test_empty_request_model_(key, key_down, result):
-    from dcspy.models import RequestModel, get_key_instance
+    from dcspy.models import RequestModel
+    from dcspy.utils import get_key_instance
 
     empty_req = RequestModel.make_empty(key=get_key_instance(key))
     assert empty_req.bytes_requests(key_down=key_down) == result

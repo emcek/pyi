@@ -7,7 +7,7 @@ from packaging import version
 from pytest import mark, raises
 
 from dcspy import utils
-from dcspy.models import DEFAULT_FONT_NAME, Color, LcdMode, get_key_instance
+from dcspy.models import DEFAULT_FONT_NAME, Color, LcdMode
 
 
 def test_check_ver_can_not_check():
@@ -284,22 +284,6 @@ def test_collect_debug_data(switch_dcs_bios_path_in_config, resources):
 
 
 @mark.slow
-def test_run_pip_command_success():
-    rc, err, out = utils.run_pip_command('list')
-    assert rc == 0
-    assert 'pip' in out, out
-    assert err == '' or len(err) > 1, err
-
-
-@mark.slow
-def test_run_pip_command_failed():
-    rc, err, out = utils.run_pip_command('bullshit')
-    assert rc == 1
-    assert out == '', out
-    assert err != '', err
-
-
-@mark.slow
 @mark.skipif(condition=platform != 'win32', reason='Run only on Windows')
 @mark.parametrize('cmd, result', [('Clear-Host', 0), ('bullshit', -1)])
 def test_run_command(cmd, result):
@@ -309,8 +293,8 @@ def test_run_command(cmd, result):
 
 @mark.parametrize('plane_str, roots , values', [
     ('FA-18C_hornet', 80, 531),
-    ('F-16C_50', 49, 533),
-    ('F-4E-45MC', 116, 1123),
+    ('F-16C_50', 50, 534),
+    ('F-4E-45MC', 116, 1127),
     ('Ka-50', 77, 599),
     ('Ka-50_3', 77, 599),
     ('Mi-8MT', 77, 800),
@@ -318,8 +302,8 @@ def test_run_command(cmd, result):
     ('AH-64D_BLK_II', 53, 730),
     ('A-10C', 64, 777),
     ('A-10C_2', 64, 777),
-    ('F-14A-135-GR', 76, 1124),
-    ('F-14B', 76, 1124),
+    ('F-14A-135-GR', 77, 1128),
+    ('F-14B', 77, 1128),
     ('AV8BNA', 48, 515),
     ('F-15ESE', 98, 890),
 ])
@@ -444,12 +428,12 @@ def test_key_request_create(test_config_yaml):
         return 1
 
     key_req = utils.KeyRequest(yaml_path=test_config_yaml.parent / 'F-16C_50.yaml', get_bios_fn=get_bios_fn)
-    assert key_req.buttons[get_key_instance('ONE')].is_cycle is True
-    assert key_req.buttons[get_key_instance('G1_M1')].is_push_button is True
-    assert key_req.buttons[get_key_instance('G2_M1')].is_custom is True
-    assert key_req.buttons[get_key_instance('M_4')].is_push_button is True
+    assert key_req.buttons[utils.get_key_instance('ONE')].is_cycle is True
+    assert key_req.buttons[utils.get_key_instance('G1_M1')].is_push_button is True
+    assert key_req.buttons[utils.get_key_instance('G2_M1')].is_custom is True
+    assert key_req.buttons[utils.get_key_instance('M_4')].is_push_button is True
 
-    req_model = key_req.get_request(get_key_instance('G3_M1'))
+    req_model = key_req.get_request(utils.get_key_instance('G3_M1'))
     assert req_model.is_cycle is False
     assert req_model.is_push_button is False
     assert req_model.is_custom is False
@@ -460,7 +444,7 @@ def test_key_request_update_bios_data_and_set_req(test_config_yaml):
         return 1
 
     key_req = utils.KeyRequest(yaml_path=test_config_yaml.parent / 'F-16C_50.yaml', get_bios_fn=get_bios_fn)
-    key = get_key_instance('G3_M1')
+    key = utils.get_key_instance('G3_M1')
     req = 'MASTER_ARM_SW 1'
     assert key_req.cycle_button_ctrl_name == {'IFF_MASTER_KNB': 0}
     key_req.set_request(key, req)
@@ -488,3 +472,41 @@ def test_color(color, mode, result):
 @mark.skipif(condition=platform != 'win32', reason='Run only on Windows')
 def test_detect_system_color_mode():
     assert utils.detect_system_color_mode() == 'Light'
+
+
+@mark.benchmark
+@mark.parametrize('key_name, klass', [
+    ('G12_M3', 'Gkey'),
+    ('G1_M2', 'Gkey'),
+    ('TWO', 'LcdButton'),
+    ('MENU', 'LcdButton'),
+    ('M_2', 'MouseButton'),
+    ('M_12', 'MouseButton'),
+])
+def test_get_key_instance(key_name, klass):
+    assert utils.get_key_instance(key_name).__class__.__name__ == klass
+
+
+@mark.benchmark
+@mark.parametrize('key_name', ['g12_M3', 'G1_m2', 'G1/M2', 'Two', 'ok', '', 'M_a3', 'm_2', 'M3'])
+def test_get_key_instance_error(key_name):
+    with raises(AttributeError):
+        utils.get_key_instance(key_name)
+
+
+@mark.skipif(condition=platform != 'win32', reason='Run only on Windows')
+@mark.parametrize('file_path, digest_file, expected', [
+    ('dcs_bios_data.json', 'dcs_bios_data.json.1.DIGESTS', (True, {'md5': True, 'sha256': True, 'sha3_256': True})),
+    ('dcs_bios_data.json', 'dcs_bios_data.json.2.DIGESTS', (False, {'md5': True, 'sha256': False, 'sha3_256': True})),
+    ('dcs_bios_data.json', 'dcs_bios_data.json.3.DIGESTS', (False, {'md5': True, 'sh_25': False, 'sha256': True})),
+    ('dcs_bios_data.json', 'dcs_bios_data.json.4.DIGESTS', (True, {'md5': True, 'sha256': True})),
+    ('dcs_bios_data.json', 'dcs_bios_data.json.5.DIGESTS', (True, {'blake2b': True, 'blake2s': True, 'md5': True, 'sha1': True,
+                                                                   'sha224': True, 'sha256': True, 'sha384': True,
+                                                                   'sha3_224': True, 'sha3_256': True, 'sha3_384': True,
+                                                                   'sha3_512': True, 'sha512': True})),
+    ('dcs_bios_data.yaml', 'dcs_bios_data.json.3.DIGESTS', (False, {})),
+    ('dcs_bios_data.json', 'dcs_bios_data.yaml.3.DIGESTS', (False, {})),
+    ('dcs_bios_data.yaml', 'dcs_bios_data.yaml.3.DIGESTS', (False, {})),
+])
+def test_check_hash(file_path, digest_file, expected, resources):
+    assert utils.verify_hashes(Path(resources / file_path), Path(resources / digest_file)) == expected

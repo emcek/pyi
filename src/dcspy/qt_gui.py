@@ -28,7 +28,7 @@ from PySide6.QtGui import (QAction, QActionGroup, QColor, QColorConstants, QFont
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox, QCompleter, QDialog, QDockWidget, QFileDialog, QGroupBox, QLabel, QLineEdit,
                                QListView, QMainWindow, QMenu, QMessageBox, QProgressBar, QPushButton, QRadioButton, QSlider, QSpinBox, QStatusBar,
-                               QSystemTrayIcon, QTableWidget, QTabWidget, QTextEdit, QToolBar, QToolBox, QWidget)
+                               QSystemTrayIcon, QTableWidget, QTabWidget, QTextBrowser, QTextEdit, QToolBar, QToolBox, QWidget)
 
 from dcspy import default_yaml, qtgui_rc
 from dcspy.models import (ALL_DEV, BIOS_REPO_NAME, CTRL_LIST_SEPARATOR, DCSPY_REPO_NAME, AnyButton, ControlDepiction, ControlKeyData, DcspyConfigYaml,
@@ -38,7 +38,7 @@ from dcspy.starter import DCSpyStarter
 from dcspy.utils import (CloneProgress, check_bios_ver, check_dcs_bios_entry, check_dcs_ver, check_github_repo, check_ver_at_github, collect_debug_data,
                          count_files, defaults_cfg, detect_system_color_mode, download_file, generate_bios_jsons_with_lupa, get_all_git_refs,
                          get_depiction_of_ctrls, get_inputs_for_plane, get_list_of_ctrls, get_plane_aliases, get_planes_list, get_version_string,
-                         is_git_exec_present, is_git_object, load_yaml, proc_is_running, run_command, run_pip_command, save_yaml)
+                         is_git_exec_present, is_git_object, load_yaml, proc_is_running, run_command, save_yaml)
 
 _ = qtgui_rc  # prevent to remove import statement accidentally
 LOG = getLogger(__name__)
@@ -201,7 +201,7 @@ class DcsPyQtGui(QMainWindow):
         """Initialize of a Logitech device."""
         for logitech_dev in ALL_DEV:
             rb_device: QRadioButton = getattr(self, f'rb_{logitech_dev.klass.lower()}')
-            rb_device.toggled.connect(partial(self._select_logi_dev, logitech_dev))
+            rb_device.clicked.connect(partial(self._select_logi_dev, logitech_dev))
             rb_device.setToolTip(str(logitech_dev))
 
     def _init_menu_bar(self) -> None:
@@ -267,7 +267,7 @@ class DcsPyQtGui(QMainWindow):
                 logi_dev_rb_name = f'rb_{logitech_dev.klass.lower()}'
                 dev = getattr(self, logi_dev_rb_name)
                 if dev.isChecked():
-                    self._select_logi_dev(logi_dev=logitech_dev, state=True)  # generate json/bios
+                    self._select_logi_dev(logi_dev=logitech_dev)  # generate json/bios
                     self.toolBox.setCurrentIndex(LOGI_DEV_RADIO_BUTTON.get(logi_dev_rb_name, 0))
                     break
         except KeyError as err:
@@ -291,7 +291,7 @@ class DcsPyQtGui(QMainWindow):
         LOG.debug(f'Set number of results: {value}')
         self._load_table_gkeys()
 
-    def _select_logi_dev(self, logi_dev: LogitechDeviceModel, state: bool) -> None:
+    def _select_logi_dev(self, logi_dev: LogitechDeviceModel) -> None:
         """
         Triggered when a new device is selected.
 
@@ -302,25 +302,23 @@ class DcsPyQtGui(QMainWindow):
             * update dock with an image of a device
 
         :param logi_dev: Logitech device model object
-        :param state: of radio button
         """
-        if state:
-            for mode_col in range(self.device.cols):
-                self.tw_gkeys.removeColumn(mode_col)
-            for gkey_row in range(self.device.rows.total):
-                self.tw_gkeys.removeRow(gkey_row)
-            self.device = getattr(import_module('dcspy.models'), logi_dev.klass)
-            LOG.debug(f'Select: {repr(self.device)}')
-            if self.device.lcd_info.type != LcdType.NONE:
-                self._set_ded_font_and_font_sliders()
-            self._update_dock()
-            self.current_row = -1
-            self.current_col = -1
-            self._load_table_gkeys()  # generate json/bios
-            self.current_row = 0
-            self.current_col = 0
-            cell_combo: QComboBox | QWidget = self.tw_gkeys.cellWidget(self.current_row, self.current_col)
-            self._cell_ctrl_content_changed(text=cell_combo.currentText(), widget=cell_combo, row=self.current_row, col=self.current_col)
+        for mode_col in range(self.device.cols):
+            self.tw_gkeys.removeColumn(mode_col)
+        for gkey_row in range(self.device.rows.total):
+            self.tw_gkeys.removeRow(gkey_row)
+        self.device = getattr(import_module('dcspy.models'), logi_dev.klass)
+        LOG.debug(f'Select: {repr(self.device)}')
+        if self.device.lcd_info.type != LcdType.NONE:
+            self._set_ded_font_and_font_sliders()
+        self._update_dock()
+        self.current_row = -1
+        self.current_col = -1
+        self._load_table_gkeys()  # generate json/bios
+        self.current_row = 0
+        self.current_col = 0
+        cell_combo: QComboBox | QWidget = self.tw_gkeys.cellWidget(self.current_row, self.current_col)
+        self._cell_ctrl_content_changed(text=cell_combo.currentText(), widget=cell_combo, row=self.current_row, col=self.current_col)
 
     def _set_ded_font_and_font_sliders(self) -> None:
         """Enable the DED font checkbox and updates font sliders."""
@@ -367,8 +365,8 @@ class DcsPyQtGui(QMainWindow):
         except KeyError:
             dst_dir = 'C:\\'
         directory = self._run_file_dialog(last_dir=lambda: dst_dir)
+        destination = Path(directory) / zip_file.name
         try:
-            destination = Path(directory) / zip_file.name
             copy(zip_file, destination)
             self.statusbar.showMessage(f'Save: {destination}')
             LOG.debug(f'Save debug file: {destination}')
@@ -544,7 +542,7 @@ class DcsPyQtGui(QMainWindow):
         except FileNotFoundError as err:
             message = f'Folder not exists:\n{self.bios_path}\n\nCheck DCS-BIOS path.\n\n{err}'  # generate json/bios
             self._show_message_box(kind_of=MsgBoxTypes.WARNING, title='Get Plane Aliases', message=message)
-            return dict()
+            return {}
 
     def _rebuild_or_not_rebuild_planes_aliases(self, plane_aliases: dict[str, list[str]], plane_name: str) -> bool:
         """
@@ -969,7 +967,7 @@ class DcsPyQtGui(QMainWindow):
         if globals().get('__compiled__', False):
             self._restart_nuitka_ver()
         else:
-            self._restart_pip_ver()
+            self._show_message_box(kind_of=MsgBoxTypes.INFO, title='uv/pip Install', message='Use uv in console:\n\nuv tool update dcspy')
 
     def _restart_nuitka_ver(self) -> None:
         """Download and restart a new version of DCSpy when using an executable/nuitka version."""
@@ -991,14 +989,6 @@ class DcsPyQtGui(QMainWindow):
                 sys.exit(0)
             except PermissionError as exc:
                 self._show_message_box(kind_of=MsgBoxTypes.WARNING, title=exc.args[1], message=f'Can not save file:\n{exc.filename}')
-
-    def _restart_pip_ver(self) -> None:
-        """Download and restart a new version of DCSpy when using a Pip version."""
-        rc, err, out = run_pip_command('install --upgrade dcspy')
-        if not rc:
-            self._show_message_box(kind_of=MsgBoxTypes.INFO, title='Pip Install', message=out.split('\r\n')[-2])
-        else:
-            self._show_message_box(kind_of=MsgBoxTypes.WARNING, title='Pip Install', message=err)
 
     # <=><=><=><=><=><=><=><=><=><=><=> check bios updates <=><=><=><=><=><=><=><=><=><=><=>
     def _bios_check_clicked(self, silence=False) -> None:
@@ -1303,7 +1293,9 @@ class DcsPyQtGui(QMainWindow):
             if not rb_key.isChecked():
                 rb_key.setEnabled(False)
         if self.device.lcd_info.type != LcdType.NONE:
-            fonts_cfg = FontsConfig(name=self.le_font_name.text(), **getattr(self, f'{self.device.lcd_name}_font'))
+            ded_font = True if self.cb_ded_font.isChecked() and self.device.lcd_info.type == LcdType.COLOR else False
+            fonts_cfg = FontsConfig(name=self.le_font_name.text(), ded_font=ded_font,
+                                    **getattr(self, f'{self.device.lcd_name}_font'))
             self.device.lcd_info.set_fonts(fonts_cfg)
         self.event: Event = Event()
         app_params = {'model': self.device, 'event': self.event}
@@ -1483,8 +1475,8 @@ class DcsPyQtGui(QMainWindow):
             kwargs = job.keywords
         else:
             job_name = job.__name__
-            args = tuple()
-            kwargs = dict()
+            args = ()
+            kwargs = {}
         signals = {signal: handler.__name__ for signal, handler in signal_handlers.items()}
         LOG.debug(f'bg job for: {job_name} args: {args} kwargs: {kwargs} signals {signals}')
         self.threadpool.start(worker)
@@ -1595,7 +1587,7 @@ class DcsPyQtGui(QMainWindow):
         return result
 
     def _show_custom_msg_box(self, kind_of: QMessageBox.Icon, title: str, text: str, info_txt: str, detail_txt: str | None = None,
-                             buttons: QMessageBox.StandardButton | None = None) -> int | None:
+                             buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.NoButton) -> int | None:
         """
         Show a custom message box with hidden text.
 
@@ -1603,7 +1595,7 @@ class DcsPyQtGui(QMainWindow):
         :param text: First section
         :param info_txt: Second section
         :param detail_txt: Hidden text
-        :param buttons: Tuple of buttons
+        :param buttons: Collection of standard buttons in the message box
         :return: Integer value of pushed buttons
         """
         if not NO_MSG_BOX:
@@ -1810,11 +1802,17 @@ class AboutDialog(QDialog):
         self.parent: DcsPyQtGui | QWidget = parent
         UiLoader().load_ui(':/ui/ui/about.ui', self)
         self.l_info: QLabel = self.findChild(QLabel, 'l_info')
+        self.tb_licenses: QTextBrowser = self.findChild(QTextBrowser, 'tb_licenses')
 
     def showEvent(self, event: QShowEvent) -> None:
-        """Prepare text information about DCSpy application."""
-        d = self.parent.fetch_system_data(silence=False)
+        """Prepare all information about DCSpy application."""
         super().showEvent(event)
+        self._prepare_about()
+        self._prepare_licenses()
+
+    def _prepare_about(self) -> None:
+        """Prepare text information about DCSpy."""
+        d = self.parent.fetch_system_data(silence=False)
         text = '<html><head/><body><p>'
         text += '<b>Author</b>: <a href="https://github.com/emcek">Michal Plichta</a>'
         text += f'<br><b>Project</b>: <a href="https://github.com/{DCSPY_REPO_NAME}/">{DCSPY_REPO_NAME}</a>'
@@ -1837,6 +1835,31 @@ class AboutDialog(QDialog):
         text += '</p></body></html>'
         self.l_info.setText(text)
 
+    def _prepare_licenses(self) -> None:
+        """Prepare licenses text."""
+        packages = {
+            'cffi': {'webpage': 'https://github.com/python-cffi/cffi', 'license': 'MIT'},
+            'eval-type-backport': {'webpage': 'https://github.com/alexmojaki/eval_type_backport', 'license': 'MIT'},
+            'GitPython': {'webpage': 'https://github.com/gitpython-developers/GitPython', 'license': 'BSD-3-Clause'},
+            'Lupa': {'webpage': 'https://github.com/scoder/lupa', 'license': 'MIT style'},
+            'packaging': {'webpage': 'https://github.com/pypa/packaging', 'license': 'Apache-2.0 OR BSD-2-Clause'},
+            'Pillow': {'webpage': 'https://github.com/python-pillow/Pillow', 'license': 'MIT-CMU'},
+            'psutil': {'webpage': 'https://github.com/giampaolo/psutil', 'license': 'BSD 3-Clause'},
+            'Pydantic': {'webpage': 'https://github.com/pydantic/pydantic', 'license': 'MIT'},
+            'PySide6': {'webpage': 'https://wiki.qt.io/Qt_for_Python', 'license': 'LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only'},
+            'PyYAML': {'webpage': 'https://github.com/yaml/pyyaml', 'license': 'MIT'},
+            'Requests': {'webpage': 'https://github.com/psf/requests', 'license': 'Apache-2.0'},
+            'Typing Extensions': {'webpage': 'https://github.com/python/typing_extensions', 'license': 'PSF-2.0'},
+            'FalconDED by "uri_ba"': {'webpage': 'https://fontstruct.com/fontstructions/show/1014500', 'license': 'CC BY-NC-SA 3.0'},
+        }
+        text = '<html><head/><body>'
+        text += '<p>DCSpy heavily relies on other open source software listed below.</p>'
+        for package, data in packages.items():
+            text += f'<p><b>{package}</b>'
+            text += f'<br>Web page: <a href="{data["webpage"]}">{data["webpage"]}</a>'
+            text += f'<br>License: {data["license"]}</p>'
+        text += '</body></html>'
+        self.tb_licenses.setText(text)
 
 class WorkerSignals(QObject):
     """

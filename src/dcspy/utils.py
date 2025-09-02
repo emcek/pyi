@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import zipfile
@@ -26,7 +27,7 @@ from psutil import process_iter
 from requests import get
 
 from dcspy.models import (CONFIG_YAML, CTRL_LIST_SEPARATOR, DEFAULT_YAML_FILE, AnyButton, BiosValue, Color, ControlDepiction, ControlKeyData, DcsBiosPlaneData,
-                          DcspyConfigYaml, LcdMode, Release, RequestModel, __version__, get_key_instance)
+                          DcspyConfigYaml, Gkey, LcdButton, LcdMode, MouseButton, Release, RequestModel, __version__)
 
 try:
     import git
@@ -282,13 +283,12 @@ def check_github_repo(git_ref: str, repo_dir: Path, repo: str, update: bool = Tr
     return sha
 
 
-def _checkout_repo(repo: str, repo_dir: Path, checkout_ref: str = 'master', progress: git.RemoteProgress | None = None) -> git.Repo:
+def _checkout_repo(repo: str, repo_dir: Path, progress: git.RemoteProgress | None = None) -> git.Repo:
     """
-    Checkout repository at a master branch or clone it when not exists in a system.
+    Checkout repository at a main/master branch or clone it when not exists in a system.
 
     :param repo: Repository name
     :param repo_dir: Local repository directory
-    :param checkout_ref: Check out a git reference
     :param progress: Progress callback
     :return: Repo object of the repository
     """
@@ -297,6 +297,8 @@ def _checkout_repo(repo: str, repo_dir: Path, checkout_ref: str = 'master', prog
     makedirs(name=repo_dir, exist_ok=True)
     if is_git_repo(str(repo_dir)):
         bios_repo = git.Repo(repo_dir)
+        all_refs = get_all_git_refs(repo_dir=repo_dir)
+        checkout_ref = 'main' if 'main' in all_refs else 'master'
         bios_repo.git.checkout(checkout_ref)
     else:
         rmtree(path=repo_dir, ignore_errors=True)
@@ -578,21 +580,6 @@ def get_config_yaml_location() -> Path:
     return user_appdata
 
 
-def run_pip_command(cmd: str) -> tuple[int, str, str]:
-    """
-    Execute pip command.
-
-    :param cmd: Command as a string
-    :return: Tuple with return code, stderr and stdout
-    """
-    try:
-        result = run([sys.executable, '-m', 'pip', *cmd.split(' ')], capture_output=True, check=True)
-        return result.returncode, result.stderr.decode('utf-8'), result.stdout.decode('utf-8')
-    except CalledProcessError as e:
-        LOG.debug(f'Result: {e}')
-        return e.returncode, e.stderr.decode('utf-8'), e.stdout.decode('utf-8')
-
-
 def run_command(cmd: Sequence[str], cwd: Path | None = None) -> int:
     """
     Run command in shell as a subprocess.
@@ -736,6 +723,46 @@ def replace_symbols(value: str, symbol_replacement: Sequence[Sequence[str]]) -> 
     return value
 
 
+def _try_key_instance(klass: type[Gkey] | type[LcdButton] | type[MouseButton], method: str, key_str: str) -> AnyButton | None:
+    """
+    Attempt to invoke a method on a class with a given key string.
+
+    The method will first attempt to call the provided method with the `key_str` as a parameter.
+    If there is a TypeError (indicating the method does not support a parameter), it attempts to call
+    the method without arguments.
+    If the method is missing or the call fails due to a ValueError or AttributeError, the function returns None.
+
+    :param klass: The class type on which the method is to be invoked.
+    :param method: The name of the method to call on the class.
+    :param key_str: A string key to be passed as a parameter to the method, if supported.
+    :return: An instance of `AnyButton` from the invoked method, if successful, otherwise None.
+    """
+    try:
+        return getattr(klass, method)(key_str)
+    except TypeError:
+        return getattr(klass, method)
+    except (ValueError, AttributeError):
+        return None
+
+
+def get_key_instance(key_str: str) -> AnyButton:
+    """
+    Resolve the provided key string into an instance of a valid key class based on a predefined set of classes and their respective resolution methods.
+
+    If the key string matches a class method's criteria, it returns the resolved key instance.
+    If no match is found, an exception is raised.
+
+    :param key_str: A string representing the name or identifier of the key to be resolved into a key instance (e.g., Gkey, LcdButton, or MouseButton).
+    :return: An instance of a class (AnyButton) that corresponds to the provided key string, if successfully resolved.
+    :raises AttributeError: If the provided key string cannot be resolved into a valid key instance using the predefined classes and methods.
+    """
+    for klass, method in [(Gkey, 'from_yaml'), (MouseButton, 'from_yaml'), (LcdButton, key_str)]:
+        key_instance = _try_key_instance(klass=klass, method=method, key_str=key_str)
+        if key_instance:
+            return key_instance
+    raise AttributeError(f'Could not resolve "{key_str}" to a Gkey/LcdButton/MouseButton instance')
+
+
 class KeyRequest:
     """Map LCD button or G-Key with an abstract request model."""
 
@@ -861,3 +888,55 @@ def detect_system_color_mode() -> str:
     except (OSError, IndexError):
         return 'Light'
     return {0: 'Dark', 1: 'Light'}[subkey]
+
+def verify_hashes(file_path: Path, digest_file: Path) -> tuple[bool, dict[str, bool]]:
+    """
+    Check hashes for a file.
+
+    :param file_path: Path to the file
+    :param digest_file: Path to the digests file
+    :return: Overall verdict and detailed results
+    """
+    if not file_path.is_file() or not digest_file.is_file():
+        return False, {}
+
+    with open(digest_file) as f_digests:
+        all_digests = f_digests.readlines()
+
+    hashes: dict[str, dict[str, str]] = {}
+    for line in all_digests:
+        if line.startswith('#HASH'):
+            hash_type = line.split()[1]
+        elif line.strip():
+            hash_and_file = line.split()
+            filename = hash_and_file[1] if len(hash_and_file) > 1 else ''
+            hashes.setdefault(filename, {})[hash_type] = hash_and_file[0]
+    LOG.debug(f'Supported algorithms are: {hashlib.algorithms_guaranteed}')
+    results = _compute_hash_and_check_file(file_path=file_path, hashes=hashes)
+
+    return all(results.values()), results
+
+
+def _compute_hash_and_check_file(file_path: Path, hashes: dict[str, dict[str, str]]) -> dict[str, bool]:
+    """
+    Compute and verify hashes for a file.
+
+    :param file_path: Path for file to chack hashes
+    :param hashes: Dictionary of hash types and values
+    :return: Dictionary of verification results
+    """
+    result = {}
+    for hash_type, hash_value in hashes.get(file_path.name, {}).items():
+        try:
+            with open(file_path, 'rb') as f_path:
+                if sys.version_info.minor > 10:
+                    computed_hash = hashlib.file_digest(f_path, hash_type).hexdigest()
+                else:
+                    h = hashlib.new(hash_type)
+                    h.update(f_path.read())
+                    computed_hash = h.hexdigest()
+        except ValueError:
+            computed_hash = ''
+            # todo: why there is diffrent hashes for sha1 and md5 on linux
+        result[hash_type] = (computed_hash == hash_value)
+    return result
