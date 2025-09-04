@@ -985,6 +985,8 @@ class DcsPyQtGui(QMainWindow):
             directory = self._run_file_dialog(last_dir=lambda: dst_dir, caption='Where save DCSpy release')
             try:
                 download_file(url=asset_file.browser_download_url, save_path=Path(directory) / asset_file.name, progress_fn=self._progress_by_abs_value)
+                result = rel_info.verify(local_file=Path(directory) / asset_file.name)
+                self._show_message_box(kind_of=MsgBoxTypes.INFO, title='Verification', message=f'{result}')
                 LOG.info(f'Stop DCSpy {__version__}')
                 sys.exit(0)
             except PermissionError as exc:
