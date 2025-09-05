@@ -39,7 +39,7 @@ jobs:
           DCSPY_NO_MSG_BOXES: 1
         run: |
           python -m pytest -v -m 'not e2e' --img_precision 0
-          python scripts/gen_hashes.py ./tests/resources/linux_hash.txt ./tests/resources/win32_hash.txt -o ./tests/resources/DIGESTS
+#          python scripts/gen_hashes.py ./tests/resources/linux_hash.txt ./tests/resources/win32_hash.txt -o ./tests/resources/DIGESTS
 
       - name: "Upload test results"
         uses: actions/upload-artifact@v4
