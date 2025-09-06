@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-2025 ]
-        python-version: [ '3.11', '3.12', '3.13' ]
+        python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v5
@@ -39,7 +39,6 @@ jobs:
           DCSPY_NO_MSG_BOXES: 1
         run: |
           python -m pytest -v -m 'not e2e' --img_precision 0
-#          python scripts/gen_hashes.py ./tests/resources/linux_hash.txt ./tests/resources/win32_hash.txt -o ./tests/resources/DIGESTS
 
       - name: "Upload test results"
         uses: actions/upload-artifact@v4

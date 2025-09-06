@@ -500,7 +500,6 @@ def test_release_model(resources):
     assert str(release) == 'v3.6.1 pre:False date:05 November 2024'
 
 
-# @mark.skipif(condition=platform != 'win32', reason='Run only on Windows')
 @mark.benchmark
 def test_release_verify_hash(resources):
     import json
@@ -511,7 +510,7 @@ def test_release_verify_hash(resources):
         content = json_file.read()
     json_data = json.loads(content)
     release = Release(**json_data)
-    temp_digest = resources / 'no_new_line.hash.DIGESTS'
+    temp_digest = resources / 'no_new_line.hash.1.DIGESTS'
     with patch('dcspy.utils.download_file') as patched_dl:
         verification_result = release.verify(local_file=resources / 'no_new_line.hash', temp_digest=temp_digest)
         patched_dl.assert_called_once_with(url='https://github.com/emcek/dcspy/releases/download/v3.6.1/DIGESTS', save_path=temp_digest)
