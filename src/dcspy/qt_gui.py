@@ -964,7 +964,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _download_new_release(self) -> None:
         """Download the new release if running Nuitka version or Pip version."""
-        if globals().get('__compiled__', False):
+        if not globals().get('__compiled__', False):
             self._restart_nuitka_ver()
         else:
             self._show_message_box(kind_of=MsgBoxTypes.INFO, title='uv/pip Install', message='Use uv in console:\n\nuv tool update dcspy')
@@ -986,7 +986,12 @@ class DcsPyQtGui(QMainWindow):
             try:
                 download_file(url=asset_file.browser_download_url, save_path=Path(directory) / asset_file.name, progress_fn=self._progress_by_abs_value)
                 result = rel_info.verify(local_file=Path(directory) / asset_file.name)
-                self._show_message_box(kind_of=MsgBoxTypes.INFO, title='Verification', message=f'{result}')
+                if result[0]:
+                    self._show_message_box(kind_of=MsgBoxTypes.INFO, title='Verification',
+                                           message=f'Checksum verification of:\n{asset_file.name} succeed.')
+                else:
+                    self._show_message_box(kind_of=MsgBoxTypes.WARNING, title='Verification',
+                                           message=f'Checksum verification of:\n{asset_file.name} failed:\n\n{(pformat(result[1]))}')
                 LOG.info(f'Stop DCSpy {__version__}')
                 sys.exit(0)
             except PermissionError as exc:
