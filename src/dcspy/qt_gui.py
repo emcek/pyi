@@ -964,7 +964,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _download_new_release(self) -> None:
         """Download the new release if running Nuitka version or Pip version."""
-        if not globals().get('__compiled__', False):
+        if globals().get('__compiled__', False):
             self._restart_nuitka_ver()
         else:
             self._show_message_box(kind_of=MsgBoxTypes.INFO, title='uv/pip Install', message='Use uv in console:\n\nuv tool update dcspy')
