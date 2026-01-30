@@ -1,4 +1,4 @@
-## 3.8.0
+## 3.11.37
 * Add initial support for **C-130J 30 Hercules** - #534 (@emcek)
 * Add configurable DCS-BIOS git repository - #533 (@emcek)
 * Allow checkout remote git branches for BIOS - #530 (@emcek)
