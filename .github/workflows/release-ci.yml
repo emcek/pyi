@@ -25,13 +25,13 @@ jobs:
     runs-on: windows-2025
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
 
       - name: "Download dcspy binaries"
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           merge-multiple: true
           pattern: |
@@ -42,7 +42,6 @@ jobs:
         with:
           path: inno/dcspy.iss
           options: /O+
-
 
       - name: "Release Notes"
         id: version
@@ -83,7 +82,7 @@ jobs:
 
     steps:
       - name: "Download dcspy binaries"
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: dcspy_wheel
 

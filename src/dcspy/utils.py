@@ -5,10 +5,10 @@ import json
 import sys
 import zipfile
 from collections.abc import Callable, Generator, Sequence
+from contextlib import suppress
 from datetime import datetime
 from functools import lru_cache
 from glob import glob
-from itertools import chain
 from logging import getLogger
 from os import chdir, environ, getcwd, makedirs, walk
 from pathlib import Path
@@ -23,16 +23,13 @@ from typing import Any, ClassVar
 import yaml
 from packaging import version
 from PIL import ImageColor
-from psutil import process_iter
 from requests import get
 
 from dcspy.models import (CONFIG_YAML, CTRL_LIST_SEPARATOR, DEFAULT_YAML_FILE, AnyButton, BiosValue, Color, ControlDepiction, ControlKeyData, DcsBiosPlaneData,
                           DcspyConfigYaml, Gkey, LcdButton, LcdMode, MouseButton, Release, RequestModel, __version__)
 
-try:
+with suppress(ImportError):
     import git
-except ImportError:
-    pass
 
 LOG = getLogger(__name__)
 
@@ -165,20 +162,6 @@ def download_file(url: str, save_path: Path, progress_fn: Callable[[int], None] 
         return False
 
 
-def proc_is_running(name: str) -> int:
-    """
-    Check if the process is running and return its PID.
-
-    If the process name is not found, 0 (zero) is returned.
-    :param name: Process name
-    :return: PID as int
-    """
-    for proc in process_iter(['pid', 'name']):
-        if name in proc.info['name']:
-            return proc.info['pid']
-    return 0
-
-
 def check_dcs_ver(dcs_path: Path) -> str:
     """
     Check DCS version and release type.
@@ -229,7 +212,7 @@ def is_git_repo(dir_path: str) -> bool:
     Check if dir_path ios Git repository.
 
     :param dir_path: Path as string
-    :return: True if dir is git repo
+    :return: True if dir is a git repo
     """
     import git
     try:
@@ -271,24 +254,28 @@ def check_github_repo(git_ref: str, repo_dir: Path, repo: str, update: bool = Tr
 
     :param git_ref: Any Git reference as a string
     :param repo_dir: Local directory for a repository
-    :param repo: GitHub repository user/name
+    :param repo: GitHub repository address
     :param update: Perform update process
     :param progress: Progress callback
     """
-    bios_repo = _checkout_repo(repo=repo, repo_dir=repo_dir, progress=progress)
-    if update:
+    bios_repo = _checkout_repo(git_ref=git_ref, repo_dir=repo_dir, repo=repo, progress=progress)
+    is_detached = bios_repo.head.is_detached
+    LOG.debug(f'Repo at: {git_ref} with HEAD detached: {is_detached}')
+    if update and not is_detached:
         f_info = bios_repo.remotes[0].pull(progress=progress)
         LOG.debug(f'Pulled: {f_info[0].name} as: {f_info[0].commit}')
+    git_ref =  git_ref.split('/')[1] if 'origin/' in git_ref else git_ref
     sha = _get_sha_hex_str(bios_repo, git_ref)
     return sha
 
 
-def _checkout_repo(repo: str, repo_dir: Path, progress: git.RemoteProgress | None = None) -> git.Repo:
+def _checkout_repo(git_ref: str, repo_dir: Path, repo: str, progress: git.RemoteProgress | None = None) -> git.Repo:
     """
-    Checkout repository at a main/master branch or clone it when not exists in a system.
+    Check out a repository at a main/master branch or clone it when not exists in a system.
 
-    :param repo: Repository name
+    :param git_ref: Any Git reference as a string
     :param repo_dir: Local repository directory
+    :param repo: Repository address
     :param progress: Progress callback
     :return: Repo object of the repository
     """
@@ -298,12 +285,33 @@ def _checkout_repo(repo: str, repo_dir: Path, progress: git.RemoteProgress | Non
     if is_git_repo(str(repo_dir)):
         bios_repo = git.Repo(repo_dir)
         all_refs = get_all_git_refs(repo_dir=repo_dir)
-        checkout_ref = 'main' if 'main' in all_refs else 'master'
-        bios_repo.git.checkout(checkout_ref)
+        named_git_obj = git_ref.removeprefix('origin/')
+        if named_git_obj in all_refs:
+            bios_repo.git.checkout(named_git_obj, force=True)
+        elif is_git_sha(repo=bios_repo, ref=named_git_obj):
+            bios_repo.git.checkout('--detach', named_git_obj, force=True)
+        else:
+            bios_repo.git.checkout(git_ref, b=named_git_obj, force=True)
     else:
         rmtree(path=repo_dir, ignore_errors=True)
-        bios_repo = git.Repo.clone_from(url=f'https://github.com/{repo}.git', to_path=repo_dir, progress=progress)  # type: ignore[arg-type]
+        bios_repo = git.Repo.clone_from(url=repo, to_path=repo_dir, progress=progress)  # type: ignore[arg-type]
     return bios_repo
+
+
+def is_git_sha(repo: git.Repo, ref: str) -> bool:
+    """
+    Check if a ref is a git commit SHA.
+
+    :param repo: Git Repository object
+    :param ref: Git commit SHA as string
+    :return: True if ref is SHA of git commit, False otherwise
+    """
+    import gitdb  # type: ignore[import-untyped]
+
+    with suppress(gitdb.exc.BadName):
+        _  = repo.commit(ref).hexsha
+        return True
+    return False
 
 
 def check_dcs_bios_entry(lua_dst_data: str, lua_dst_path: Path, temp_dir: Path) -> str:
@@ -372,12 +380,12 @@ def is_git_object(repo_dir: Path, git_obj: str) -> bool:
     import gitdb  # type: ignore[import-untyped]
     result = False
     if is_git_repo(str(repo_dir)):
-        bios_repo = git.Repo(repo_dir)
-        try:
-            bios_repo.commit(git_obj)
+        all_refs = get_all_git_refs(repo_dir=repo_dir)
+        if git_obj in all_refs:
             result = True
-        except (gitdb.exc.BadName, TypeError):
-            pass
+        with suppress(gitdb.exc.BadName, TypeError, ValueError):
+            git.Repo(repo_dir).commit(git_obj)
+            result = True
     return result
 
 
@@ -390,7 +398,7 @@ def get_all_git_refs(repo_dir: Path) -> list[str]:
     """
     refs = []
     if is_git_repo(str(repo_dir)):
-        for ref in chain(git.Repo(repo_dir).heads, git.Repo(repo_dir).tags):
+        for ref in git.Repo(repo_dir).refs:
             refs.append(str(ref))
     return refs
 
@@ -489,30 +497,33 @@ def _fetch_system_info(conf_dict: dict[str, Any]) -> str:
     dcs = check_dcs_ver(dcs_path=Path(str(conf_dict['dcs'])))
     bios_ver = check_bios_ver(bios_path=str(conf_dict['dcsbios']))
     repo_dir = Path(str(conf_dict['dcsbios'])).parents[1] / 'dcs-bios'
-    git_ver, head_commit = _fetch_git_data(repo_dir=repo_dir)
+    git_ver, head_commit, remote_url = _fetch_git_data(repo_dir=repo_dir)
     lgs_dir = '\n'.join([
         str(Path(dir_path) / filename)
         for dir_path, _, filenames in walk('C:\\Program Files\\Logitech Gaming Software\\SDK')
         for filename in filenames
     ])
-    return f'{__version__=}\n{name=}\n{pyver=}\n{pyexec=}\n{dcs=}\n{bios_ver=}\n{git_ver=}\n{head_commit=}\n{lgs_dir}\ncfg={pformat(conf_dict)}'
+    return f'{__version__=}\n{name=}\n{pyver=}\n{pyexec=}\n{dcs=}\n{bios_ver=}\n{remote_url=}\n{git_ver=}\n{head_commit=}\n{lgs_dir}\ncfg={pformat(conf_dict)}'
 
 
-def _fetch_git_data(repo_dir: Path) -> tuple[Sequence[int], str]:
+def _fetch_git_data(repo_dir: Path) -> tuple[Sequence[int], str, str]:
     """
     Fetch the Git version and SHA of HEAD commit.
 
     :param repo_dir: Local directory for repository
-    :return: Tuple of (a version) and SHA of HEAD commit
+    :return: Tuple of (a version), SHA of HEAD commit and remote URL
     """
     try:
         import git
         git_ver = git.cmd.Git().version_info
-        head_commit = str(git.Repo(repo_dir).head.commit)
+        repo = git.Repo(repo_dir)
+        head_commit = str(repo.head.commit)
+        remote_url = repo.remotes.origin.url
     except (git.exc.NoSuchPathError, git.exc.InvalidGitRepositoryError, ImportError):
         git_ver = (0, 0, 0, 0)
         head_commit = 'N/A'
-    return git_ver, head_commit
+        remote_url = 'N/A'
+    return git_ver, head_commit, remote_url
 
 
 def _get_dcs_log(conf_dict: dict[str, Any]) -> Path:
@@ -703,7 +714,7 @@ def substitute_symbols(value: str, symbol_replacement: Sequence[Sequence[str]]) 
 
     :param value: The input string to be processed
     :param symbol_replacement: A list of symbol patterns and their corresponding replacements.
-    :return: The processed string with symbols replaced according to the provided symbol_replacement list.
+    :return: The processed string with symbols is replaced according to the provided symbol_replacement list.
     """
     for pattern, replacement in symbol_replacement:
         value = sub(pattern, replacement, value)
@@ -808,7 +819,7 @@ def generate_bios_jsons_with_lupa(dcs_save_games: Path, local_compile='./Scripts
     r"""
     Regenerate DCS-BIOS JSON files.
 
-    Using the Lupa library, first it will try to use LuaJIT 2.1 if not it will fall back to Lua 5.1
+    Using the Lupa library, first it will try to use LuaJIT 2.1 if not, it will fall back to Lua 5.1
 
     :param dcs_save_games: Full path to the Saved Games\DCS directory.
     :param local_compile: Relative path to the LocalCompile.lua file.
@@ -921,7 +932,7 @@ def _compute_hash_and_check_file(file_path: Path, hashes: dict[str, dict[str, st
     """
     Compute and verify hashes for a file.
 
-    :param file_path: Path for file to chack hashes
+    :param file_path: Path for a file to check hashes
     :param hashes: Dictionary of hash types and values
     :return: Dictionary of verification results
     """
@@ -937,5 +948,5 @@ def _compute_hash_and_check_file(file_path: Path, hashes: dict[str, dict[str, st
                     computed_hash = h.hexdigest()
         except ValueError:
             computed_hash = ''
-        result[hash_type] = (computed_hash == hash_value)
+        result[hash_type] = computed_hash == hash_value
     return result

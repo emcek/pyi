@@ -10,7 +10,7 @@ jobs:
         nuitka_type: [ setup, portable ]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
@@ -29,7 +29,7 @@ jobs:
       - uses: Nuitka/Nuitka-Action@main
         if: ${{ endsWith( matrix.nuitka_type, 'setup') }}
         with:
-          nuitka-version: 2.7.12
+          nuitka-version: 2.8.10
           script-name: src/dcs_py.py
           mode: standalone
           windows-console-mode: disable
@@ -45,12 +45,12 @@ jobs:
           file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           file-description: Integrating DCS Planes with Logitech keyboards with LCD
-          copyright: (c) 2025 Michal Plichta. All rights reserved.
+          copyright: (c) 2026 Michal Plichta. All rights reserved.
 
       - uses: Nuitka/Nuitka-Action@main
         if: ${{ endsWith( matrix.nuitka_type, 'portable') }}
         with:
-          nuitka-version: 2.7.12
+          nuitka-version: 2.8.10
           script-name: src/dcs_py.py
           mode: onefile
           windows-console-mode: disable
@@ -67,11 +67,11 @@ jobs:
           file-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           product-version: ${{ steps.nuitka_data.outputs.git_ref_name }}.${{ steps.nuitka_data.outputs.git_run_number }}
           file-description: Integrating DCS Planes with Logitech keyboards with LCD
-          copyright: (c) 2025 Michal Plichta. All rights reserved.
+          copyright: (c) 2026 Michal Plichta. All rights reserved.
 
       - name: "Upload dcspy setup installer"
         if: ${{ endsWith( matrix.nuitka_type, 'setup') }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dcspy_${{ matrix.nuitka_type }}
           path: |
@@ -81,7 +81,7 @@ jobs:
 
       - name: "Upload dcspy portable binaries"
         if: ${{ endsWith( matrix.nuitka_type, 'portable') }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dcspy_${{ matrix.nuitka_type }}
           path: dist/dcspy_${{ steps.nuitka_data.outputs.git_ref_name }}_portable.exe

@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from contextlib import suppress
 from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from time import sleep
@@ -11,7 +12,7 @@ from dcspy.models import MULTICAST_IP, UDP_PORT, BiosValue
 from dcspy.sdk.lcd_sdk import LcdSdkManager
 from dcspy.utils import load_json
 
-all_plane_list = ['fa18chornet', 'f16c50', 'f4e45mc', 'f15ese', 'ka50', 'ka503', 'mi8mt', 'mi24p', 'ah64dblkii', 'a10c', 'a10c2', 'f14a135gr', 'f14b', 'av8bna']
+all_plane_list = ['fa18chornet', 'f16c50', 'f4e45mc', 'f15ese', 'ka50', 'ka503', 'mi8mt', 'mi24p', 'ah64dblkii', 'a10c', 'a10c2', 'f14a135gr', 'f14b', 'av8bna', 'c130j30']
 
 
 def set_bios_during_test(aircraft_model: BasicAircraft, bios_pairs: Sequence[tuple[str, BiosValue]]) -> None:
@@ -61,10 +62,8 @@ def assert_bytes(test_bytes: bytes, ref_bytes: bytes) -> tuple[float, int]:
     :return: Tuple with float of percentage and difference in size
     """
     percents = []
-    try:
+    with suppress(IndexError):
         percents = [1 for i, b in enumerate(ref_bytes) if b != test_bytes[i]]
-    except IndexError:
-        pass
     return float(f'{sum(percents) / len(ref_bytes) * 100:.2f}'), len(ref_bytes) - len(test_bytes)
 
 

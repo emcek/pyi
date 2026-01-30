@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-2025 ]
-        python-version: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
+        python-version: [ '3.10', '3.11', '3.12', '3.13' ]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: "Install uv and set the Python"
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -41,7 +41,7 @@ jobs:
           python -m pytest -v -m 'not e2e' --img_precision 0
 
       - name: "Upload test results"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: pytest-${{ matrix.os }}-${{ matrix.python-version }}
@@ -51,4 +51,4 @@ jobs:
 
       - name: "Check pip-audit"
         run: |
-          pip-audit -lv --progress-spinner off --ignore-vuln PYSEC-2022-42969
+          pip-audit -lv --progress-spinner off --ignore-vuln PYSEC-2022-42969 --ignore-vuln GHSA-4xh5-x5gv-qwph

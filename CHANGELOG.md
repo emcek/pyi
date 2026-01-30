@@ -1,4 +1,34 @@
-## 3.11.36
+## 3.8.0
+* Add initial support for **C-130J 30 Hercules** - #534 (@emcek)
+* Add configurable DCS-BIOS git repository - #533 (@emcek)
+* Allow checkout remote git branches for BIOS - #530 (@emcek)
+* Internal:
+  * remove `psutil` library - #531 (@emcek)
+  * use new API of `Pillow` Image object get_flattened_data() - #532 (@emcek)
+  * Use suppress from contextlib - #535 (@emcek)
+
+## 3.7.1
+* Update About dialog
+* Fix external documentation
+* Fix very rare case for G19 when wrong font is applied
+* Verify checksum of downloaded release file
+* Internal:
+  * Add DED font (G19 only) to FontConfig object
+  * Use Windows 2025 Server as CI host
+
+## 3.7.0
+* Add Dark Mode #479 @emcek
+* Use setup to install dcspy #500 @emcek
+* DCS-BIOS change default branch to `main` @emcek
+* Add debug tab to main window #463 @emcek
+* Use LCD text mode for welcome screen @emcek
+* Internal:
+  * Update PySide6 framework to 6.9.1
+  * Refactor `starter` module and `ddl_load()` function
+  * Introduce uv tool for CI process
+  * Remove PyInstaller and use Nuitka for building executable
+
+## 3.6.3
 * Fix Windows toolbar icon @emcek
 * Show progress when downloading DCS-BIOS or new DCSpy release @emcek
 * Fix when LCD is not cleared - #442 (@emcek)

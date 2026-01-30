@@ -5,6 +5,7 @@ import sys
 import traceback
 from argparse import Namespace
 from collections.abc import Callable
+from contextlib import suppress
 from functools import partial
 from importlib import import_module
 from logging import DEBUG, INFO, Formatter, Handler, LogRecord, getLogger
@@ -38,7 +39,7 @@ from dcspy.starter import DCSpyStarter
 from dcspy.utils import (CloneProgress, check_bios_ver, check_dcs_bios_entry, check_dcs_ver, check_github_repo, check_ver_at_github, collect_debug_data,
                          count_files, defaults_cfg, detect_system_color_mode, download_file, generate_bios_jsons_with_lupa, get_all_git_refs,
                          get_depiction_of_ctrls, get_inputs_for_plane, get_list_of_ctrls, get_plane_aliases, get_planes_list, get_version_string,
-                         is_git_exec_present, is_git_object, load_yaml, proc_is_running, run_command, save_yaml)
+                         is_git_exec_present, is_git_object, load_yaml, run_command, save_yaml)
 
 _ = qtgui_rc  # prevent to remove import statement accidentally
 LOG = getLogger(__name__)
@@ -83,6 +84,7 @@ class DcsPyQtGui(QMainWindow):
         self.ctrl_depiction: dict[str, ControlDepiction] = {}
         self.input_reqs: dict[str, dict[str, GuiPlaneInputRequest]] = {}
         self.git_exec = is_git_exec_present()
+        self.bios_git_addr = self.config['git_bios_repo']
         self.l_bios = version.Version('0.0.0')
         self.r_bios = version.Version('0.0.0')
         self.systray = QSystemTrayIcon()
@@ -170,8 +172,9 @@ class DcsPyQtGui(QMainWindow):
         self.pb_dcspy_check.clicked.connect(self._dcspy_check_clicked)
         self.pb_bios_check.clicked.connect(self._bios_check_clicked)
         self.pb_bios_repair.clicked.connect(self._bios_repair_clicked)
-        self.le_bios_live.textEdited.connect(self._is_git_object_exists)
-        self.le_bios_live.returnPressed.connect(partial(self._bios_check_clicked, silence=False))
+        self.le_bios_ref.textEdited.connect(self._is_git_object_exists)
+        self.le_bios_ref.returnPressed.connect(partial(self._bios_check_clicked, silence=False))
+        self.le_bios_repo.textEdited.connect(self._bios_git_repo_chnaged)
         self.cb_bios_live.toggled.connect(self._cb_bios_live_toggled)
         self.sp_completer.valueChanged.connect(self._set_find_value)  # generate json/bios
         self.tw_gkeys.currentCellChanged.connect(self._save_current_cell)
@@ -239,18 +242,18 @@ class DcsPyQtGui(QMainWindow):
     def _init_autosave(self) -> None:
         """Initialize of autosave."""
         widget_dict = {
-            'le_dcsdir': 'textChanged', 'le_biosdir': 'textChanged', 'le_font_name': 'textEdited', 'le_bios_live': 'textEdited',
-            'hs_large_font': 'valueChanged', 'hs_medium_font': 'valueChanged', 'hs_small_font': 'valueChanged', 'hs_debug_font_size': 'valueChanged',
-            'sp_completer': 'valueChanged', 'combo_planes': 'currentIndexChanged', 'toolbar': 'visibilityChanged', 'dw_gkeys': 'visibilityChanged',
-            'a_icons_only': 'triggered', 'a_text_only': 'triggered', 'a_text_beside': 'triggered', 'a_text_under': 'triggered',
-            'a_mode_light': 'triggered', 'a_mode_dark': 'triggered', 'a_mode_system': 'triggered',
-            'cb_autostart': 'toggled', 'cb_show_gui': 'toggled', 'cb_check_ver': 'toggled', 'cb_ded_font': 'toggled', 'cb_lcd_screenshot': 'toggled',
-            'cb_verbose': 'toggled', 'cb_autoupdate_bios': 'toggled', 'cb_bios_live': 'toggled', 'cb_debug_enable': 'toggled',
-            'rb_g19': 'toggled', 'rb_g13': 'toggled', 'rb_g15v1': 'toggled', 'rb_g15v2': 'toggled', 'rb_g510': 'toggled',
-            'rb_g910': 'toggled', 'rb_g710': 'toggled', 'rb_g110': 'toggled', 'rb_g103': 'toggled', 'rb_g105': 'toggled',
-            'rb_g11': 'toggled', 'rb_g35': 'toggled', 'rb_g633': 'toggled', 'rb_g930': 'toggled', 'rb_g933': 'toggled',
-            'rb_g600': 'toggled', 'rb_g300': 'toggled', 'rb_g400': 'toggled', 'rb_g700': 'toggled', 'rb_g9': 'toggled',
-            'rb_mx518': 'toggled', 'rb_g402': 'toggled', 'rb_g502': 'toggled', 'rb_g602': 'toggled',
+            'le_dcsdir': 'textChanged', 'le_biosdir': 'textChanged', 'le_font_name': 'textEdited', 'le_bios_ref': 'returnPressed',
+            'le_bios_repo': 'returnPressed', 'hs_large_font': 'valueChanged', 'hs_medium_font': 'valueChanged', 'hs_small_font': 'valueChanged',
+            'hs_debug_font_size': 'valueChanged', 'sp_completer': 'valueChanged', 'combo_planes': 'currentIndexChanged',
+            'toolbar': 'visibilityChanged', 'dw_gkeys': 'visibilityChanged', 'a_icons_only': 'triggered', 'a_text_only': 'triggered',
+            'a_text_beside': 'triggered', 'a_text_under': 'triggered', 'a_mode_light': 'triggered', 'a_mode_dark': 'triggered',
+            'a_mode_system': 'triggered', 'cb_autostart': 'toggled', 'cb_show_gui': 'toggled', 'cb_check_ver': 'toggled',
+            'cb_ded_font': 'toggled', 'cb_lcd_screenshot': 'toggled', 'cb_verbose': 'toggled', 'cb_autoupdate_bios': 'toggled',
+            'cb_bios_live': 'toggled', 'cb_debug_enable': 'toggled', 'rb_g19': 'toggled', 'rb_g13': 'toggled', 'rb_g15v1': 'toggled',
+            'rb_g15v2': 'toggled', 'rb_g510': 'toggled', 'rb_g910': 'toggled', 'rb_g710': 'toggled', 'rb_g110': 'toggled', 'rb_g103': 'toggled',
+            'rb_g105': 'toggled', 'rb_g11': 'toggled', 'rb_g35': 'toggled', 'rb_g633': 'toggled', 'rb_g930': 'toggled', 'rb_g933': 'toggled',
+            'rb_g600': 'toggled', 'rb_g300': 'toggled', 'rb_g400': 'toggled', 'rb_g700': 'toggled', 'rb_g9': 'toggled', 'rb_mx518': 'toggled',
+            'rb_g402': 'toggled', 'rb_g502': 'toggled', 'rb_g602': 'toggled',
         }
         for widget_name, trigger_method in widget_dict.items():
             getattr(getattr(self, widget_name), trigger_method).connect(self.save_configuration)
@@ -261,8 +264,9 @@ class DcsPyQtGui(QMainWindow):
             self._is_dir_exists(text=self.le_dcsdir.text(), widget_name='le_dcsdir')
             self._is_dir_dcs_bios(text=self.bios_path, widget_name='le_biosdir')
             if self.cb_bios_live.isChecked():
-                self.le_bios_live.setEnabled(True)
-                self._is_git_object_exists(text=self.le_bios_live.text())
+                self.le_bios_ref.setEnabled(True)
+                self.le_bios_repo.setEnabled(True)
+                self._is_git_object_exists(text=self.le_bios_ref.text())
             for logitech_dev in ALL_DEV:
                 logi_dev_rb_name = f'rb_{logitech_dev.klass.lower()}'
                 dev = getattr(self, logi_dev_rb_name)
@@ -333,10 +337,8 @@ class DcsPyQtGui(QMainWindow):
 
         for name in ['large', 'medium', 'small']:
             hs: QSlider = getattr(self, f'hs_{name}_font')
-            try:
+            with suppress(RuntimeError):
                 hs.valueChanged.disconnect()
-            except RuntimeError:
-                pass
             hs.setMinimum(minimum)
             hs.setMaximum(maximum)
             hs.valueChanged.connect(partial(self._set_label_and_hs_value, name=name))
@@ -760,7 +762,7 @@ class DcsPyQtGui(QMainWindow):
 
         :param key_name: G-Key, LCD or Mouse button as string
         """
-        try:
+        with suppress(KeyError, AttributeError):
             widget_iface = self.input_reqs[self.current_plane][key_name].widget_iface
             if widget_iface == 'rb_custom':
                 self.le_custom.setText(self.input_reqs[self.current_plane][key_name].request.split(f'{RequestType.CUSTOM.value} ')[1])
@@ -770,8 +772,6 @@ class DcsPyQtGui(QMainWindow):
                 self.le_custom.setText('')
                 self.hs_set_state.setValue(0)
             getattr(self, widget_iface).setChecked(True)
-        except (KeyError, AttributeError):
-            pass
 
     def _hs_set_state_moved(self, value: int) -> None:
         """
@@ -895,13 +895,13 @@ class DcsPyQtGui(QMainWindow):
         :return: True if a git object exists, False otherwise.
         """
         if self.cb_bios_live.isChecked():
+            self._set_completer_for_git_ref()
             git_ref = is_git_object(repo_dir=self.bios_repo_path, git_obj=text)
             LOG.debug(f'Git reference: {text} in {self.bios_repo_path} exists: {git_ref}')
             if git_ref:
-                self.le_bios_live.setStyleSheet('')
-                self._set_completer_for_git_ref()
+                self.le_bios_ref.setStyleSheet('')
                 return True
-            self.le_bios_live.setStyleSheet('color: red;')
+            self.le_bios_ref.setStyleSheet('color: red;')
             return False
         return None
 
@@ -915,7 +915,7 @@ class DcsPyQtGui(QMainWindow):
         sha_commit = 'N/A'
         if self.git_exec and self.cb_bios_live.isChecked():
             try:
-                sha_commit = check_github_repo(git_ref=self.le_bios_live.text(), repo_dir=self.bios_repo_path, repo=BIOS_REPO_NAME, update=False)
+                sha_commit = check_github_repo(git_ref=self.le_bios_ref.text(), repo_dir=self.bios_repo_path, repo=self.le_bios_repo.text(), update=False)
             except Exception as exc:
                 LOG.debug(f'{exc}')
                 if not silence:
@@ -929,25 +929,42 @@ class DcsPyQtGui(QMainWindow):
         :param state: True if checked, False if unchecked.
         """
         if state:
-            self.le_bios_live.setEnabled(True)
-            self._is_git_object_exists(text=self.le_bios_live.text())
+            self.le_bios_ref.setEnabled(True)
+            self.le_bios_repo.setEnabled(True)
+            self.l_bios_ref.setEnabled(True)
+            self.l_bios_repo.setEnabled(True)
+            self._is_git_object_exists(text=self.le_bios_ref.text())
         else:
-            self.le_bios_live.setEnabled(False)
-            self.le_bios_live.setStyleSheet('')
+            self.le_bios_ref.setEnabled(False)
+            self.le_bios_repo.setEnabled(False)
+            self.l_bios_ref.setEnabled(False)
+            self.l_bios_repo.setEnabled(False)
+            self.le_bios_ref.setStyleSheet('')
         self._clean_bios_files()
         self._bios_check_clicked(silence=False)
 
     def _set_completer_for_git_ref(self) -> None:
-        """Setups completer for Git references of the DCS-BIOS git repository."""
-        if not self._git_refs_count:
-            git_refs = get_all_git_refs(repo_dir=self.bios_repo_path)
+        """Set-ups completer for Git references of the DCS-BIOS git repository."""
+        git_refs = get_all_git_refs(repo_dir=self.bios_repo_path)
+        if self._git_refs_count != len(git_refs):
             self._git_refs_count = len(git_refs)
             completer = QCompleter(git_refs)
             completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
             completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
             completer.setFilterMode(Qt.MatchFlag.MatchContains)
             completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
-            self.le_bios_live.setCompleter(completer)
+            self.le_bios_ref.setCompleter(completer)
+
+    def _bios_git_repo_chnaged(self, text: str) -> None:
+        """
+        Show info at statusbar when BIOS Git repostory changed.
+
+        :param text: Git repository sddress
+        """
+        self.le_bios_repo.setStyleSheet('')
+        if self.bios_git_addr != text:
+            self.statusbar.showMessage('BIOS git address changes, please click Repair')
+            self.le_bios_repo.setStyleSheet('color: red;')
 
     # <=><=><=><=><=><=><=><=><=><=><=> check dcspy updates <=><=><=><=><=><=><=><=><=><=><=>
     def _dcspy_check_clicked(self) -> None:
@@ -1016,8 +1033,8 @@ class DcsPyQtGui(QMainWindow):
         :param silence: Perform action with silence
         """
         if self.cb_bios_live.isChecked():
-            clone_worker: QRunnable | WorkerSignalsMixIn = GitCloneWorker(git_ref=self.le_bios_live.text(), bios_path=self.bios_path,
-                                                                          to_path=self.bios_repo_path, repo=BIOS_REPO_NAME, silence=silence)
+            clone_worker: QRunnable | WorkerSignalsMixIn = GitCloneWorker(git_ref=self.le_bios_ref.text(), bios_path=self.bios_path,
+                                                                          to_path=self.bios_repo_path, repo=self.le_bios_repo.text(), silence=silence)
             signal_handlers = {
                 'progress': self._progress_by_abs_value,
                 'stage': self.statusbar.showMessage,
@@ -1083,7 +1100,7 @@ class DcsPyQtGui(QMainWindow):
         install_result = self._handling_export_lua(temp_dir=self.bios_repo_path / 'Scripts')
         install_result = f'{install_result}\n\nUsing Git/Live version.'
         self.statusbar.showMessage(sha)
-        self._is_git_object_exists(text=self.le_bios_live.text())
+        self._is_git_object_exists(text=self.le_bios_ref.text())
         self._reload_table_gkeys()
         if not silence:
             self._show_message_box(kind_of=MsgBoxTypes.INFO, title=f'Updated {self.l_bios}', message=install_result)
@@ -1101,36 +1118,30 @@ class DcsPyQtGui(QMainWindow):
         self.statusbar.showMessage(f'Local BIOS: {self.l_bios} | Remote BIOS: {self.r_bios}')
         correct_local_bios_ver = all([isinstance(self.l_bios, version.Version), any([self.l_bios.major, self.l_bios.minor, self.l_bios.micro])])
         correct_remote_bios_ver = all([isinstance(self.r_bios, version.Version), download_url, download_url.split('/')[-1]])
-        dcs_runs = proc_is_running(name='DCS.exe')
 
         if silence and correct_remote_bios_ver and not remote_bios_info.is_latest(current_ver=self.l_bios):
             self._update_release_bios(rel_info=remote_bios_info)
         elif not silence and correct_remote_bios_ver:
             self._ask_to_update(rel_info=remote_bios_info)
         elif not all([silence, correct_remote_bios_ver]):
-            msg = self._get_problem_desc(correct_local_bios_ver, correct_remote_bios_ver, bool(dcs_runs))
+            msg = self._get_problem_desc(correct_local_bios_ver, correct_remote_bios_ver)
             msg = f'{msg}\n\nUsing stable release version.'
             self._show_message_box(kind_of=MsgBoxTypes.INFO, title='Update', message=msg)
 
-    def _get_problem_desc(self, local_bios: bool, remote_bios: bool, dcs: bool) -> str:
+    def _get_problem_desc(self, local_bios: bool, remote_bios: bool) -> str:
         """
         Describe issues with DCS-BIOS update.
 
         :param local_bios: Local BIOS version
         :param remote_bios: Remote BIOS version
-        :param dcs: DCS is running
         :return: Description as string
         """
-        dcs_chk = '\u2716 DCS' if dcs else '\u2714 DCS'
-        dcs_sta = 'running' if dcs else 'not running'
-        dcs_note = '\n     Be sure stay on Main menu.' if dcs else ''
         lbios_chk = '\u2714 Local' if local_bios else '\u2716 Local'
         lbios_note = '' if local_bios else '\n     Check "dcsbios" path in config'
         rbios_chk = '\u2714 Remote' if remote_bios else '\u2716 Remote'
         rbios_note = '' if remote_bios else '\n     Check internet connection.'
 
-        return f'{dcs_chk}: {dcs_sta}{dcs_note}\n' \
-               f'{lbios_chk} Bios ver: {self.l_bios}{lbios_note}\n' \
+        return f'{lbios_chk} Bios ver: {self.l_bios}{lbios_note}\n' \
                f'{rbios_chk} Bios ver: {self.r_bios}{rbios_note}'
 
     def _check_local_bios(self) -> version.Version:
@@ -1235,22 +1246,19 @@ class DcsPyQtGui(QMainWindow):
         Repair DCS-BIOS installation.
 
         Procedure:
-        * Show a message box with warning
-        * Show if DCS is running
+        * Show a message box with a warning
         * Remove Git repo from a temporary directory (optionally)
         * Remove DCS-BIOS from the Saved Games directory
         * Install DCS-BIOS
         """
-        dcs_runs = proc_is_running(name='DCS.exe')
         message = f'Are you sure to remove content of:\n\n{self.bios_path}'
-        if dcs_runs:
-            message += '\n\nNote: DCS is running, quit or be sure to stay on Main menu.'
         reply = self._show_message_box(kind_of=MsgBoxTypes.QUESTION, title='Repair DCS-BIOS',
                                        message=message, defaultButton=QMessageBox.StandardButton.No)
         if bool(reply == QMessageBox.StandardButton.Yes):
             self._clean_bios_files()
             self._remove_dcs_bios_repo_dir()
             self._start_bios_update(silence=False)
+            self.le_bios_repo.setStyleSheet('')
 
     def _clean_bios_files(self) -> None:
         """Clean all DCS-BIOS directories and files."""
@@ -1345,7 +1353,8 @@ class DcsPyQtGui(QMainWindow):
             getattr(self, f'rb_{cfg["device"].lower()}').toggle()
             self.le_dcsdir.setText(cfg['dcs'])
             self.le_biosdir.setText(cfg['dcsbios'])
-            self.le_bios_live.setText(cfg['git_bios_ref'])
+            self.le_bios_ref.setText(cfg['git_bios_ref'])
+            self.le_bios_repo.setText(cfg['git_bios_repo'])
             self.cb_bios_live.setChecked(cfg['git_bios'])
             self.addDockWidget(Qt.DockWidgetArea(int(cfg['gkeys_area'])), self.dw_gkeys)
             self.dw_gkeys.setFloating(bool(cfg['gkeys_float']))
@@ -1377,7 +1386,8 @@ class DcsPyQtGui(QMainWindow):
             'dcsbios': self.le_biosdir.text(),
             'font_name': self.le_font_name.text(),
             'git_bios': self.cb_bios_live.isChecked(),
-            'git_bios_ref': self.le_bios_live.text(),
+            'git_bios_ref': self.le_bios_ref.text(),
+            'git_bios_repo': self.le_bios_repo.text(),
             'font_mono_l': self.mono_font['large'],
             'font_mono_m': self.mono_font['medium'],
             'font_mono_s': self.mono_font['small'],
@@ -1683,122 +1693,125 @@ class DcsPyQtGui(QMainWindow):
         style_hints.setColorScheme(getattr(Qt.ColorScheme, mode))
 
     def _find_children(self) -> None:
-        """Find all widgets for the main window."""
-        self.statusbar: QStatusBar = self.findChild(QStatusBar, 'statusbar')  # type: ignore[assignment]
-        self.progressbar: QProgressBar = self.findChild(QProgressBar, 'progressbar')  # type: ignore[assignment]
-        self.toolbar: QToolBar = self.findChild(QToolBar, 'toolbar')  # type: ignore[assignment]
-        self.tw_gkeys: QTableWidget = self.findChild(QTableWidget, 'tw_gkeys')  # type: ignore[assignment]
-        self.sp_completer: QSpinBox = self.findChild(QSpinBox, 'sp_completer')  # type: ignore[assignment]
-        self.tw_main: QTabWidget = self.findChild(QTabWidget, 'tw_main')  # type: ignore[assignment]
-        self.gb_fonts: QGroupBox = self.findChild(QGroupBox, 'gb_fonts')  # type: ignore[assignment]
-        self.toolBox: QToolBox = self.findChild(QToolBox, 'toolBox')  # type: ignore[assignment]
-        self.te_debug: QTextEdit = self.findChild(QTextEdit, 'te_debug')  # type: ignore[assignment]
+        """Find all widgets in the main window."""
+        self.statusbar: QStatusBar = self.findChild(QStatusBar, 'statusbar')
+        self.progressbar: QProgressBar = self.findChild(QProgressBar, 'progressbar')
+        self.toolbar: QToolBar = self.findChild(QToolBar, 'toolbar')
+        self.tw_gkeys: QTableWidget = self.findChild(QTableWidget, 'tw_gkeys')
+        self.sp_completer: QSpinBox = self.findChild(QSpinBox, 'sp_completer')
+        self.tw_main: QTabWidget = self.findChild(QTabWidget, 'tw_main')
+        self.gb_fonts: QGroupBox = self.findChild(QGroupBox, 'gb_fonts')
+        self.toolBox: QToolBox = self.findChild(QToolBox, 'toolBox')
+        self.te_debug: QTextEdit = self.findChild(QTextEdit, 'te_debug')
 
-        self.combo_planes: QComboBox = self.findChild(QComboBox, 'combo_planes')  # type: ignore[assignment]
-        self.combo_search: QComboBox = self.findChild(QComboBox, 'combo_search')  # type: ignore[assignment]
+        self.combo_planes: QComboBox = self.findChild(QComboBox, 'combo_planes')
+        self.combo_search: QComboBox = self.findChild(QComboBox, 'combo_search')
 
-        self.dw_gkeys: QDockWidget = self.findChild(QDockWidget, 'dw_gkeys')  # type: ignore[assignment]
-        self.dw_device: QDockWidget = self.findChild(QDockWidget, 'dw_device')  # type: ignore[assignment]
+        self.dw_gkeys: QDockWidget = self.findChild(QDockWidget, 'dw_gkeys')
+        self.dw_device: QDockWidget = self.findChild(QDockWidget, 'dw_device')
 
-        self.l_keyboard: QLabel = self.findChild(QLabel, 'l_keyboard')  # type: ignore[assignment]
-        self.l_large: QLabel = self.findChild(QLabel, 'l_large')  # type: ignore[assignment]
-        self.l_medium: QLabel = self.findChild(QLabel, 'l_medium')  # type: ignore[assignment]
-        self.l_small: QLabel = self.findChild(QLabel, 'l_small')  # type: ignore[assignment]
-        self.l_category: QLabel = self.findChild(QLabel, 'l_category')  # type: ignore[assignment]
-        self.l_description: QLabel = self.findChild(QLabel, 'l_description')  # type: ignore[assignment]
-        self.l_identifier: QLabel = self.findChild(QLabel, 'l_identifier')  # type: ignore[assignment]
-        self.l_range: QLabel = self.findChild(QLabel, 'l_range')  # type: ignore[assignment]
+        self.l_keyboard: QLabel = self.findChild(QLabel, 'l_keyboard')
+        self.l_large: QLabel = self.findChild(QLabel, 'l_large')
+        self.l_medium: QLabel = self.findChild(QLabel, 'l_medium')
+        self.l_small: QLabel = self.findChild(QLabel, 'l_small')
+        self.l_category: QLabel = self.findChild(QLabel, 'l_category')
+        self.l_description: QLabel = self.findChild(QLabel, 'l_description')
+        self.l_identifier: QLabel = self.findChild(QLabel, 'l_identifier')
+        self.l_range: QLabel = self.findChild(QLabel, 'l_range')
+        self.l_bios_ref: QLabel = self.findChild(QLabel, 'l_bios_ref')
+        self.l_bios_repo: QLabel = self.findChild(QLabel, 'l_bios_repo')
 
-        self.a_start: QAction = self.findChild(QAction, 'a_start')  # type: ignore[assignment]
-        self.a_stop: QAction = self.findChild(QAction, 'a_stop')  # type: ignore[assignment]
-        self.a_quit: QAction = self.findChild(QAction, 'a_quit')  # type: ignore[assignment]
-        self.a_save_plane: QAction = self.findChild(QAction, 'a_save_plane')  # type: ignore[assignment]
-        self.a_reset_defaults: QAction = self.findChild(QAction, 'a_reset_defaults')  # type: ignore[assignment]
-        self.a_show_toolbar: QAction = self.findChild(QAction, 'a_show_toolbar')  # type: ignore[assignment]
-        self.a_show_gkeys: QAction = self.findChild(QAction, 'a_show_gkeys')  # type: ignore[assignment]
-        self.a_show_device: QAction = self.findChild(QAction, 'a_show_device')  # type: ignore[assignment]
-        self.a_about_dcspy: QAction = self.findChild(QAction, 'a_about_dcspy')  # type: ignore[assignment]
-        self.a_about_qt: QAction = self.findChild(QAction, 'a_about_qt')  # type: ignore[assignment]
-        self.a_report_issue: QAction = self.findChild(QAction, 'a_report_issue')  # type: ignore[assignment]
-        self.a_dcspy_updates: QAction = self.findChild(QAction, 'a_dcspy_updates')  # type: ignore[assignment]
-        self.a_bios_updates: QAction = self.findChild(QAction, 'a_bios_updates')  # type: ignore[assignment]
-        self.a_donate: QAction = self.findChild(QAction, 'a_donate')  # type: ignore[assignment]
-        self.a_discord: QAction = self.findChild(QAction, 'a_discord')  # type: ignore[assignment]
-        self.a_icons_only: QAction = self.findChild(QAction, 'a_icons_only')  # type: ignore[assignment]
-        self.a_text_only: QAction = self.findChild(QAction, 'a_text_only')  # type: ignore[assignment]
-        self.a_text_beside: QAction = self.findChild(QAction, 'a_text_beside')  # type: ignore[assignment]
-        self.a_text_under: QAction = self.findChild(QAction, 'a_text_under')  # type: ignore[assignment]
-        self.a_mode_light: QAction = self.findChild(QAction, 'a_mode_light')  # type: ignore[assignment]
-        self.a_mode_dark: QAction = self.findChild(QAction, 'a_mode_dark')  # type: ignore[assignment]
-        self.a_mode_system: QAction = self.findChild(QAction, 'a_mode_system')  # type: ignore[assignment]
+        self.a_start: QAction = self.findChild(QAction, 'a_start')
+        self.a_stop: QAction = self.findChild(QAction, 'a_stop')
+        self.a_quit: QAction = self.findChild(QAction, 'a_quit')
+        self.a_save_plane: QAction = self.findChild(QAction, 'a_save_plane')
+        self.a_reset_defaults: QAction = self.findChild(QAction, 'a_reset_defaults')
+        self.a_show_toolbar: QAction = self.findChild(QAction, 'a_show_toolbar')
+        self.a_show_gkeys: QAction = self.findChild(QAction, 'a_show_gkeys')
+        self.a_show_device: QAction = self.findChild(QAction, 'a_show_device')
+        self.a_about_dcspy: QAction = self.findChild(QAction, 'a_about_dcspy')
+        self.a_about_qt: QAction = self.findChild(QAction, 'a_about_qt')
+        self.a_report_issue: QAction = self.findChild(QAction, 'a_report_issue')
+        self.a_dcspy_updates: QAction = self.findChild(QAction, 'a_dcspy_updates')
+        self.a_bios_updates: QAction = self.findChild(QAction, 'a_bios_updates')
+        self.a_donate: QAction = self.findChild(QAction, 'a_donate')
+        self.a_discord: QAction = self.findChild(QAction, 'a_discord')
+        self.a_icons_only: QAction = self.findChild(QAction, 'a_icons_only')
+        self.a_text_only: QAction = self.findChild(QAction, 'a_text_only')
+        self.a_text_beside: QAction = self.findChild(QAction, 'a_text_beside')
+        self.a_text_under: QAction = self.findChild(QAction, 'a_text_under')
+        self.a_mode_light: QAction = self.findChild(QAction, 'a_mode_light')
+        self.a_mode_dark: QAction = self.findChild(QAction, 'a_mode_dark')
+        self.a_mode_system: QAction = self.findChild(QAction, 'a_mode_system')
 
-        self.pb_start: QPushButton = self.findChild(QPushButton, 'pb_start')  # type: ignore[assignment]
-        self.pb_stop: QPushButton = self.findChild(QPushButton, 'pb_stop')  # type: ignore[assignment]
-        self.pb_close: QPushButton = self.findChild(QPushButton, 'pb_close')  # type: ignore[assignment]
-        self.pb_dcsdir: QPushButton = self.findChild(QPushButton, 'pb_dcsdir')  # type: ignore[assignment]
-        self.pb_biosdir: QPushButton = self.findChild(QPushButton, 'pb_biosdir')  # type: ignore[assignment]
-        self.pb_collect_data: QPushButton = self.findChild(QPushButton, 'pb_collect_data')  # type: ignore[assignment]
-        self.pb_copy: QPushButton = self.findChild(QPushButton, 'pb_copy')  # type: ignore[assignment]
-        self.pb_save: QPushButton = self.findChild(QPushButton, 'pb_save')  # type: ignore[assignment]
-        self.pb_dcspy_check: QPushButton = self.findChild(QPushButton, 'pb_dcspy_check')  # type: ignore[assignment]
-        self.pb_bios_check: QPushButton = self.findChild(QPushButton, 'pb_bios_check')  # type: ignore[assignment]
-        self.pb_bios_repair: QPushButton = self.findChild(QPushButton, 'pb_bios_repair')  # type: ignore[assignment]
+        self.pb_start: QPushButton = self.findChild(QPushButton, 'pb_start')
+        self.pb_stop: QPushButton = self.findChild(QPushButton, 'pb_stop')
+        self.pb_close: QPushButton = self.findChild(QPushButton, 'pb_close')
+        self.pb_dcsdir: QPushButton = self.findChild(QPushButton, 'pb_dcsdir')
+        self.pb_biosdir: QPushButton = self.findChild(QPushButton, 'pb_biosdir')
+        self.pb_collect_data: QPushButton = self.findChild(QPushButton, 'pb_collect_data')
+        self.pb_copy: QPushButton = self.findChild(QPushButton, 'pb_copy')
+        self.pb_save: QPushButton = self.findChild(QPushButton, 'pb_save')
+        self.pb_dcspy_check: QPushButton = self.findChild(QPushButton, 'pb_dcspy_check')
+        self.pb_bios_check: QPushButton = self.findChild(QPushButton, 'pb_bios_check')
+        self.pb_bios_repair: QPushButton = self.findChild(QPushButton, 'pb_bios_repair')
 
-        self.cb_autostart: QCheckBox = self.findChild(QCheckBox, 'cb_autostart')  # type: ignore[assignment]
-        self.cb_show_gui: QCheckBox = self.findChild(QCheckBox, 'cb_show_gui')  # type: ignore[assignment]
-        self.cb_check_ver: QCheckBox = self.findChild(QCheckBox, 'cb_check_ver')  # type: ignore[assignment]
-        self.cb_ded_font: QCheckBox = self.findChild(QCheckBox, 'cb_ded_font')  # type: ignore[assignment]
-        self.cb_lcd_screenshot: QCheckBox = self.findChild(QCheckBox, 'cb_lcd_screenshot')  # type: ignore[assignment]
-        self.cb_verbose: QCheckBox = self.findChild(QCheckBox, 'cb_verbose')  # type: ignore[assignment]
-        self.cb_autoupdate_bios: QCheckBox = self.findChild(QCheckBox, 'cb_autoupdate_bios')  # type: ignore[assignment]
-        self.cb_bios_live: QCheckBox = self.findChild(QCheckBox, 'cb_bios_live')  # type: ignore[assignment]
-        self.cb_debug_enable: QCheckBox = self.findChild(QCheckBox, 'cb_debug_enable')  # type: ignore[assignment]
+        self.cb_autostart: QCheckBox = self.findChild(QCheckBox, 'cb_autostart')
+        self.cb_show_gui: QCheckBox = self.findChild(QCheckBox, 'cb_show_gui')
+        self.cb_check_ver: QCheckBox = self.findChild(QCheckBox, 'cb_check_ver')
+        self.cb_ded_font: QCheckBox = self.findChild(QCheckBox, 'cb_ded_font')
+        self.cb_lcd_screenshot: QCheckBox = self.findChild(QCheckBox, 'cb_lcd_screenshot')
+        self.cb_verbose: QCheckBox = self.findChild(QCheckBox, 'cb_verbose')
+        self.cb_autoupdate_bios: QCheckBox = self.findChild(QCheckBox, 'cb_autoupdate_bios')
+        self.cb_bios_live: QCheckBox = self.findChild(QCheckBox, 'cb_bios_live')
+        self.cb_debug_enable: QCheckBox = self.findChild(QCheckBox, 'cb_debug_enable')
 
-        self.le_dcsdir: QLineEdit = self.findChild(QLineEdit, 'le_dcsdir')  # type: ignore[assignment]
-        self.le_biosdir: QLineEdit = self.findChild(QLineEdit, 'le_biosdir')  # type: ignore[assignment]
-        self.le_font_name: QLineEdit = self.findChild(QLineEdit, 'le_font_name')  # type: ignore[assignment]
-        self.le_bios_live: QLineEdit = self.findChild(QLineEdit, 'le_bios_live')  # type: ignore[assignment]
-        self.le_custom: QLineEdit = self.findChild(QLineEdit, 'le_custom')  # type: ignore[assignment]
+        self.le_dcsdir: QLineEdit = self.findChild(QLineEdit, 'le_dcsdir')
+        self.le_biosdir: QLineEdit = self.findChild(QLineEdit, 'le_biosdir')
+        self.le_font_name: QLineEdit = self.findChild(QLineEdit, 'le_font_name')
+        self.le_bios_ref: QLineEdit = self.findChild(QLineEdit, 'le_bios_ref')
+        self.le_bios_repo: QLineEdit = self.findChild(QLineEdit, 'le_bios_repo')
+        self.le_custom: QLineEdit = self.findChild(QLineEdit, 'le_custom')
 
-        self.rb_g19: QRadioButton = self.findChild(QRadioButton, 'rb_g19')  # type: ignore[assignment]
-        self.rb_g13: QRadioButton = self.findChild(QRadioButton, 'rb_g13')  # type: ignore[assignment]
-        self.rb_g15v1: QRadioButton = self.findChild(QRadioButton, 'rb_g15v1')  # type: ignore[assignment]
-        self.rb_g15v2: QRadioButton = self.findChild(QRadioButton, 'rb_g15v2')  # type: ignore[assignment]
-        self.rb_g510: QRadioButton = self.findChild(QRadioButton, 'rb_g510')  # type: ignore[assignment]
-        self.rb_rb_g910: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g910')  # type: ignore[assignment]
-        self.rb_rb_g710: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g710')  # type: ignore[assignment]
-        self.rb_rb_g110: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g110')  # type: ignore[assignment]
-        self.rb_rb_g103: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g103')  # type: ignore[assignment]
-        self.rb_rb_g105: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g105')  # type: ignore[assignment]
-        self.rb_rb_g11: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g11')  # type: ignore[assignment]
-        self.rb_rb_g633: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g633')  # type: ignore[assignment]
-        self.rb_rb_g35: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g35')  # type: ignore[assignment]
-        self.rb_rb_g930: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g930')  # type: ignore[assignment]
-        self.rb_rb_g933: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g933')  # type: ignore[assignment]
-        self.rb_rb_g600: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g600')  # type: ignore[assignment]
-        self.rb_rb_g300: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g300')  # type: ignore[assignment]
-        self.rb_rb_g400: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g400')  # type: ignore[assignment]
-        self.rb_rb_g700: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g700')  # type: ignore[assignment]
-        self.rb_rb_g9: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g9')  # type: ignore[assignment]
-        self.rb_rb_mx518: QRadioButton = self.findChild(QRadioButton, 'rb_rb_mx518')  # type: ignore[assignment]
-        self.rb_rb_g402: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g402')  # type: ignore[assignment]
-        self.rb_rb_g502: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g502')  # type: ignore[assignment]
-        self.rb_rb_g602: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g602')  # type: ignore[assignment]
-        self.rb_action: QRadioButton = self.findChild(QRadioButton, 'rb_action')  # type: ignore[assignment]
-        self.rb_fixed_step_inc: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_inc')  # type: ignore[assignment]
-        self.rb_fixed_step_dec: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_dec')  # type: ignore[assignment]
-        self.rb_set_state: QRadioButton = self.findChild(QRadioButton, 'rb_set_state')  # type: ignore[assignment]
-        self.rb_cycle: QRadioButton = self.findChild(QRadioButton, 'rb_cycle')  # type: ignore[assignment]
-        self.rb_variable_step_plus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_plus')  # type: ignore[assignment]
-        self.rb_variable_step_minus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_minus')  # type: ignore[assignment]
-        self.rb_push_button: QRadioButton = self.findChild(QRadioButton, 'rb_push_button')  # type: ignore[assignment]
-        self.rb_custom: QRadioButton = self.findChild(QRadioButton, 'rb_custom')  # type: ignore[assignment]
+        self.rb_g19: QRadioButton = self.findChild(QRadioButton, 'rb_g19')
+        self.rb_g13: QRadioButton = self.findChild(QRadioButton, 'rb_g13')
+        self.rb_g15v1: QRadioButton = self.findChild(QRadioButton, 'rb_g15v1')
+        self.rb_g15v2: QRadioButton = self.findChild(QRadioButton, 'rb_g15v2')
+        self.rb_g510: QRadioButton = self.findChild(QRadioButton, 'rb_g510')
+        self.rb_rb_g910: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g910')
+        self.rb_rb_g710: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g710')
+        self.rb_rb_g110: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g110')
+        self.rb_rb_g103: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g103')
+        self.rb_rb_g105: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g105')
+        self.rb_rb_g11: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g11')
+        self.rb_rb_g633: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g633')
+        self.rb_rb_g35: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g35')
+        self.rb_rb_g930: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g930')
+        self.rb_rb_g933: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g933')
+        self.rb_rb_g600: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g600')
+        self.rb_rb_g300: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g300')
+        self.rb_rb_g400: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g400')
+        self.rb_rb_g700: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g700')
+        self.rb_rb_g9: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g9')
+        self.rb_rb_mx518: QRadioButton = self.findChild(QRadioButton, 'rb_rb_mx518')
+        self.rb_rb_g402: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g402')
+        self.rb_rb_g502: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g502')
+        self.rb_rb_g602: QRadioButton = self.findChild(QRadioButton, 'rb_rb_g602')
+        self.rb_action: QRadioButton = self.findChild(QRadioButton, 'rb_action')
+        self.rb_fixed_step_inc: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_inc')
+        self.rb_fixed_step_dec: QRadioButton = self.findChild(QRadioButton, 'rb_fixed_step_dec')
+        self.rb_set_state: QRadioButton = self.findChild(QRadioButton, 'rb_set_state')
+        self.rb_cycle: QRadioButton = self.findChild(QRadioButton, 'rb_cycle')
+        self.rb_variable_step_plus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_plus')
+        self.rb_variable_step_minus: QRadioButton = self.findChild(QRadioButton, 'rb_variable_step_minus')
+        self.rb_push_button: QRadioButton = self.findChild(QRadioButton, 'rb_push_button')
+        self.rb_custom: QRadioButton = self.findChild(QRadioButton, 'rb_custom')
 
-        self.hs_large_font: QSlider = self.findChild(QSlider, 'hs_large_font')  # type: ignore[assignment]
-        self.hs_medium_font: QSlider = self.findChild(QSlider, 'hs_medium_font')  # type: ignore[assignment]
-        self.hs_small_font: QSlider = self.findChild(QSlider, 'hs_small_font')  # type: ignore[assignment]
-        self.hs_set_state: QSlider = self.findChild(QSlider, 'hs_set_state')  # type: ignore[assignment]
-        self.hs_debug_font_size: QSlider = self.findChild(QSlider, 'hs_debug_font_size')  # type: ignore[assignment]
+        self.hs_large_font: QSlider = self.findChild(QSlider, 'hs_large_font')
+        self.hs_medium_font: QSlider = self.findChild(QSlider, 'hs_medium_font')
+        self.hs_small_font: QSlider = self.findChild(QSlider, 'hs_small_font')
+        self.hs_set_state: QSlider = self.findChild(QSlider, 'hs_set_state')
+        self.hs_debug_font_size: QSlider = self.findChild(QSlider, 'hs_debug_font_size')
 
 
 class AboutDialog(QDialog):
@@ -1851,7 +1864,6 @@ class AboutDialog(QDialog):
             'Lupa': {'webpage': 'https://github.com/scoder/lupa', 'license': 'MIT style'},
             'packaging': {'webpage': 'https://github.com/pypa/packaging', 'license': 'Apache-2.0 OR BSD-2-Clause'},
             'Pillow': {'webpage': 'https://github.com/python-pillow/Pillow', 'license': 'MIT-CMU'},
-            'psutil': {'webpage': 'https://github.com/giampaolo/psutil', 'license': 'BSD 3-Clause'},
             'Pydantic': {'webpage': 'https://github.com/pydantic/pydantic', 'license': 'MIT'},
             'PySide6': {'webpage': 'https://wiki.qt.io/Qt_for_Python', 'license': 'LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only'},
             'PyYAML': {'webpage': 'https://github.com/yaml/pyyaml', 'license': 'MIT'},
@@ -1876,7 +1888,7 @@ class WorkerSignals(QObject):
     * finished - no data
     * error - tuple with exctype, value, traceback.format_exc()
     * result - object/any type - data returned from processing
-    * progress - float between zero (0) and one (1) as indication of progress
+    * progress - float between zero (0) and one (1) as an indication of progress
     * stage - string with current stage
     """
 
@@ -1941,7 +1953,7 @@ class GitCloneWorker(QRunnable, WorkerSignalsMixIn):
         Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
 
         :param git_ref: Git reference
-        :param repo: Valid git repository user/name
+        :param repo: Valid git repository address
         :param bios_path: Path to DCS-BIOS
         :param to_path: Path to which the repository should be cloned to
         :param silence: Perform action with silence

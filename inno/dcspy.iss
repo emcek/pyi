@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "dcspy"
-#define MyAppVersion "3.11.36"
+#define MyAppVersion "3.8.0"
 #define MyAppPublisher "Michał Plichta"
 #define MyAppURL "https://dcspy.readthedocs.io/en/latest/"
 #define MyAppExeName "dcspy.exe"
@@ -33,7 +33,7 @@ LicenseFile=D:\a\pyi\pyi\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=D:\a\pyi\pyi\inno
-OutputBaseFilename=dcspy_3.11.36_setup
+OutputBaseFilename=dcspy_3.8.0_setup
 SetupIconFile=D:\a\pyi\pyi\inno\SetupClassicIcon.ico
 SolidCompression=yes
 WizardStyle=modern
@@ -74,15 +74,14 @@ Source: "D:\a\pyi\pyi\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion rec
 Source: "D:\a\pyi\pyi\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\librt\*"; DestDir: "{app}\librt"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\mypy\*"; DestDir: "{app}\mypy"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\PIL\*"; DestDir: "{app}\PIL"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dcs_py.dist\psutil\*"; DestDir: "{app}\psutil"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\pydantic_core\*"; DestDir: "{app}\pydantic_core"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\PySide6\*"; DestDir: "{app}\PySide6"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\shiboken6\*"; DestDir: "{app}\shiboken6"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\yaml\*"; DestDir: "{app}\yaml"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\a\pyi\pyi\dcs_py.dist\zstandard\*"; DestDir: "{app}\zstandard"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

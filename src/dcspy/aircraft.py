@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
-from enum import Enum
+from collections.abc import Callable, Sequence
 from itertools import cycle
 from logging import getLogger
 from pathlib import Path
@@ -18,7 +17,8 @@ except ImportError:
 from PIL import Image, ImageDraw, ImageFont
 
 from dcspy import default_yaml, load_yaml
-from dcspy.models import DEFAULT_FONT_NAME, NO_OF_LCD_SCREENSHOTS, AircraftKwargs, AnyButton, BiosValue, LcdButton, LcdInfo, RequestModel, RequestType
+from dcspy.models import (DEFAULT_FONT_NAME, NO_OF_LCD_SCREENSHOTS, AircraftKwargs, AnyButton, ApacheAllDrawModesKwargs, ApacheEufdMode, BiosValue, LcdButton,
+                          LcdInfo, RequestModel, RequestType)
 from dcspy.utils import KeyRequest, replace_symbols, substitute_symbols
 
 LOG = getLogger(__name__)
@@ -114,8 +114,8 @@ class AdvancedAircraft(BasicAircraft):
         :param lcd_type: LCD type
         """
         super().__init__(lcd_type=lcd_type)
-        self.update_display = kwargs.get('update_display', None)
-        if self.update_display:
+        self.update_display: Callable[[Image.Image], None] | None = kwargs.get('update_display', None)
+        if callable(self.update_display):
             self.bios_data.update(kwargs.get('bios_data', {}))
         self._debug_img = cycle([f'{x:03}' for x in range(NO_OF_LCD_SCREENSHOTS)])
 
@@ -127,7 +127,7 @@ class AdvancedAircraft(BasicAircraft):
         :param value:
         """
         super().set_bios(selector=selector, value=value)
-        if self.update_display:
+        if callable(self.update_display):
             self.update_display(self.prepare_image())
 
     def prepare_image(self) -> Image.Image:
@@ -667,13 +667,6 @@ class Mi24P(AdvancedAircraft):
         return r863, r828, yadro
 
 
-class ApacheEufdMode(Enum):
-    """Apache EUFD Mode."""
-    IDM = 1
-    WCA = 2
-    PRE = 4
-
-
 class AH64DBLKII(AdvancedAircraft):
     """AH-64D Apache."""
     bios_name: str = 'AH-64D_BLK_II'
@@ -692,24 +685,24 @@ class AH64DBLKII(AdvancedAircraft):
     def draw_for_lcd_mono(self, img: Image.Image) -> None:
         """Prepare image for AH-64D Apache for Mono LCD."""
         LOG.debug(f'Mode: {self.mode}')
-        kwargs = {'draw': ImageDraw.Draw(img), 'scale': 1}
-        if (mode := self.mode.name.lower()) == 'pre':
+        kwargs: ApacheAllDrawModesKwargs = ApacheAllDrawModesKwargs(draw=ImageDraw.Draw(img), scale=1)
+        if self.mode == ApacheEufdMode.PRE:
             kwargs['x_cords'] = [0] * 5 + [80] * 5
             kwargs['y_cords'] = [j * 8 for j in range(0, 5)] * 2
             kwargs['font'] = self.lcd.font_xs
             del kwargs['scale']
-        getattr(self, f'_draw_for_{mode}')(**kwargs)
+        getattr(self, f'_draw_for_{self.mode.value}')(**kwargs)
 
     def draw_for_lcd_color(self, img: Image.Image) -> None:
         """Prepare image for AH-64D Apache for Color LCD."""
         LOG.debug(f'Mode: {self.mode}')
-        kwargs = {'draw': ImageDraw.Draw(img), 'scale': 2}
-        if (mode := self.mode.name.lower()) == 'pre':
+        kwargs: ApacheAllDrawModesKwargs = ApacheAllDrawModesKwargs(draw=ImageDraw.Draw(img), scale=2)
+        if self.mode == ApacheEufdMode.PRE:
             kwargs['x_cords'] = [0] * 10
             kwargs['y_cords'] = [j * 24 for j in range(0, 10)]
             kwargs['font'] = self.lcd.font_l
             del kwargs['scale']
-        getattr(self, f'_draw_for_{mode}')(**kwargs)
+        getattr(self, f'_draw_for_{self.mode.value}')(**kwargs)
 
     def _draw_for_idm(self, draw: ImageDraw.ImageDraw, scale: int) -> None:
         """
@@ -760,8 +753,8 @@ class AH64DBLKII(AdvancedAircraft):
         Draw image for PRE mode.
 
         :param draw: ImageDraw instance
-        :param x_cords: list of X coordinates
-        :param y_cords: list of Y coordinates
+        :param x_cords: a list of X coordinates
+        :param y_cords: a list of Y coordinates
         :param font: font instance
         """
         match_dict = {
@@ -1023,6 +1016,47 @@ class AV8BNA(AdvancedAircraft):
     def draw_for_lcd_color(self, img: Image.Image) -> None:
         """Prepare image for AV-8B N/A for Color LCD."""
         self._draw_common_data(draw=ImageDraw.Draw(img), scale=2)
+
+
+class C130J30(AdvancedAircraft):
+    """C-130J 30 Hercules."""
+    bios_name: str = 'C-130J-30'
+    def __init__(self, lcd_type: LcdInfo, **kwargs: Unpack[AircraftKwargs]) -> None:
+        """
+        Create C-130J 30 Hercules.
+
+        :param lcd_type: LCD type
+        """
+        kwargs['bios_data'] = {
+            'PLT_ICS_INTERPHONE_MODE': 0,
+            'PLT_ICS_TRANSMISSION_SELECTOR': 0,
+            'CPLT_ICS_INTERPHONE_MODE': 0,
+            'CPLT_ICS_TRANSMISSION_SELECTOR': 0,
+        }
+        super().__init__(lcd_type=lcd_type, **kwargs)
+
+    def _draw_common_data(self, draw: ImageDraw.ImageDraw) -> None:
+        """
+        Draw common part for Mono and Color LCD.
+
+        :param draw: ImageDraw instance
+        """
+        mode = {0: 'CALL', 1: 'INT', 2: 'VOX', 3: 'HOT MIC'}
+        trans = {0: 'PA', 1: 'INT', 2: 'U-1', 3: 'U-2', 4: 'V-1', 5: 'V-2', 6: 'H-1', 7: 'H-2', 8: 'SAT', 9: 'PVT'}
+        plt_mode = mode.get(int(self.get_bios('PLT_ICS_INTERPHONE_MODE', 0)))
+        plt_trans = trans.get(int(self.get_bios('PLT_ICS_TRANSMISSION_SELECTOR', 0)))
+        cplt_mode = mode.get(int(self.get_bios('CPLT_ICS_INTERPHONE_MODE', 0)))
+        cplt_trans = trans.get(int(self.get_bios('CPLT_ICS_TRANSMISSION_SELECTOR', 0)))
+        draw.text(xy=(1, 1), text=f' PLT: {plt_mode :>7} ({plt_trans :>3})', fill=self.lcd.foreground, font=self.lcd.font_s)
+        draw.text(xy=(1, 20), text=f'CPLT: {cplt_mode :>7} ({cplt_trans :>3})', fill=self.lcd.foreground, font=self.lcd.font_s)
+
+    def draw_for_lcd_mono(self, img: Image.Image) -> None:
+        """Prepare image for C-130J-30 for Mono LCD."""
+        self._draw_common_data(draw=ImageDraw.Draw(img))
+
+    def draw_for_lcd_color(self, img: Image.Image) -> None:
+        """Prepare image for C-130J-30 for Color LCD."""
+        self._draw_common_data(draw=ImageDraw.Draw(img))
 
 
 def draw_autopilot_channels(lcd: LcdInfo,

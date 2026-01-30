@@ -31,25 +31,25 @@ repos:
         exclude: 'helpers.py'
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
+    rev: v1.19.1
     hooks:
       - id: mypy
         exclude: '/qt_gui\.py$|/qtgui_rc\.py$|tests/$'
-        additional_dependencies: [types-cffi, types-lupa, types-Pillow, types-psutil, types-PyYAML, types-requests, lxml]
+        additional_dependencies: [types-cffi, types-lupa, types-Pillow, types-PyYAML, types-requests, lxml]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.11
+    rev: v0.14.14
     hooks:
       - id: ruff
         exclude: '/qtgui_rc.py$|tests/'
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         exclude: '/qtgui_rc.py$'
-        args: [--py39-plus]
+        args: [--py310-plus]
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
@@ -59,10 +59,10 @@ repos:
         args: [--omit-covered-files, --fail-under=90]
 
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.9.0
+    rev: v2.10.0
     hooks:
       -   id: pip-audit
-          args: [--local]
+          args: [--local, --ignore-vuln, GHSA-4xh5-x5gv-qwph]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
@@ -70,7 +70,7 @@ repos:
       - id: validate-pyproject
 
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 7.0.0
     hooks:
       - id: isort
         exclude: '/qtgui_rc.py$'

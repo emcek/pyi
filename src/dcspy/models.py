@@ -15,10 +15,10 @@ from typing import Any, Final, TypedDict, TypeVar, Union
 
 from _ctypes import sizeof
 from packaging import version
-from PIL import Image, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
 
-__version__ = '3.11.36'
+__version__ = '3.8.0'
 
 # Network
 SEND_ADDR: Final = ('127.0.0.1', 7778)
@@ -38,8 +38,9 @@ KEY_UP: Final = 0
 NO_OF_LCD_SCREENSHOTS: Final = 301
 TIME_BETWEEN_REQUESTS: Final = 0.2
 LOCAL_APPDATA: Final = True
-DCSPY_REPO_NAME: Final = 'emcek/pyi'
+DCSPY_REPO_NAME: Final = 'emcek/dcspy'
 BIOS_REPO_NAME: Final = 'DCS-Skunkworks/dcs-bios'
+BIOS_REPO_ADDR: Final = f'https://github.com/{BIOS_REPO_NAME}.git'
 DEFAULT_FONT_NAME: Final = 'consola.ttf'
 CTRL_LIST_SEPARATOR: Final = '--'
 CONFIG_YAML: Final = 'config.yaml'
@@ -59,6 +60,7 @@ SUPPORTED_CRAFTS = {
     'F14B': {'name': 'F-14B Tomcat', 'bios': 'F-14B'},
     'AV8BNA': {'name': 'AV-8B N/A Harrier', 'bios': 'AV8BNA'},
     'F4E45MC': {'name': 'F-4E Phantom II', 'bios': 'F-4E-45MC'},
+    'C130J30': {'name': 'C-130J 30 Hercules', 'bios': 'C-130J-30'},
 }
 
 BiosValue = Union[str, int, float]
@@ -68,6 +70,26 @@ class AircraftKwargs(TypedDict):
     """Represent the keyword arguments expected by the Aircraft class."""
     update_display: Callable[[Image.Image], None]
     bios_data: Mapping[str, BiosValue]
+
+
+class ApacheDrawModeKwargs(TypedDict):
+    """Keyword arguments for Apache draw mode."""
+    draw: ImageDraw.ImageDraw
+
+
+class ApacheAllDrawModesKwargs(ApacheDrawModeKwargs, total=False):
+    """Keyword arguments for Apache all draw modes."""
+    scale: int | None
+    x_cords: list[int] | None
+    y_cords: list[int] | None
+    font: ImageFont.FreeTypeFont | None
+
+
+class ApacheEufdMode(Enum):
+    """Apache EUFD Mode."""
+    IDM = 'idm'
+    WCA = 'wca'
+    PRE = 'pre'
 
 
 class Input(BaseModel):
@@ -558,10 +580,10 @@ class GuiPlaneInputRequest(BaseModel):
         using information from the ControlKeyData object (ctrl_key).
         If a custom value is provided, it incorporates the value into the generated request for certain request types.
 
-        :param ctrl_key: A ControlKeyData object used to specify the control key's attributes, such as its name, suggested step, and maximum value.
+        :param ctrl_key: A ControlKeyData is an object used to specify the control key's attributes, such as its name, suggested step, and maximum value.
         :param rb_iface: A string that represents the requested widget interface type, options include types such as 'rb_action', 'rb_fixed_step_inc', etc.
         :param custom_value: An optional string used to provide a custom value for specific request types ('rb_custom' or 'rb_set_state').
-        :return: A GuiPlaneInputRequest object initialized with the identifier, generated request string, and the specified widget interface type.
+        :return: A GuiPlaneInputRequest object initialized with the identifier, generated request string and the specified widget interface type.
         """
         rb_iface_request = {
             'rb_action': f'{ctrl_key.name} TOGGLE',
@@ -653,7 +675,7 @@ class MouseButton(BaseModel):
     Representation of a mouse button.
 
     Provides functionality for working with mouse buttons, including conversion
-    to string, boolean evaluation, hashing, and constructing instances from YAML
+    to string, boolean evaluation, hashing and constructing instances from YAML
     strings.
     Supports generating sequences of mouse buttons within a specified range.
     """
@@ -701,6 +723,51 @@ class MouseButton(BaseModel):
         :return: A tuple containing instantiated MouseButton objects for each value in the specified range.
         """
         return tuple(MouseButton(button=m) for m in range(button_range[0], button_range[1] + 1))
+
+
+class Gkey(BaseModel):
+    """Logitech G-Key."""
+    key: int
+    mode: int
+
+    def __str__(self) -> str:
+        """Return with format G<i>/M<j>."""
+        return f'G{self.key}_M{self.mode}'
+
+    def __bool__(self) -> bool:
+        """Return False when any of value is zero."""
+        return all([self.key, self.mode])
+
+    def __hash__(self) -> int:
+        """Hash will be the same for any two Gkey instances with the same key and mode values."""
+        return hash((self.key, self.mode))
+
+    @classmethod
+    def from_yaml(cls, /, yaml_str: str) -> Gkey:
+        """
+        Construct Gkey from YAML string.
+
+        :param yaml_str: G-Key string, example: G2_M1
+        :return: Gkey instance
+        """
+        match = search(r'G(\d+)_M(\d+)', yaml_str)
+        if match:
+            return cls(**{k: int(i) for k, i in zip(('key', 'mode'), match.groups())})
+        raise ValueError(f'Invalid Gkey format: {yaml_str}. Expected: G<i>_M<j>')
+
+    @staticmethod
+    def generate(key: int, mode: int) -> Sequence[Gkey]:
+        """
+        Generate a sequence of G-Keys.
+
+        :param key: Number of keys
+        :param mode: Number of modes
+        :return: sequence of Gkey instances
+        """
+        return tuple(Gkey(key=k, mode=m) for k in range(1, key + 1) for m in range(1, mode + 1))
+
+
+AnyButton = Union[LcdButton, Gkey, MouseButton]
 
 
 class LcdType(Enum):
@@ -775,51 +842,6 @@ LcdMono = LcdInfo(width=LcdSize.MONO_WIDTH, height=LcdSize.MONO_HEIGHT, type=Lcd
                   foreground=255, background=0, mode=LcdMode.BLACK_WHITE)
 LcdColor = LcdInfo(width=LcdSize.COLOR_WIDTH, height=LcdSize.COLOR_HEIGHT, type=LcdType.COLOR, line_spacing=40,
                    foreground=(0, 255, 0, 255), background=(0, 0, 0, 0), mode=LcdMode.TRUE_COLOR)
-
-
-class Gkey(BaseModel):
-    """Logitech G-Key."""
-    key: int
-    mode: int
-
-    def __str__(self) -> str:
-        """Return with format G<i>/M<j>."""
-        return f'G{self.key}_M{self.mode}'
-
-    def __bool__(self) -> bool:
-        """Return False when any of value is zero."""
-        return all([self.key, self.mode])
-
-    def __hash__(self) -> int:
-        """Hash will be the same for any two Gkey instances with the same key and mode values."""
-        return hash((self.key, self.mode))
-
-    @classmethod
-    def from_yaml(cls, /, yaml_str: str) -> Gkey:
-        """
-        Construct Gkey from YAML string.
-
-        :param yaml_str: G-Key string, example: G2_M1
-        :return: Gkey instance
-        """
-        match = search(r'G(\d+)_M(\d+)', yaml_str)
-        if match:
-            return cls(**{k: int(i) for k, i in zip(('key', 'mode'), match.groups())})
-        raise ValueError(f'Invalid Gkey format: {yaml_str}. Expected: G<i>_M<j>')
-
-    @staticmethod
-    def generate(key: int, mode: int) -> Sequence[Gkey]:
-        """
-        Generate a sequence of G-Keys.
-
-        :param key: Number of keys
-        :param mode: Number of modes
-        :return: sequence of Gkey instances
-        """
-        return tuple(Gkey(key=k, mode=m) for k in range(1, key + 1) for m in range(1, mode + 1))
-
-
-AnyButton = Union[LcdButton, Gkey, MouseButton]
 
 
 class DeviceRowsNumber(BaseModel):
@@ -990,7 +1012,7 @@ class MsgBoxTypes(Enum):
 
 
 class SystemData(BaseModel):
-    """Stores system related information."""
+    """Stores system and application-related information."""
     system: str
     release: str
     ver: str
@@ -1091,7 +1113,7 @@ class Asset(BaseModel):
     Representation of an asset with metadata information.
 
     This class is used to encapsulate details about an asset such as its
-    URL, name, label, content type, size, and download location.
+    URL, name, label, content type, size and download location.
     It also provides functionality to validate the asset's properties against specific criteria.
     """
     url: str
@@ -1175,7 +1197,7 @@ class Release(BaseModel):
         If no asset matches the provided criteria, an empty string is returned.
 
         :param extension: The file extension to search for, defaults to an empty string if not specified.
-        :param file_name: The file name to search for, defaults to an empty string if not specified.
+        :param file_name: The file name to search for defaults to an empty string if not specified.
         :return: The download URL of the asset if a match is found, otherwise an empty string.
         """
         asset = self.get_asset(extension=extension, file_name=file_name)
@@ -1237,8 +1259,7 @@ class RequestModel(BaseModel):
     """
     Represent a request model for handling different input button states and their respective BIOS actions.
 
-    This class is designed to manage various types of input requests, including cycle, custom,
-    and push-button requests.
+    This class is designed to manage various types of input requests, including cycle, custom and push-button requests.
     It provides functionality to validate input data, generate requests in byte format, and interpret requests based on specific conditions.
     It also supports creating empty request models and handling interactions with BIOS configuration via designated callable functions.
     """
@@ -1251,7 +1272,7 @@ class RequestModel(BaseModel):
     @field_validator('ctrl_name')
     def validate_interface(cls, value: str) -> str:
         """
-        Validate the provided interface name ensuring it consists only of uppercase letters, digits, or underscores.
+        Validate the provided interface name ensuring it consists only of uppercase letters, digits or underscores.
 
         This validator enforces strict naming conventions for control names, rejecting any value that contains invalid characters or is an empty string.
 
@@ -1271,13 +1292,13 @@ class RequestModel(BaseModel):
         This method processes the provided request string to extract necessary
         information, such as control name and cycle details.
         It initializes a CycleButton instance using the request information if applicable.
-        The function then returns a RequestModel instance populated with the parsed data and additional state information.
+        The function then returns a RequestModel instance contains the parsed data and additional state information.
 
         :param key: The key representing the `AnyButton` instance tied to the request.
         :param request: The raw request string providing all request details.
         :param get_bios_fn: A callable function that retrieves BIOS values, function takes
                             a string input (BIOS key) and returns a corresponding `BiosValue` object.
-        :return: A new instance of `RequestModel` populated with data parsed from the provided request string and supporting parameters.
+        :return: A new instance of `RequestModel` contains data parsed from the provided request string and supporting parameters.
         """
         cycle_button = CycleButton(ctrl_name='', step=0, max_value=0)
         if RequestType.CYCLE.value in request:
@@ -1300,10 +1321,10 @@ class RequestModel(BaseModel):
         Determine the next value for the button using a ZigZagIterator.
 
         If the cycle iterator is not already an instance of ZigZagIterator, it initializes one
-        using the control name and cycle attributes, before returning the next value from the iterator.
+        using the control name and cycle attributes. Then the next value from the iterator is returned.
 
         :raises TypeError: If ``self.cycle.iter`` is not of the expected type and cannot be initialized properly as a ZigZagIterator instance.
-        :returns: The next integer value generated by the ZigZagIterator.
+        :returns: The next value as an integer generated by the ZigZagIterator.
         """
         if not isinstance(self.cycle.iter, ZigZagIterator):
             self.cycle.iter = ZigZagIterator(current=int(self.get_bios_fn(self.ctrl_name)),

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Iterator
+from contextlib import suppress
 from logging import getLogger
 from os import makedirs
 from pathlib import Path
@@ -10,7 +11,7 @@ from shutil import SameFileError, copy
 
 from packaging import version
 
-from dcspy.models import ConfigValue, DcspyConfigYaml, __version__
+from dcspy.models import BIOS_REPO_ADDR, ConfigValue, DcspyConfigYaml, __version__
 from dcspy.utils import DEFAULT_YAML_FILE, defaults_cfg, get_config_yaml_location
 
 LOG = getLogger(__name__)
@@ -56,6 +57,15 @@ def _filter_api_ver_func(cfg_ver: str) -> Iterator[Callable[[DcspyConfigYaml], N
             yield globals()['_api_ver_{}'.format(api_ver.replace('.', '_'))]
 
 
+def _api_ver_3_8_0(cfg: DcspyConfigYaml) -> None:
+    """
+    Migrate to version 3.8.0.
+
+    :param cfg: Configuration dictionary
+    """
+    _add_key(cfg, 'git_bios_repo', BIOS_REPO_ADDR)
+
+
 def _api_ver_3_7_0(cfg: DcspyConfigYaml) -> None:
     """
     Migrate to version 3.7.0.
@@ -70,7 +80,7 @@ def _api_ver_3_7_0(cfg: DcspyConfigYaml) -> None:
 
 def _api_ver_3_5_0(cfg: DcspyConfigYaml) -> None:
     """
-    Migrate to version 3.5.1.
+    Migrate to version 3.5.0.
 
     :param cfg: Configuration dictionary
     """
@@ -169,11 +179,9 @@ def _remove_key(cfg: DcspyConfigYaml, key: str) -> None:
     :param cfg: Configuration dictionary
     :param key: key name
     """
-    try:
+    with suppress(KeyError):
         del cfg[key]
         LOG.debug(f'Remove key: {key}')
-    except KeyError:
-        pass
 
 
 def _rename_key_keep_value(cfg: DcspyConfigYaml, old_name: str, new_name: str, default_value: ConfigValue) -> None:
@@ -186,10 +194,8 @@ def _rename_key_keep_value(cfg: DcspyConfigYaml, old_name: str, new_name: str, d
     :param default_value: Use if a value for an old key does not exist
     """
     value = cfg.get(old_name, default_value)
-    try:
+    with suppress(KeyError):
         del cfg[old_name]
-    except KeyError:
-        pass
     cfg[new_name] = value
     LOG.debug(f'Rename key {old_name} -> {new_name} with: {value}')
 
@@ -218,11 +224,9 @@ def _copy_file(filename: str, to_path: Path, force: bool = False) -> None:
     :param force: Force to overwrite an existing file
     """
     if not Path(to_path / filename).is_file() or force:
-        try:
+        with suppress(SameFileError):
             copy(src=DEFAULT_YAML_FILE.parent / filename, dst=to_path)
             LOG.debug(f'Copy file: {filename} to {to_path}')
-        except SameFileError:
-            pass
 
 
 def replace_line_in_file(filename: str, dir_path: Path, pattern: re.Pattern, new_text: str) -> None:
@@ -235,12 +239,10 @@ def replace_line_in_file(filename: str, dir_path: Path, pattern: re.Pattern, new
     :param new_text: The text to replace the line matching the pattern with.
     """
     yaml_filename = dir_path / filename
-    try:
+    with suppress(FileNotFoundError):
         with open(yaml_filename) as yaml_file:
             file_content = yaml_file.read()
         LOG.debug(yaml_filename)
         updated_content = re.sub(pattern, new_text, file_content)
         with open(yaml_filename, 'w') as yaml_file:
             yaml_file.write(updated_content)
-    except FileNotFoundError:
-        pass
