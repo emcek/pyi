@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   nuitka:
-    needs: [ test ]
+    needs: [ style ]
     uses: ./.github/workflows/nuitka.yml
 
   wheel:
