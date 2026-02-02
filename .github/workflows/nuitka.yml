@@ -21,7 +21,7 @@ jobs:
         run: |
           pwd
           dir
-          cd src
+          cd src`
           dir
           cd ..
           $ref_name = $env:GITHUB_REF_NAME -replace '^v', ''
