@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "dcspy"
-#define MyAppVersion "3.11.38"
+#define MyAppVersion "3.11.39"
 #define MyAppPublisher "Michał Plichta"
 #define MyAppURL "https://dcspy.readthedocs.io/en/latest/"
 #define MyAppExeName "dcspy.exe"
