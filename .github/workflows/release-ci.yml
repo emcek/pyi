@@ -46,12 +46,6 @@ jobs:
       - name: "Release Notes"
         id: version
         run: |
-          ls -la
-          pwd
-          ls -la inno
-          cd src
-          ls -la 
-          cd ..
           $dcspy_ver = python scripts/latest_tag.py . 0
           Write-Output "number=$dcspy_ver" >> $env:GITHUB_OUTPUT
           $changelog = Get-Content .\CHANGELOG.md

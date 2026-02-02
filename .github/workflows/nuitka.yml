@@ -19,6 +19,11 @@ jobs:
         shell: pwsh
         id: nuitka_data
         run: |
+          pwd
+          dir
+          cd src
+          dir
+          cd ..
           $ref_name = $env:GITHUB_REF_NAME -replace '^v', ''
           $run_number = $env:GITHUB_RUN_NUMBER
           $sha = $env:GITHUB_SHA.Substring(0, 5)
