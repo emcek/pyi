@@ -21,9 +21,10 @@ jobs:
         run: |
           pwd
           dir
-          cd src`
+          cd src
           dir
           cd ..
+          dir D:\a\pyi\pyi\inno
           $ref_name = $env:GITHUB_REF_NAME -replace '^v', ''
           $run_number = $env:GITHUB_RUN_NUMBER
           $sha = $env:GITHUB_SHA.Substring(0, 5)

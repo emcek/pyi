@@ -31,12 +31,6 @@ jobs:
           sudo mkdir -p /usr/share/fonts/truetype
           sudo mv consola.ttf /usr/share/fonts/truetype
           fc-cache -f
-          ls -la
-          pwd
-          ls -la inno
-          cd src
-          ls -la 
-          cd ..
 
       - name: "Test with pytest"
         env:
