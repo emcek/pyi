@@ -5,7 +5,7 @@ from traceback import format_exc
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMessageBox
 
-__version__ = '3.11.58'
+__version__ = '3.11.59'
 
 
 def start_dcspy(cli_args: Namespace) -> None:
