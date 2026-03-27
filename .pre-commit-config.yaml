@@ -4,7 +4,7 @@ ci:
   skip: [pip-audit]
 
 default_language_version:
-  python: python3.13
+  python: python3.14
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -23,7 +23,6 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: check-json
-      - id: requirements-txt-fixer
       - id: fix-byte-order-marker
         exclude: 'qtgui_rc.py|\.isl'
       - id: name-tests-test
@@ -38,7 +37,7 @@ repos:
         additional_dependencies: [types-cffi, types-lupa, types-Pillow, types-PyYAML, types-requests, lxml]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.8
     hooks:
       - id: ruff
         exclude: '/qtgui_rc.py$|tests/'
@@ -62,15 +61,15 @@ repos:
     rev: v2.10.0
     hooks:
       -   id: pip-audit
-          args: [--local, --ignore-vuln, GHSA-4xh5-x5gv-qwph]
+          args: [--local, --ignore-vuln, CVE-2026-4539]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
 
   - repo: https://github.com/pycqa/isort
-    rev: 7.0.0
+    rev: 8.0.1
     hooks:
       - id: isort
         exclude: '/qtgui_rc.py$'

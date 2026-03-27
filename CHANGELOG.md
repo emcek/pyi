@@ -1,4 +1,13 @@
-## 3.11.45
+## 3.11.55
+* Fix debugger tab in dark mode - #551 (@emcek)
+* Switching color schem, switching images and logos in Application - #554 (@emcek)
+* Internal:
+  * Add support for Python 3.14 - #552 (@emcek)
+  * Update PySide to 6.11.0 - #553 (@emcek)
+  * Update `requests` to fix CVE-2026-25645 vulnerability
+  * Build using Nuitka 4.0.7
+
+## 3.8.0
 * Add initial support for **C-130J 30 Hercules** - #534 (@emcek)
 * Add configurable DCS-BIOS git repository - #533 (@emcek)
 * Allow checkout remote git branches for BIOS - #530 (@emcek)

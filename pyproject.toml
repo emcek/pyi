@@ -9,7 +9,7 @@ maintainers = [{name = 'Michal Plichta'}]
 description = 'Software for integrating DCS Planes with Logitech keyboards (with and without LCD), mice and headphones.'
 license = 'MIT'
 license-files = ['LICENSE.md', 'src/dcspy/resources/license.txt']
-requires-python = '>=3.10, <3.14'
+requires-python = '>=3.10, <3.15'
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
@@ -18,6 +18,7 @@ classifiers = [
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
     'Operating System :: Microsoft :: Windows',
     'Operating System :: Microsoft :: Windows :: Windows 10',
     'Operating System :: Microsoft :: Windows :: Windows 11',
@@ -37,17 +38,17 @@ keywords = [
 ]
 dynamic = ['version', 'readme']
 dependencies = [
-    'cffi',
-    'eval-type-backport ; python_version < "3.10"',
-    'gitpython',
-    'lupa',
-    'packaging',
-    'pillow>=12.1.0',
-    'pydantic',
-    'pyside6==6.10.0',
-    'pyyaml',
-    'requests',
-    'typing-extensions; python_version < "3.11"',
+    'cffi==2.0.0',
+    'eval-type-backport==0.3.1 ; python_version < "3.10"',
+    'gitpython==3.1.46',
+    'lupa==2.6',
+    'packaging==26.0',
+    'pillow==12.1.1',
+    'pydantic==2.12.5',
+    'pyside6==6.11.0',
+    'pyyaml==6.0.3',
+    'requests==2.33.0',
+    'typing-extensions==4.15.0; python_version < "3.11"',
 ]
 
 [project.urls]
@@ -59,39 +60,42 @@ Changelog = 'https://github.com/emcek/dcspy/blob/master/CHANGELOG.md'
 [project.scripts]
 dcspy_cli = 'dcspy.run:run'
 
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+
 [project.gui-scripts]
 dcspy = 'dcspy.run:run'
 
 [project.optional-dependencies]
 test = [
-    'interrogate',
-    'isort',
-    'lxml',
-    'mypy',
-    'pip-audit',
-    'pytest',
-    'pytest-codspeed',
-    'pytest-cov',
-    'pytest-qt ; sys_platform == "win32"',
-    'pytest-randomly',
-    'ruff',
-    'types-cffi',
-    'types-lupa',
-    'types-pillow',
-    'types-pyyaml',
-    'types-requests',
+    'interrogate==1.7.0',
+    'isort==8.0.1',
+    'lxml==6.0.2',
+    'mypy==1.19.1',
+    'pip-audit==2.10.0',
+    'pytest==9.0.2',
+    'pytest-codspeed==4.3.0',
+    'pytest-cov==7.1.0',
+    'pytest-qt==4.5.0 ; sys_platform == "win32"',
+    'pytest-randomly==4.0.1',
+    'ruff==0.15.8',
+    'types-cffi==2.0.0.20260316',
+    'types-lupa==2.6.0.20251026',
+    'types-pillow==10.2.0.20240822',
+    'types-pyyaml==6.0.12.20250915',
+    'types-requests==2.33.0.20260327',
 ]
 docs = [
-    'black',
-    'mkdocs',
-    'mkdocs-gen-files',
-    'mkdocs-literate-nav',
-    'mkdocs-material',
-    'mkdocs-plantuml',
-    'mkdocs-section-index',
-    'mkdocstrings',
-    'mkdocstrings-python',
-    'plantuml',
+    'black==26.3.1',
+    'mkdocs==1.6.1',
+    'mkdocs-gen-files==0.6.1',
+    'mkdocs-literate-nav==0.6.3',
+    'mkdocs-material==9.7.6',
+    'mkdocs-plantuml==0.1.1',
+    'mkdocs-section-index==0.3.11',
+    'mkdocstrings<1.0.0',
+    'mkdocstrings-python>1.0.0,<2.0.0',
+    'plantuml==0.3.0',
 ]
 
 [tool.setuptools.dynamic]
@@ -106,8 +110,8 @@ exclude = ['dcspy.tests*']
 [tool.setuptools.package-data]
 dcspy = [
     'resources/*.*',
-    'img/dcspy_white.ico',
-    'img/dcspy_black.ico',
+    'img/dcspy_light.ico',
+    'img/dcspy_dark.ico',
     'img/splash.png',
     'py.typed',
 ]
@@ -140,8 +144,24 @@ exclude = ['tests/test_*', 'src/dcspy/qtgui_rc.py']
 
 [tool.ruff]
 line-length = 160
-lint.select = ['E', 'F', 'C90', 'D', 'RUF']
-lint.ignore = ['D100', 'D101','D104', 'D105', 'D203', 'D204', 'D212', 'RUF001', 'RUF010']
+lint.select = [
+    'E',
+    'F',
+    'C90',
+    'D',
+    'RUF',
+]
+lint.ignore = [
+    'D100',
+    'D101',
+    'D104',
+    'D105',
+    'D203',
+    'D204',
+    'D212',
+    'RUF001',
+    'RUF010',
+]
 extend-exclude = [
     'qtgui_rc.py',
     'tests/',
@@ -149,6 +169,18 @@ extend-exclude = [
 
 [tool.ruff.lint.mccabe]
 max-complexity = 5
+
+[tool.ty.src]
+include = ['src', 'tests']
+exclude = ['src/dcspy/qt_gui.py', 'src/dcspy/qtgui_rc.py']
+
+[tool.ty.rules]
+unresolved-import = 'ignore'
+unresolved-attribute = 'ignore'
+invalid-argument-type = 'ignore'
+possibly-missing-submodule = 'ignore'
+missing-argument = 'ignore'
+invalid-assignment = 'ignore'
 
 [tool.mypy]
 #ignore_missing_imports = true
@@ -179,4 +211,5 @@ dev = [
     'nuitka',
     'pre-commit',
     'PySide6-stubs',
+    "ty>=0.0.25",
 ]

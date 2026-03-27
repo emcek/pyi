@@ -32,9 +32,9 @@ from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox,
                                QSystemTrayIcon, QTableWidget, QTabWidget, QTextBrowser, QTextEdit, QToolBar, QToolBox, QWidget)
 
 from dcspy import default_yaml, qtgui_rc
-from dcspy.models import (ALL_DEV, BIOS_REPO_NAME, CTRL_LIST_SEPARATOR, DCSPY_REPO_NAME, AnyButton, ControlDepiction, ControlKeyData, DcspyConfigYaml,
-                          FontsConfig, Gkey, GuiPlaneInputRequest, GuiTab, LcdButton, LcdMono, LcdType, LogitechDeviceModel, MouseButton, MsgBoxTypes, Release,
-                          RequestType, SystemData, __version__)
+from dcspy.models import (ALL_DEV, BIOS_REPO_NAME, CTRL_LIST_SEPARATOR, DCSPY_REPO_NAME, LOG_GUI_FMT, AnyButton, ControlDepiction, ControlKeyData,
+                          DcspyConfigYaml, FontsConfig, Gkey, GuiPlaneInputRequest, GuiTab, LcdButton, LcdMono, LcdType, LogitechDeviceModel, MouseButton,
+                          MsgBoxTypes, Release, RequestType, SystemData, __version__)
 from dcspy.starter import DCSpyStarter
 from dcspy.utils import (CloneProgress, check_bios_ver, check_dcs_bios_entry, check_dcs_ver, check_github_repo, check_ver_at_github, collect_debug_data,
                          count_files, defaults_cfg, detect_system_color_mode, download_file, generate_bios_jsons_with_lupa, get_all_git_refs,
@@ -63,6 +63,7 @@ class DcsPyQtGui(QMainWindow):
         super().__init__()
         UiLoader().load_ui(':/ui/ui/qtdcs.ui', self)
         self._find_children()
+        QApplication.styleHints().colorSchemeChanged.connect(self._color_scheme_switched)
         self.config = cfg_dict
         if not cfg_dict:
             self.config = load_yaml(full_path=default_yaml)
@@ -118,8 +119,7 @@ class DcsPyQtGui(QMainWindow):
     def _init_gui_logger(self) -> None:
         """Initialize GUI log handler."""
         self.gui_log = QTextEditLogHandler(text_widget=self.te_debug)
-        formatter = Formatter(fmt='%(asctime)s | %(levelname)-7s | %(threadName)-10s | %(message)s / %(funcName)s:%(lineno)d', datefmt='%H:%M:%S')
-        self.gui_log.setFormatter(formatter)
+        self.gui_log.setFormatter(Formatter(fmt=LOG_GUI_FMT, datefmt='%H:%M:%S'))
         self.gui_log.setLevel(INFO)
         if self.config.get('verbose', False):
             self.gui_log.setLevel(DEBUG)
@@ -128,7 +128,7 @@ class DcsPyQtGui(QMainWindow):
 
     def _init_tray(self) -> None:
         """Initialize of system tray icon."""
-        self.systray.setIcon(QIcon(':/icons/img/dcspy_white.svg'))
+        self.systray.setIcon(QIcon(':/icons/img/dcspy_light.svg'))
         self.systray.setVisible(True)
         self.systray.setToolTip(f'DCSpy {__version__}')
         self.traymenu.addAction(self.a_dcspy_updates)
@@ -419,7 +419,7 @@ class DcsPyQtGui(QMainWindow):
 
         :return: True if a generation is successful, False otherwise.
         """
-        lua_exec = self.dcs_path / 'bin' / 'luae.exe'
+        lua_exec = str(self.dcs_path / 'bin' / 'luae.exe')
         LOG.info('Regenerating DCS-BIOS JSONs files...')
         return_code = -1
         try:
@@ -1692,6 +1692,13 @@ class DcsPyQtGui(QMainWindow):
             mode = detect_system_color_mode()
         style_hints.setColorScheme(getattr(Qt.ColorScheme, mode))
 
+    def _color_scheme_switched(self):
+        """Handle the event when the application's color scheme switches."""
+        mode = QApplication.styleHints().colorScheme().name.lower()
+        pixmap = QPixmap(f':/icons/img/dcspy_{mode}.svg')
+        self.setWindowIcon(pixmap)
+        self.a_about_dcspy.setIcon(pixmap)
+
     def _find_children(self) -> None:
         """Find all widgets in the main window."""
         self.statusbar: QStatusBar = self.findChild(QStatusBar, 'statusbar')
@@ -1821,12 +1828,20 @@ class AboutDialog(QDialog):
         super().__init__(parent)
         self.parent: DcsPyQtGui | QWidget = parent
         UiLoader().load_ui(':/ui/ui/about.ui', self)
-        self.l_info: QLabel = self.findChild(QLabel, 'l_info')
+        self.tb_info: QTextBrowser = self.findChild(QTextBrowser, 'tb_info')
+        self.l_logo: QLabel = self.findChild(QLabel, 'l_logo')
         self.tb_licenses: QTextBrowser = self.findChild(QTextBrowser, 'tb_licenses')
+        QApplication.styleHints().colorSchemeChanged.connect(self._color_scheme_switched)
 
-    def showEvent(self, event: QShowEvent) -> None:
+    def _color_scheme_switched(self) -> None:
+        """Handle the event when the application's color scheme switches."""
+        mode = QApplication.styleHints().colorScheme().name.lower()
+        pixmap = QPixmap(f':/icons/img/dcspy_{mode}.svg')
+        self.l_logo.setPixmap(pixmap)
+
+    def showEvent(self, arg__1: QShowEvent) -> None:
         """Prepare all information about DCSpy application."""
-        super().showEvent(event)
+        super().showEvent(arg__1)
         self._prepare_about()
         self._prepare_licenses()
 
@@ -1853,7 +1868,7 @@ class AboutDialog(QDialog):
             text += f'<b>SHA:</b> {d.dcs_bios_ver}</a>'
         text += f'<br><b>DCS World</b>: <a href="https://www.digitalcombatsimulator.com/en/news/changelog/stable/{d.dcs_ver}/">{d.dcs_ver}</a>'
         text += '</p></body></html>'
-        self.l_info.setText(text)
+        self.tb_info.setText(text)
 
     def _prepare_licenses(self) -> None:
         """Prepare licenses text."""
@@ -1879,6 +1894,7 @@ class AboutDialog(QDialog):
             text += f'<br>License: {data["license"]}</p>'
         text += '</body></html>'
         self.tb_licenses.setText(text)
+
 
 class WorkerSignals(QObject):
     """
@@ -1992,11 +2008,11 @@ class UiLoader(QUiLoader):
     """UI file loader."""
     _base_instance = None
 
-    def createWidget(self, classname: str, parent: QWidget | None = None, name='') -> QWidget:
+    def createWidget(self, className: str, parent: QWidget | None = None, name='') -> QWidget:
         """
         Create a widget.
 
-        :param classname: Class name
+        :param className: Class name
         :param parent: Parent
         :param name: Name
         :return: QWidget
@@ -2004,7 +2020,7 @@ class UiLoader(QUiLoader):
         if parent is None and self._base_instance is not None:
             widget = self._base_instance
         else:
-            widget = super().createWidget(classname, parent, name)
+            widget = super().createWidget(className, parent, name)
             if self._base_instance is not None:
                 setattr(self._base_instance, name, widget)
         return widget
@@ -2031,7 +2047,7 @@ class UiLoader(QUiLoader):
 class QTextEditLogHandler(Handler):
     """GUI log handler."""
     colors: ClassVar[dict[str, QColor]] = {
-        'DEBUG': QColorConstants.Svg.black,
+        'DEBUG': QColorConstants.Svg.grey,
         'INFO': QColorConstants.Svg.green,
         'WARNING': QColorConstants.Svg.darkorange,
         'ERROR': QColorConstants.Svg.red,

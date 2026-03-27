@@ -18,7 +18,7 @@ from packaging import version
 from PIL import Image, ImageDraw, ImageFont
 from pydantic import BaseModel, ConfigDict, RootModel, field_validator
 
-__version__ = '3.11.45'
+__version__ = '3.11.55'
 
 # Network
 SEND_ADDR: Final = ('127.0.0.1', 7778)
@@ -35,6 +35,9 @@ KEY_DOWN: Final = 1
 KEY_UP: Final = 0
 
 # Others
+LOG_GUI_FMT: Final[str] = '%(asctime)s | %(levelname)-8s | %(threadName)-10s | %(message)s / %(funcName)s:%(lineno)d'
+LOG_FULL_FMT: Final[str] = '%(asctime)s | %(name)-17s | %(levelname)-8s | %(threadName)-10s | %(message)s / %(funcName)s:%(lineno)d'
+LOG_SHORT_FMT: Final[str] = '%(levelname)-8s | %(message)s'
 NO_OF_LCD_SCREENSHOTS: Final = 301
 TIME_BETWEEN_REQUESTS: Final = 0.2
 LOCAL_APPDATA: Final = True
@@ -93,7 +96,7 @@ class ApacheEufdMode(Enum):
 
 
 class Input(BaseModel):
-    """Input base class of inputs section of Control."""
+    """Input base class of the inputs section of Control."""
     description: str
 
     def get(self, attribute: str, default=None) -> Any | None:
@@ -108,7 +111,7 @@ class Input(BaseModel):
 
 
 class FixedStep(Input):
-    """FixedStep input interface of inputs a section of Control."""
+    """FixedStep input interface of the inputs section of Control."""
     interface: str = 'fixed_step'
 
     @field_validator('interface')
@@ -180,7 +183,7 @@ class Action(Input):
 
 
 class SetString(Input):
-    """SetString input interface of inputs a section of Control."""
+    """SetString input interface of the inputs section of Control."""
     interface: str = 'set_string'
 
     @field_validator('interface')
@@ -200,14 +203,14 @@ Inputs = Union[FixedStep, VariableStep, SetState, Action, SetString]
 
 
 class Output(BaseModel):
-    """Output base class of outputs section of Control."""
+    """Output base class of the outputs section of Control."""
     address: int
     description: str
     suffix: str
 
 
 class OutputStr(Output):
-    """String output interface of outputs a section of Control."""
+    """String output interface of the outputs a section of Control."""
     max_length: int
     type: str
 
@@ -398,7 +401,7 @@ class ControlKeyData:
     @property
     def has_variable_step(self) -> bool:
         """
-        Check if input has variable step input.
+        Check if an input has a variable step input.
 
         :return: True if ControlKeyData has variable step input, False otherwise
         """
@@ -416,7 +419,7 @@ class ControlKeyData:
     @property
     def has_action(self) -> bool:
         """
-        Check if input has action input.
+        Check if an input has an action input.
 
         :return: True if ControlKeyData has action input, False otherwise
         """
@@ -1292,7 +1295,7 @@ class RequestModel(BaseModel):
         This method processes the provided request string to extract necessary
         information, such as control name and cycle details.
         It initializes a CycleButton instance using the request information if applicable.
-        The function then returns a RequestModel instance contains the parsed data and additional state information.
+        The function then returns a RequestModel instance, contains the parsed data and additional state information.
 
         :param key: The key representing the `AnyButton` instance tied to the request.
         :param request: The raw request string providing all request details.
