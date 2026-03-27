@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "dcspy"
-#define MyAppVersion "3.11.55"
+#define MyAppVersion "3.11.56"
 #define MyAppPublisher "Michał Plichta"
 #define MyAppURL "https://dcspy.readthedocs.io/en/latest/"
 #define MyAppExeName "dcspy.exe"
@@ -33,7 +33,7 @@ LicenseFile=D:\a\pyi\pyi\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=D:\a\pyi\pyi\inno
-OutputBaseFilename=dcspy_3.11.55_setup
+OutputBaseFilename=dcspy_3.11.56_setup
 SetupIconFile=D:\a\pyi\pyi\inno\SetupClassicIcon.ico
 SolidCompression=yes
 WizardStyle=modern
@@ -72,6 +72,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "D:\a\pyi\pyi\dcs_py.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\a\pyi\pyi\dcs_py.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\a\pyi\pyi\dcs_py.dist\charset_normalizer\*"; DestDir: "{app}\charset_normalizer"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\dcspy\*"; DestDir: "{app}\dcspy"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\librt\*"; DestDir: "{app}\librt"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\a\pyi\pyi\dcs_py.dist\lupa\*"; DestDir: "{app}\lupa"; Flags: ignoreversion recursesubdirs createallsubdirs
