@@ -1,4 +1,4 @@
-## 3.11.60
+## 3.11.61
 * Fix debugger tab in dark mode - #551 (@emcek)
 * Switching color schem, switching images and logos in Application - #554 (@emcek)
 * Internal:
