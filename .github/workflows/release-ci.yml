@@ -37,11 +37,11 @@ jobs:
           pattern: |
             dcspy_*
 
-#      - name: "Compile setup executable file"
-#        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
-#        with:
-#          path: inno/dcspy.iss
-#          options: /O+
+      - name: "Compile setup executable file"
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: inno/dcspy.iss
+          options: /O+
 
       - name: "Release Notes"
         id: version
@@ -52,9 +52,9 @@ jobs:
           $last_change = ($changelog | Select-String -Pattern "^##\s" | Select-Object -Skip 1 -First 1).LineNumber - 3
           ($changelog | Select-Object -First $last_change -Skip 1) -join "`n" | Out-File .\RELEASENOTES.md
 
-#      - name: "Make digests file with hashes"
-#        run: |
-#          python scripts/gen_hashes.py ./dcspy_${{ steps.version.outputs.number }}_portable.exe ./inno/dcspy_${{ steps.version.outputs.number }}_setup.exe -o DIGESTS
+      - name: "Make digests file with hashes"
+        run: |
+          python scripts/gen_hashes.py ./dcspy_${{ steps.version.outputs.number }}_portable.exe ./inno/dcspy_${{ steps.version.outputs.number }}_setup.exe -o DIGESTS
 
       - name: "Create Release"
         uses: softprops/action-gh-release@v2
@@ -67,11 +67,11 @@ jobs:
           draft: false
           prerelease: false
           files: |
+            dcspy_${{ steps.version.outputs.number }}_portable.exe
+            inno/dcspy_${{ steps.version.outputs.number }}_setup.exe
             dcspy-${{ steps.version.outputs.number }}-py3-none-any.whl
             dcspy-${{ steps.version.outputs.number }}.tar.gz
-#            dcspy_${{ steps.version.outputs.number }}_portable.exe
-#            inno/dcspy_${{ steps.version.outputs.number }}_setup.exe
-#            DIGESTS
+            DIGESTS
 
   pypi:
     needs: [ test, nuitka, wheel ]
