@@ -1,4 +1,4 @@
-## 3.11.61
+## 3.4.0
 * Fix GKeys weren't working for the Apache - #626 (@emcek)
 * Remove support for Python 3.10 - #627 (@emcek)
 * Internal:
