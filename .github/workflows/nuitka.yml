@@ -10,7 +10,7 @@ jobs:
         nuitka_type: [ setup, portable ]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
@@ -29,7 +29,6 @@ jobs:
       - uses: Nuitka/Nuitka-Action@main
         if: ${{ endsWith( matrix.nuitka_type, 'setup') }}
         with:
-          nuitka-version: 4.0.7
           script-name: src/dcs_py.py
           mode: standalone
           windows-console-mode: disable
@@ -39,6 +38,7 @@ jobs:
           assume-yes-for-downloads: true
           output-file: dcspy
           output-dir: dist
+          include-windows-runtime-dlls: yes
           windows-icon-from-ico: src/dcspy/img/dcspy_light.ico
           company-name: Michal Plichta
           product-name: DCSpy
@@ -50,7 +50,6 @@ jobs:
       - uses: Nuitka/Nuitka-Action@main
         if: ${{ endsWith( matrix.nuitka_type, 'portable') }}
         with:
-          nuitka-version: 4.0.7
           script-name: src/dcs_py.py
           mode: onefile
           windows-console-mode: disable
@@ -58,6 +57,7 @@ jobs:
           enable-plugins: pyside6
           include-package-data: dcspy
           assume-yes-for-downloads: true
+          include-windows-runtime-dlls: yes
           onefile-windows-splash-screen-image: src/dcspy/img/splash.png
           output-file: dcspy_${{ steps.nuitka_data.outputs.git_ref_name }}_portable
           output-dir: dist

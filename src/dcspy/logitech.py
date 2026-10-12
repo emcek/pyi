@@ -30,7 +30,7 @@ class LogitechDevice:
         :param sock: multicast UDP socket
         :param model: device model
         """
-        dcsbios.StringBuffer(parser=parser, address=0x0, max_length=0x10, callback=partial(self.detecting_plane))
+        dcsbios.StringBuffer(parser=parser, address=0x0, max_length=0x18, callback=partial(self.detecting_plane))
         self.parser = parser
         self.socket = sock
         self.plane_name = ''
@@ -52,7 +52,7 @@ class LogitechDevice:
 
         :return: List of strings with data, row by row
         """
-        return self._text
+        return copy(self._text)
 
     @text.setter
     def text(self, message: list[tuple[str, Color]]) -> None:
@@ -64,9 +64,9 @@ class LogitechDevice:
         For G19 takes elements two (2) to eight (8).
         :param message: List of tuples with strings and color to display, row by row.
         """
-        self._text = message
+        self._text = copy(message)
         if self.model.lcd_info.type != LcdType.NONE:
-            self.lcd_sdk.update_text(copy(message))
+            self.lcd_sdk.update_text(copy(self._text))
 
     @property
     def messages(self) -> list[str]:
@@ -81,15 +81,15 @@ class LogitechDevice:
         """
         Display a message as an image at LCD.
 
-        For G13/G15/G510 takes the first four (4) or fewer elements of a list and display as four (4) rows.
-        For G19 takes the first eight (8) or fewer elements of the list and display as eight (8) rows.
+        For G13/G15/G510 takes the first four (4) or fewer elements of a list and a display as four (4) rows.
+        For G19 takes the first eight (8) or fewer elements of the list and a display as eight (8) rows.
         """
         if self.model.lcd_info.type != LcdType.NONE:
             self.lcd_sdk.update_display(self._prepare_image())
 
     def detecting_plane(self, value: str) -> None:
         """
-        Try to detect airplane base on value received from DCS-BIOS.
+        Try to detect an airplane base on value received from DCS-BIOS.
 
         :param value: Data from DCS-BIOS
         """
@@ -159,9 +159,7 @@ class LogitechDevice:
         :param mouse: Indicate if the Event comes from a mouse, one (1) is yes, zro (0) is no
 
         """
-        key = Gkey(key=key_idx, mode=mode)
-        if mouse:
-            key = MouseButton(button=key_idx)  # type: ignore[assignment]
+        key: AnyButton = MouseButton(button=key_idx) if mouse else Gkey(key=key_idx, mode=mode)
         LOG.debug(f'Button {key} is pressed, key down: {key_down}')
         self._send_request(button=key, key_down=key_down)
 
@@ -219,8 +217,8 @@ class LogitechDevice:
         """
         Prepare an image for a base of the LCD type.
 
-        For G13/G15/G510 takes the first four (4) or fewer elements of the list and display as four (4) rows.
-        For G19 takes the first eight (8) or fewer elements of the list and display as eight (8) rows.
+        For G13/G15/G510 takes the first four (4) or fewer elements of the list and a display as four (4) rows.
+        For G19 takes the first eight (8) or fewer elements of the list and a display as eight (8) rows.
         :return: Image instance ready to display on LCD
         """
         img = Image.new(mode=self.model.lcd_info.mode.value, color=self.model.lcd_info.background,

@@ -4,17 +4,16 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'dcspy'
-authors = [{name = 'Michal Plichta'}]
-maintainers = [{name = 'Michal Plichta'}]
+authors = [{ name = 'Michal Plichta' }]
+maintainers = [{ name = 'Michal Plichta' }]
 description = 'Software for integrating DCS Planes with Logitech keyboards (with and without LCD), mice and headphones.'
 license = 'MIT'
 license-files = ['LICENSE.md', 'src/dcspy/resources/license.txt']
-requires-python = '>=3.10, <3.15'
+requires-python = '>=3.11, <3.15'
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Environment :: Win32 (MS Windows)',
-    'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3.13',
@@ -38,17 +37,16 @@ keywords = [
 ]
 dynamic = ['version', 'readme']
 dependencies = [
-    'cffi==2.0.0',
-    'eval-type-backport==0.3.1 ; python_version < "3.10"',
-    'gitpython==3.1.46',
-    'lupa==2.6',
-    'packaging==26.0',
-    'pillow==12.1.1',
-    'pydantic==2.12.5',
-    'pyside6==6.11.0',
+    'cffi==2.1.1',
+    'gitpython==3.2.0',
+    'lupa==2.8',
+    'packaging==26.3',
+    'pillow==12.3.0',
+    'pydantic==2.14.1',
+    'pyside6==6.11.2',
     'pyyaml==6.0.3',
-    'requests==2.33.0',
-    'typing-extensions==4.15.0; python_version < "3.11"',
+    'requests==2.34.2',
+    'typing-extensions==4.16.0; python_version < "3.11"',
 ]
 
 [project.urls]
@@ -69,38 +67,45 @@ dcspy = 'dcspy.run:run'
 [project.optional-dependencies]
 test = [
     'interrogate==1.7.0',
-    'isort==8.0.1',
-    'lxml==6.0.2',
-    'mypy==1.19.1',
-    'pip-audit==2.10.0',
-    'pytest==9.0.2',
-    'pytest-codspeed==4.3.0',
+    'isort==9.0.2',
+    'lxml==6.1.3',
+    'mypy==2.4.0',
+    'pip-audit==2.10.1',
+    'pytest==9.1.1',
+    'pytest-codspeed==5.0.3',
     'pytest-cov==7.1.0',
     'pytest-qt==4.5.0 ; sys_platform == "win32"',
-    'pytest-randomly==4.0.1',
-    'ruff==0.15.8',
-    'types-cffi==2.0.0.20260316',
-    'types-lupa==2.6.0.20251026',
+    'pytest-randomly==5.0.0',
+    'pytest-xdist==3.6.1',
+    'ruff==0.17.0',
+    'types-cffi==2.1.0.20260827',
+    'types-defusedxml==0.7.0.20260504',
+    'types-lupa==2.8.0.20260827',
+    'types-markdown==3.10.2.20261007',
     'types-pillow==10.2.0.20240822',
-    'types-pyyaml==6.0.12.20250915',
-    'types-requests==2.33.0.20260327',
+    'types-pygments==2.21.0.20260819',
+    'types-pysocks==1.7.1.20260518',
+    'types-pytz==2026.5.0.20261006',
+    'types-pyyaml==6.0.12.20260906',
+    'types-requests==2.33.0.20261006',
+    'types-simplejson==4.2.0.20261006',
 ]
 docs = [
-    'black==26.3.1',
+    'black==26.10.1',
     'mkdocs==1.6.1',
     'mkdocs-gen-files==0.6.1',
     'mkdocs-literate-nav==0.6.3',
-    'mkdocs-material==9.7.6',
+    'mkdocs-material==9.7.7',
     'mkdocs-plantuml==0.1.1',
-    'mkdocs-section-index==0.3.11',
-    'mkdocstrings<1.0.0',
+    'mkdocs-section-index==0.3.12',
+    'mkdocstrings==1.0.7',
     'mkdocstrings-python>1.0.0,<2.0.0',
     'plantuml==0.3.0',
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = 'dcspy.models.__version__'}
-readme = {file = 'README.md', content-type = 'text/markdown'}
+version = { attr = 'dcspy.models.__version__' }
+readme = { file = 'README.md', content-type = 'text/markdown' }
 
 [tool.setuptools.packages.find]
 where = ['src/']
@@ -150,10 +155,22 @@ lint.select = [
     'C90',
     'D',
     'RUF',
+    "W",
+    "C4",
+    "FURB",
+    "ASYNC",
+    "A",
+    "LOG",
+    "PGH",
+    "PYI",
+    "RET",
+    "RSE",
+    "SLF",
+    "SLOT",
+    "TID",
 ]
 lint.ignore = [
     'D100',
-    'D101',
     'D104',
     'D105',
     'D203',
@@ -168,7 +185,7 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 5
+max-complexity = 6
 
 [tool.ty.src]
 include = ['src', 'tests']
@@ -208,8 +225,8 @@ PySide6-stubs = { git = 'https://github.com/python-qt-tools/PySide6-stubs.git' }
 dev = [
     'dcspy[docs,test]',
     'detect-test-pollution',
-    'nuitka',
-    'pre-commit',
+    'nuitka>=4.0.0',
+    'pre-commit>=4.5.0',
     'PySide6-stubs',
-    "ty>=0.0.25",
+    "ty>=0.0.29",
 ]

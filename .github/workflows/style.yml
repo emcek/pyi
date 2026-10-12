@@ -4,10 +4,10 @@ on: workflow_call
 
 jobs:
   interrogate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
@@ -17,10 +17,10 @@ jobs:
           interrogate -c pyproject.toml -vv
 
   ruff:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
@@ -30,10 +30,10 @@ jobs:
           ruff check src
 
   mypy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python

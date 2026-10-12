@@ -155,6 +155,24 @@ def test_check_keyboard_text(keyboard, protocol_parser, sock, request):
         upd_txt.assert_called_once_with(txt_list)
 
 
+@mark.parametrize('keyboard', ['keyboard_mono', 'keyboard_color'], ids=['Mono Keyboard', 'Color Keyboard'])
+def test_keyboard_text_returns_a_copy(keyboard, request):
+    from dcspy.logitech import LogitechDevice
+    from dcspy.sdk.lcd_sdk import LcdSdkManager
+
+    logi_keyboard: LogitechDevice = request.getfixturevalue(keyboard)
+
+    message = [('title', Color.white), ('line', Color.green)]
+    with patch.object(LcdSdkManager, 'update_text'):
+        logi_keyboard.text = message
+
+    message.append(('external mutation', Color.red))
+    returned_text = logi_keyboard.text
+    returned_text.append(('returned mutation', Color.red))
+
+    assert logi_keyboard.text == [('title', Color.white), ('line', Color.green)]
+
+
 @mark.benchmark
 @mark.parametrize('model', [
     'FA18Chornet', 'F16C50', 'F4E45MC', 'F15ESE', 'Ka50', 'Ka503', 'Mi8MT', 'Mi24P', 'AH64DBLKII', 'A10C', 'A10C2', 'F14A135GR', 'F14B', 'AV8BNA',
@@ -242,7 +260,7 @@ def test_unload_plane(keyboard, models, test_dcs_bios, test_config_yaml, request
             assert isinstance(keyboard.plane, A10C)
             for partial_obj in keyboard.parser.write_callbacks:
                 for callback in partial_obj.func.__self__.callbacks:
-                    args_list.extend([arg for arg in callback.args])
+                    args_list.extend([*callback.args])
             assert set(args_list) == set(keyboard.plane.bios_data.keys())
 
             keyboard.unload_old_plane()
@@ -254,5 +272,5 @@ def test_unload_plane(keyboard, models, test_dcs_bios, test_config_yaml, request
             assert isinstance(keyboard.plane, Ka50)
             for partial_obj in keyboard.parser.write_callbacks:
                 for callback in partial_obj.func.__self__.callbacks:
-                    args_list.extend([arg for arg in callback.args])
+                    args_list.extend([*callback.args])
             assert set(args_list) == set(keyboard.plane.bios_data.keys())

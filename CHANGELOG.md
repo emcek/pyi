@@ -1,4 +1,17 @@
 ## 3.11.61
+* Fix GKeys weren't working for the Apache - #626 (@emcek)
+* Remove support for Python 3.10 - #627 (@emcek)
+* Internal:
+  * Update `lupa` to 2.8 (CVE-2026-34444) - #563 (@emcek)
+  * Update all others dependencies to latest versions
+  * correctness cleanup, and stricter validation, without major new feature additions - #617 (@emcek)
+  * Update checking DCS-BIOS version
+  * Display text on LCD is more reliable
+  * Rework configuration migration
+  * Improve RequestModel and ControlKeyData models
+  * Load default config function is more robust and reliable
+
+## 3.8.1
 * Fix debugger tab in dark mode - #551 (@emcek)
 * Switching color schem, switching images and logos in Application - #554 (@emcek)
 * Internal:
@@ -342,7 +355,7 @@
 * **F-16C Viper** DED cleanup extra characters
 
 ## 1.6.1
-* Update **F-16C Viper** for latest DSC-BIOS (0.7.45)
+* Update **F-16C Viper** for latest DCS-BIOS (0.7.45)
 * Fresh installation of DCS-BIOS is painless
 * Drop support for Python 3.6
 

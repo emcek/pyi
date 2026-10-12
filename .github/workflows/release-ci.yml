@@ -4,6 +4,9 @@ on:
   push:
     tags: [ "v*" ]
 
+permissions:
+  contents: write
+
 jobs:
   style:
     uses: ./.github/workflows/style.yml
@@ -25,7 +28,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Set up Python environment"
         uses: ./.github/actions/setup-python
@@ -38,7 +41,7 @@ jobs:
             dcspy_*
 
       - name: "Compile setup executable file"
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: inno/dcspy.iss
           options: /O+
@@ -57,7 +60,7 @@ jobs:
           python scripts/gen_hashes.py ./dcspy_${{ steps.version.outputs.number }}_portable.exe ./inno/dcspy_${{ steps.version.outputs.number }}_setup.exe -o DIGESTS
 
       - name: "Create Release"
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.PYI_REL_TOKEN }}
         with:
@@ -75,7 +78,7 @@ jobs:
 
   pypi:
     needs: [ test, nuitka, wheel ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment: pypi
     permissions:
       id-token: write

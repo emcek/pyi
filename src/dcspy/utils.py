@@ -25,17 +25,26 @@ from packaging import version
 from PIL import ImageColor
 from requests import get
 
-from dcspy.models import (CONFIG_YAML, CTRL_LIST_SEPARATOR, DEFAULT_YAML_FILE, AnyButton, BiosValue, Color, ControlDepiction, ControlKeyData, DcsBiosPlaneData,
-                          DcspyConfigYaml, Gkey, LcdButton, LcdMode, MouseButton, Release, RequestModel, __version__)
+from dcspy.models import (CONFIG_YAML, CTRL_LIST_SEPARATOR, DEFAULT_YAML_FILE, AnyButton, BiosValue, ButtonTypes, Color, ControlDepiction, ControlKeyData,
+                          DcsBiosPlaneData, DcspyConfigYaml, Gkey, LcdButton, LcdMode, MouseButton, Release, RequestModel, __version__)
 
 with suppress(ImportError):
     import git
 
 LOG = getLogger(__name__)
 
-with open(DEFAULT_YAML_FILE) as c_file:
-    defaults_cfg: DcspyConfigYaml = yaml.load(c_file, Loader=yaml.SafeLoader)
-    defaults_cfg['dcsbios'] = f'C:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS\\Scripts\\DCS-BIOS'
+
+def _load_default_yaml() -> DcspyConfigYaml:
+    """Load the packaged default configuration with the current user-specific DCS BIOS path."""
+    with open(DEFAULT_YAML_FILE, encoding='utf-8') as c_file:
+        default_config = yaml.load(c_file, Loader=yaml.SafeLoader) or {}
+    if not isinstance(default_config, dict):
+        default_config = {}
+    default_config['dcsbios'] = f'C:\\Users\\{environ.get("USERNAME", "UNKNOWN")}\\Saved Games\\DCS\\Scripts\\DCS-BIOS'
+    return default_config
+
+
+defaults_cfg: DcspyConfigYaml = _load_default_yaml()
 
 
 def get_default_yaml(local_appdata: bool = False) -> Path:
@@ -77,7 +86,7 @@ def load_yaml(full_path: Path) -> DcspyConfigYaml:
 
 def save_yaml(data: DcspyConfigYaml, full_path: Path) -> None:
     """
-    Save disc as YAML file.
+    Save a dict as an YAML file.
 
     :param data: Dictionary with data
     :param full_path: Full a path to YAML file
@@ -100,15 +109,14 @@ def check_ver_at_github(repo: str) -> Release:
             rel = Release(**response.json())
             LOG.debug(f'Latest GitHub release: {rel}')
             return rel
-        else:
-            raise ValueError(f'Try again later. Status={response.status_code}')
+        raise ValueError(f'Try again later. Status={response.status_code}')
     except Exception as exc:
         raise ValueError(f'Unable to check {package} version online: {exc}')
 
 
 def get_version_string(repo: str, current_ver: str | version.Version, check: bool = True) -> str:
     """
-    Generate formatted string with version number.
+    Generate a formatted string with a version number.
 
     :param repo: Format '<organization or user>/<package>'.
     :param current_ver: String or Version object.
@@ -183,26 +191,22 @@ def check_dcs_ver(dcs_path: Path) -> str:
 
 def check_bios_ver(bios_path: Path | str) -> version.Version:
     """
-    Check the DSC-BIOS release version.
+    Check the DCS-BIOS release version.
 
     :param bios_path: Path to DCS-BIOS directory in the SavedGames folder
     :return: Version object
     """
     bios_ver = version.parse('0.0.0')
-    new_location = Path(bios_path) / 'lib' / 'modules' / 'common_modules' / 'CommonData.lua'
-    old_location = Path(bios_path) / 'lib' / 'CommonData.lua'
+    location = Path(bios_path) / 'BIOSConfig.lua'
 
-    if new_location.is_file():
-        with open(file=new_location, encoding='utf-8') as cd_lua:
-            cd_lua_data = cd_lua.read()
-    elif old_location.is_file():
-        with open(file=old_location, encoding='utf-8') as cd_lua:
-            cd_lua_data = cd_lua.read()
+    if location.is_file():
+        with open(file=location, encoding='utf-8') as bios_config:
+            bios_cfg_data = bios_config.read()
     else:
-        cd_lua_data = ''
-        LOG.debug(f'No `CommonData.lua` while checking DCS-BIOS version at {new_location.parent} or {old_location.parent}')
+        bios_cfg_data = ''
+        LOG.debug(f'Can not check DCS-BIOS version at {location.parent}')
 
-    if bios_re := search(r'function getVersion\(\)\s*return\s*\"([\d.]*)\"', cd_lua_data):
+    if bios_re := search(r'version\s=\s\"([\d.]*)\",', bios_cfg_data):
         bios_ver = version.parse(bios_re.group(1))
     return bios_ver
 
@@ -265,8 +269,7 @@ def check_github_repo(git_ref: str, repo_dir: Path, repo: str, update: bool = Tr
         f_info = bios_repo.remotes[0].pull(progress=progress)
         LOG.debug(f'Pulled: {f_info[0].name} as: {f_info[0].commit}')
     git_ref =  git_ref.split('/')[1] if 'origin/' in git_ref else git_ref
-    sha = _get_sha_hex_str(bios_repo, git_ref)
-    return sha
+    return _get_sha_hex_str(bios_repo, git_ref)
 
 
 def _checkout_repo(git_ref: str, repo_dir: Path, repo: str, progress: git.RemoteProgress | None = None) -> git.Repo:
@@ -316,7 +319,7 @@ def is_git_sha(repo: git.Repo, ref: str) -> bool:
 
 def check_dcs_bios_entry(lua_dst_data: str, lua_dst_path: Path, temp_dir: Path) -> str:
     """
-    Check DCS-BIOS entry in Export.lua file.
+    Check a DCS-BIOS entry in the Export.lua file.
 
     :param lua_dst_data: Content of Export.lua
     :param lua_dst_path: Export.lua path
@@ -587,8 +590,7 @@ def get_config_yaml_location() -> Path:
     :rtype: Path object to directory
     """
     localappdata = environ.get('LOCALAPPDATA', None)
-    user_appdata = Path(localappdata) / 'dcspy' if localappdata else DEFAULT_YAML_FILE.parent
-    return user_appdata
+    return Path(localappdata) / 'dcspy' if localappdata else DEFAULT_YAML_FILE.parent
 
 
 def run_command(cmd: Sequence[str], cwd: Path | None = None) -> int:
@@ -622,7 +624,7 @@ def load_json(full_path: Path) -> dict[Any, Any]:
 @lru_cache
 def get_full_bios_for_plane(plane: str, bios_dir: Path) -> DcsBiosPlaneData:
     """
-    Collect full BIOS for plane with name.
+    Collect full BIOS for a plane with a name.
 
     :param plane: BIOS plane name
     :param bios_dir: path to DCS-BIOS directory
@@ -647,8 +649,7 @@ def get_inputs_for_plane(plane: str, bios_dir: Path) -> dict[str, dict[str, Cont
     :return: dict.
     """
     plane_bios = get_full_bios_for_plane(plane=plane, bios_dir=bios_dir)
-    inputs = plane_bios.get_inputs()
-    return inputs
+    return plane_bios.get_inputs()
 
 
 def get_list_of_ctrls(inputs: dict[str, dict[str, ControlKeyData]]) -> list[str]:
@@ -681,7 +682,7 @@ def get_planes_list(bios_dir: Path) -> list[str]:
 @lru_cache
 def get_plane_aliases(bios_dir: Path, plane: str | None = None) -> dict[str, list[str]]:
     """
-    Get a list of all YAML files for plane with name.
+    Get a list of all YAML files for a plane with a name.
 
     :param plane: BIOS plane name
     :param bios_dir: path to DCS-BIOS
@@ -734,7 +735,7 @@ def replace_symbols(value: str, symbol_replacement: Sequence[Sequence[str]]) -> 
     return value
 
 
-def _try_key_instance(klass: type[Gkey] | type[LcdButton] | type[MouseButton], method: str, key_str: str) -> AnyButton | None:
+def _try_key_instance(klass: ButtonTypes, method: str, key_str: str) -> AnyButton | None:
     """
     Attempt to invoke a method on a class with a given key string.
 
@@ -767,7 +768,8 @@ def get_key_instance(key_str: str) -> AnyButton:
     :return: An instance of a class (AnyButton) that corresponds to the provided key string, if successfully resolved.
     :raises AttributeError: If the provided key string cannot be resolved into a valid key instance using the predefined classes and methods.
     """
-    for klass, method in [(Gkey, 'from_yaml'), (MouseButton, 'from_yaml'), (LcdButton, key_str)]:
+    key_types_and_methods: list[tuple[ButtonTypes, str]] = [(Gkey, 'from_yaml'), (MouseButton, 'from_yaml'), (LcdButton, key_str)]
+    for klass, method in key_types_and_methods:
         key_instance = _try_key_instance(klass=klass, method=method, key_str=key_str)
         if key_instance:
             return key_instance
@@ -798,7 +800,7 @@ class KeyRequest:
 
     def get_request(self, button: AnyButton) -> RequestModel:
         """
-        Get abstract representation for request ti be sent for requested button.
+        Get abstract representation for a request to be sent for a requested button.
 
         :param button: LcdButton, Gkey or MouseButton
         :return: RequestModel object
@@ -861,8 +863,7 @@ def rgba(c: Color, /, mode: LcdMode | int = LcdMode.TRUE_COLOR) -> tuple[int, ..
     """
     if isinstance(mode, int):
         return *rgb(c), mode
-    else:
-        return ImageColor.getcolor(color=c.name, mode=mode.value)
+    return ImageColor.getcolor(color=c.name, mode=mode.value)
 
 
 def rgb(c: Color, /) -> tuple[int, int, int]:
@@ -899,6 +900,7 @@ def detect_system_color_mode() -> str:
     except (OSError, IndexError):
         return 'Light'
     return {0: 'Dark', 1: 'Light'}[subkey]
+
 
 def verify_hashes(file_path: Path, digest_file: Path) -> tuple[bool, dict[str, bool]]:
     """
