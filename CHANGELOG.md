@@ -1,4 +1,4 @@
-## 3.4.1
+## 3.4.2
 * Fix GKeys weren't working for the Apache - #626 (@emcek)
 * Remove support for Python 3.10 - #627 (@emcek)
 * Internal:
@@ -104,12 +104,12 @@
 ## 3.4.2
 * Fix an update process when downloaded new release cannot be saved in filesystem
 
-## 3.4.1
+## 3.4.2
 * Fix issue when selecting any of a new device is preventing DCSpy from starting
 * Internal:
   * Add mouse handling to G-Key SDK
 
-## 3.4.1
+## 3.4.2
 * Support for new devices (with G-Key and mouses with extra buttons):
   * Keyboards without LCD: G910, G710, G110, G103, G105, G11
   * Headphones: G35, G633, G930, G933
