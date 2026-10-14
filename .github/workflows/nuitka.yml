@@ -51,7 +51,7 @@ jobs:
       - uses: Nuitka/Nuitka-Action@main
         if: ${{ endsWith( matrix.nuitka_type, 'portable') }}
         with:
-          nuitka-version: 4.3
+          nuitka-version: 4.3.1
           script-name: src/dcs_py.py
           mode: onefile
           windows-console-mode: disable
